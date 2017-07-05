@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aspekt
+namespace Aspekt.Target
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    class UseThisAttribute : System.Attribute
+    class Program
     {
+        static void Main(string[] args)
+        {
+        }
     }
 }

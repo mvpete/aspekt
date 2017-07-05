@@ -194,6 +194,8 @@ namespace Aspekt.Bootstrap
                  // Otherwise, we will not.
 
                  // What about static??
+                 //
+
 
                  var attrVar = CreateAttribute(ih, methArgs, meth, attr);
                  InsertOnEntryCalls(ih, attrVar, methArgs);
@@ -232,7 +234,14 @@ namespace Aspekt.Bootstrap
                  meth.Body.OptimizeMacros();
              }, (attr) =>
              {
-                 return attr.AttributeType.Resolve().BaseType.FullName == (typeof(Aspect).FullName);
+                 try
+                 {
+                     return attr.AttributeType.Resolve().BaseType.FullName == (typeof(Aspect).FullName);
+                 }
+                 catch (Exception)
+                 {
+                     return false; // if we can't resolve, then we just skip it.
+                 }
              });
 
 
