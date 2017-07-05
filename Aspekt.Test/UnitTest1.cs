@@ -16,7 +16,13 @@ namespace Aspekt.Test
         [TestAspect("CallMeMaybe")]
         void CallMeMaybe(String value)
         {
-            
+
+        }
+
+        [TestAspect("CallMeException")]
+        void CallMeException()
+        {
+            throw new Exception("Blah");
         }
 
         [TestMethod]
@@ -43,6 +49,30 @@ namespace Aspekt.Test
             CallMeMaybe("SomeValue");
 
             Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void TestMethodException()
+        {
+            bool called = false;
+            TestAspect.Reset();
+            TestAspect.OnExceptionAction = (args, e) =>
+            {
+                called = true;
+                Assert.AreEqual(e.Message, "Blah");
+            };
+            try
+            {
+                CallMeException();
+            }
+            catch (Exception e) // because the exception will rethrow after
+            {
+                Assert.AreEqual(e.Message, "Blah");
+                Assert.IsTrue(called);
+                return; //
+            }
+
+            Assert.Fail();
         }
     }
 }

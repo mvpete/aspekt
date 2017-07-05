@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Aspekt
 {
     [AttributeUsage(AttributeTargets.Property)]
-    class UseThisAttribute : System.Attribute
+    public class UseThisAttribute : System.Attribute
     {
     }
 }

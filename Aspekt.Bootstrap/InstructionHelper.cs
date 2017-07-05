@@ -64,7 +64,17 @@ namespace Aspekt.Bootstrap
         public InstructionHelper Call<T>(String callName, params Type[] args)
         {
             var mth = typeof(T).GetMethod(callName, args);
-            return Next(OpCodes.Call, module_.Import(mth));
+            return Call(module_.Import(mth));
+        }
+
+        public InstructionHelper Call(MethodDefinition md)
+        {
+            return Call(module_.Import(md));
+        }
+
+        public InstructionHelper Call(MethodReference mr)
+        {
+            return Next(OpCodes.Call, mr);
         }
 
         public InstructionHelper CallVirt<T>(String callName, params Type[] args)

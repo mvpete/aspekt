@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aspekt\Aspekt.csproj">
+      <Project>{fd93096a-2a56-4db9-889c-2e60419d8b85}</Project>
+      <Name>Aspekt</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

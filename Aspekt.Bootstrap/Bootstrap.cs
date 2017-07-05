@@ -1,6 +1,7 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
+using Mono.Collections.Generic;
 using System;
 using System.Linq;
 
@@ -11,15 +12,35 @@ namespace Aspekt.Bootstrap
     {
 
         // EnumerateMethods
-        private static void EnumerateMethodAttributes(ModuleDefinition module, Action<MethodDefinition, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
+        private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodDefinition, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
         {
             foreach (var t in module.Types)
                 foreach (var meth in t.Methods)
                     foreach (var attr in meth.CustomAttributes)
                     {
                         if(pred!=null && pred(attr))
-                            enumFn(meth, attr);
+                            enumFn(t, meth, attr);
                     }
+        }
+
+        private static bool HasCustomAttributeType(Collection<CustomAttribute> attributes, Type t)
+        {
+            foreach (CustomAttribute attr in attributes)
+            {
+                if (attr.AttributeType.FullName == t.FullName)
+                    return true;
+            }
+            return false;
+        }
+
+        private static PropertyDefinition GetAttributeProperty(CustomAttribute attr, Predicate<PropertyDefinition> pred)
+        {
+            foreach (var p in attr.AttributeType.Resolve().Properties)
+            {
+                if (pred(p))
+                    return p;
+            }
+            return null;
         }
 
 
@@ -179,7 +200,7 @@ namespace Aspekt.Bootstrap
 
             // I know that right now, if we have multiple attributes, we're going to generate multiple method arguments.
             // I know how to deal with this.
-            EnumerateMethodAttributes(module, (meth, attr) =>
+            EnumerateMethodAttributes(module, (classType, meth, attr) =>
              {
                  meth.Body.SimplifyMacros();
                  var il = meth.Body.GetILProcessor();
@@ -189,15 +210,27 @@ namespace Aspekt.Bootstrap
                  var ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
                  var args = CaptureMethodArguments(ih, meth);
                  var methArgs = GenerateMethodArgs(ih, args, meth);
+
                  
                  // if the attribute overrides the method, we will put the call in.
                  // Otherwise, we will not.
+                 var attrVar = CreateAttribute(ih, methArgs, meth, attr);
 
                  // What about static??
                  //
+                 var prop = GetAttributeProperty(attr, (p) => { return HasCustomAttributeType(p.CustomAttributes, typeof(UseThisAttribute)); });
+                 if (prop != null)
+                 {
+                     // set the thing
+                     // if it has a setter and it's a convertible type?? I don't know how to do that.
+                     if (prop.SetMethod != null && prop.PropertyType.FullName == classType.FullName)
+                     {
+                         ih.Next(OpCodes.Ldloc, attrVar);
+                         ih.Next(OpCodes.Ldarg_0);
+                         ih.Call(prop.SetMethod);
+                     }
+                 }
 
-
-                 var attrVar = CreateAttribute(ih, methArgs, meth, attr);
                  InsertOnEntryCalls(ih, attrVar, methArgs);
 
                  // walk the instructions looking for returns, based on what teh function is returning 
@@ -227,7 +260,6 @@ namespace Aspekt.Bootstrap
                      HandlerEnd = c.LastInstruction,
                      CatchType = module.Import(typeof(Exception)),
                  };
-
 
                  meth.Body.ExceptionHandlers.Add(handler);
 
