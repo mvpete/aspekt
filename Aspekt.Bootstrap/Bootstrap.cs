@@ -211,8 +211,9 @@ namespace Aspekt.Bootstrap
                  var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
                  c.Next(il.Create(OpCodes.Stloc_S, exception))
                      .Next(OpCodes.Ldloc, attrVar)
+                     .Next(OpCodes.Ldloc, methArgs)
                      .Next(OpCodes.Ldloc_S, exception)
-                     .CallVirt<Aspect>("OnException", typeof(Exception))
+                     .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
                      .Next(OpCodes.Rethrow)
                      .Next(OpCodes.Ret);
                  

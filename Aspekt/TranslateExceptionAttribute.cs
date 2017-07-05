@@ -31,14 +31,6 @@ namespace Aspekt
             exceptionFrom_ = exceptionFrom;
         }
 
-        public TranslateExceptionAttribute(String s)
-        {
-        }
-
-        public TranslateExceptionAttribute(int i)
-        {
-        }
-
         public override void OnEntry(MethodArguments arg)
         {
         }
@@ -48,7 +40,7 @@ namespace Aspekt
         }
 
         // what to do here
-        public override void OnException(Exception e)
+        public override void OnException(MethodArguments arg, Exception e)
         {
             //Console.WriteLine($"OnException - {e.Message}");
             if (e.GetType() == exceptionFrom_)
