@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Aspekt
 {
-    public class Class1
+    class UseThisAttribute
     {
     }
 }
