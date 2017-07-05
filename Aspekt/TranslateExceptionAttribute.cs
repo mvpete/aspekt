@@ -72,22 +72,4 @@ namespace Aspekt
 
     }
 
-    [AttributeUsage(AttributeTargets.Method)]
-    public class DummyAttribute : System.Attribute
-    {
-
-        public enum Choice {  Yes, No };
-        public DummyAttribute(object s, UInt16 i, float f, double d,char c, Choice ch, bool b)
-        {
-
-        }
-
-        public DummyAttribute()
-        {
-        }
-
-
-        public String Text { get; set; }
-        public Choice Pick { get; set; }
-    }
 }
