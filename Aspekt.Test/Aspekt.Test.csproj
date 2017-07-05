@@ -72,6 +72,6 @@
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.1.1.11\build\net45\MSTest.TestAdapter.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\workspace\Aspekt\Aspekt.Bootstrap.Host\bin\Debug\Aspekt.Bootstrap.Host.exe" "C:\workspace\Aspekt\Aspekt.Test\bin\Debug\Aspekt.Test.dll"</PostBuildEvent>
+    <PostBuildEvent>"$(SolutionDir)Aspekt.Bootstrap.Host\bin\Debug\Aspekt.Bootstrap.Host.exe" "$(SolutionDir)Aspekt.Test\bin\Debug\Aspekt.Test.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
