@@ -62,14 +62,14 @@ Aspekt re-writes methods in the following manner.
 
 ### TODO
 
-0) Clean up -- I just threw this together this week. I need to clean up the host program and clean up some of the code. Also, manage multiple Aspects, etc...
+i) Clean up -- I just threw this together this week. I need to clean up the host program and clean up some of the code. Also, manage multiple Aspects, etc...
 
-0.5) Tests -- While I clean up, I should implement some tests... You know TDD... :) 
+ii) Tests -- While I clean up, I should implement some tests... You know TDD... :) 
 
-1) Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions.
+iii) Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions.
 
-2) PDBs -- I'm not sure about this. I'm sure I missed something with Cecil for the recompile.
+iv) PDBs -- I'm not sure about this. I'm sure I missed something with Cecil for the recompile.
 
-3) Class attributes -- Implement class attribute processing. If an attribute exists on a class, then implement each method in the class with the Aspect.
+v) Class attributes -- Implement class attribute processing. If an attribute exists on a class, then implement each method in the class with the Aspect.
 
-4) UseThis Property attribute -- UseThis as an attribute on the Aspect, allow for assignment of "this" to a property on the Aspect. This allows for inspection of the targeted class.
+vi) UseThis Property attribute -- UseThis as an attribute on the Aspect, allow for assignment of "this" to a property on the Aspect. This allows for inspection of the targeted class.
