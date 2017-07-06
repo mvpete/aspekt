@@ -223,7 +223,7 @@ namespace Aspekt.Bootstrap
                  {
                      // set the thing
                      // if it has a setter and it's a convertible type?? I don't know how to do that.
-                     if (prop.SetMethod != null && prop.PropertyType.FullName == classType.FullName)
+                     if (prop.SetMethod != null && (prop.PropertyType.FullName == classType.FullName || prop.PropertyType.FullName == typeof(object).FullName))
                      {
                          ih.Next(OpCodes.Ldloc, attrVar);
                          ih.Next(OpCodes.Ldarg_0);

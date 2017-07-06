@@ -74,5 +74,24 @@ namespace Aspekt.Test
 
             Assert.Fail();
         }
+
+        [TestMethod]
+        public void TestUseThisAttribute()
+        {
+            TestAspect.Reset();
+            DummyClass dc = new DummyClass();
+            bool called = false;
+            TestAspect.InspectInstance = (inst) =>
+            {
+                called = true;
+                Assert.AreSame(inst, dc, "object reference mismatch");
+            };
+            dc.Call();
+            Assert.IsTrue(called);
+
+
+
+            // Assert that dc == Property
+        }
     }
 }

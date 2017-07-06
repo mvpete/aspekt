@@ -20,6 +20,7 @@ namespace Aspekt.Test
         {
             ++Entries;
             OnEntryAction?.Invoke(args);
+            InspectInstance?.Invoke(Instance);
             Assert.AreEqual(MethodName, args.MethodName, "OnEntry - MethodNames don't match");
         }
 
@@ -27,6 +28,7 @@ namespace Aspekt.Test
         {
             ++Exceptions;
             OnExceptionAction?.Invoke(args, e);
+            InspectInstance?.Invoke(Instance);
             Assert.AreEqual(MethodName, args.MethodName, "OnException - MethodNames don't match");
         }
 
@@ -34,6 +36,7 @@ namespace Aspekt.Test
         {
             ++Exits;
             OnExitAction?.Invoke(args);
+            InspectInstance?.Invoke(Instance);
             Assert.AreEqual(MethodName, args.MethodName, "OnExit - MethodNames don't match");
         }
 
@@ -46,15 +49,22 @@ namespace Aspekt.Test
             OnEntryAction = null;
             OnExitAction = null;
             OnExceptionAction = null;
+            InspectInstance = null;
 
         }
+
+        [UseThis]
+        public object Instance { get; set; }
 
         public static Action<MethodArguments> OnEntryAction;
         public static Action<MethodArguments> OnExitAction;
         public static Action<MethodArguments, Exception> OnExceptionAction;
+        public static Action<Object> InspectInstance;
 
         public static int Entries { get; set; }
         public static int Exits { get; set; }
         public static int Exceptions { get; set; }
+
+
     }
 }
