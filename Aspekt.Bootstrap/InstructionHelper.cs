@@ -1,7 +1,6 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
-using System.Linq;
 
 namespace Aspekt.Bootstrap
 {

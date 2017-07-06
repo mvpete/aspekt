@@ -1,8 +1,8 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using Mono.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Aspekt.Bootstrap
@@ -10,7 +10,6 @@ namespace Aspekt.Bootstrap
 
     public static class Bootstrap
     {
-
         // EnumerateMethods
         private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodDefinition, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
         {
@@ -23,24 +22,16 @@ namespace Aspekt.Bootstrap
                     }
         }
 
-        private static bool HasCustomAttributeType(Collection<CustomAttribute> attributes, Type t)
+        // Enhancement here, use IEnumerable since it's a more generic collection type. (Collection<T> impllements IEnumerable)
+        private static bool HasCustomAttributeType(IEnumerable<CustomAttribute> attributes, Type t)
         {
-            foreach (CustomAttribute attr in attributes)
-            {
-                if (attr.AttributeType.FullName == t.FullName)
-                    return true;
-            }
-            return false;
+            return attributes.Any(attr => attr.AttributeType.FullName == t.FullName);
         }
 
         private static PropertyDefinition GetAttributeProperty(CustomAttribute attr, Predicate<PropertyDefinition> pred)
         {
-            foreach (var p in attr.AttributeType.Resolve().Properties)
-            {
-                if (pred(p))
-                    return p;
-            }
-            return null;
+            // FirstOrDefault extension method will return null if no item matches predicate.
+            return attr.AttributeType.Resolve().Properties.FirstOrDefault(p => pred(p));
         }
 
 
@@ -123,7 +114,7 @@ namespace Aspekt.Bootstrap
                     return;
                 case MetadataType.Class:
                     // If it's a class type AND System.Type then I need to load the type. Otherwise not sure.
-                    if (arg.Type.FullName == typeof(System.Type).FullName)
+                    if (arg.Type.FullName == typeof(Type).FullName)
                     {
                         ic.Next(OpCodes.Ldtoken, (TypeReference)arg.Value);
                         ic.Call<Type>("GetTypeFromHandle", typeof(RuntimeTypeHandle));
@@ -131,23 +122,7 @@ namespace Aspekt.Bootstrap
                     }
                     else
                         throw new Exception("unknown type");
-
-                case MetadataType.Single:
-                case MetadataType.Pointer:
-                case MetadataType.ByReference:
-                case MetadataType.Var:
-                case MetadataType.Array:
-                case MetadataType.GenericInstance:
-                case MetadataType.TypedByReference:
-                case MetadataType.IntPtr:
-                case MetadataType.UIntPtr:
-                case MetadataType.FunctionPointer:
-                case MetadataType.Object:
-                case MetadataType.MVar:
-                case MetadataType.RequiredModifier:
-                case MetadataType.OptionalModifier:
-                case MetadataType.Sentinel:
-                case MetadataType.Pinned:
+                // Charly -- Removed some redundant enum types, since default will catch the ones not stated in the switch statement. 
                 default:
                     throw new Exception("unknown type");
             }
@@ -183,6 +158,8 @@ namespace Aspekt.Bootstrap
 
         private static VariableDefinition CreateAttribute(InstructionHelper ic, VariableDefinition methodArgs, MethodDefinition md, CustomAttribute attr)
         {
+            // charly some arguments on this method are not used. (methodArgs and md)
+            
             var attrVar = ic.NewVariable(attr.AttributeType);
             // put the arguments on the stack. What about calling convention???
             foreach(var arg in attr.ConstructorArguments)
@@ -218,17 +195,17 @@ namespace Aspekt.Bootstrap
 
                  // What about static??
                  //
-                 var prop = GetAttributeProperty(attr, (p) => { return HasCustomAttributeType(p.CustomAttributes, typeof(UseThisAttribute)); });
-                 if (prop != null)
+                 var prop = GetAttributeProperty(attr, p => HasCustomAttributeType(p.CustomAttributes, typeof(UseThisAttribute)));
+
+
+                 // set the thing
+                 // if it has a setter and it's a convertible type?? I don't know how to do that.
+                 // Charly -- this used to be a if (prop != null) here... same can be achieved with the null-coalescing the ? operator. 
+                 if (prop?.SetMethod != null && (prop.PropertyType.FullName == classType.FullName || prop.PropertyType.FullName == typeof(object).FullName))
                  {
-                     // set the thing
-                     // if it has a setter and it's a convertible type?? I don't know how to do that.
-                     if (prop.SetMethod != null && (prop.PropertyType.FullName == classType.FullName || prop.PropertyType.FullName == typeof(object).FullName))
-                     {
-                         ih.Next(OpCodes.Ldloc, attrVar);
-                         ih.Next(OpCodes.Ldarg_0);
-                         ih.Call(prop.SetMethod);
-                     }
+                     ih.Next(OpCodes.Ldloc, attrVar);
+                     ih.Next(OpCodes.Ldarg_0);
+                     ih.Call(prop.SetMethod);
                  }
 
                  InsertOnEntryCalls(ih, attrVar, methArgs);
@@ -239,6 +216,8 @@ namespace Aspekt.Bootstrap
                  PlaceOnExitCalls(il,module,meth,attrVar,methArgs);
 
                  var ret = il.Create(OpCodes.Ret);
+
+                 // charly this var is never used can it be removed?
                  var leave = il.Create(OpCodes.Leave, ret);
                  
                  var exception = new VariableDefinition("ex", meth.Module.Import(typeof(Exception)));
