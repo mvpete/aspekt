@@ -13,22 +13,19 @@ namespace Aspekt
     [AttributeUsage(AttributeTargets.Method)]
     public class TranslateExceptionAttribute : Aspect
     {
-
-        Type exceptionTo_;
-        Type exceptionFrom_;
         String message_;
 
         public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo, String val)
         {
-            exceptionFrom_ = exceptionFrom;
-            exceptionTo_ = exceptionTo;
+            ExceptionFrom = exceptionFrom;
+            ExceptionTo = exceptionTo;
             message_ = val;
         }
 
         public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo)
         {
-            exceptionTo_   = exceptionTo;
-            exceptionFrom_ = exceptionFrom;
+            ExceptionTo   = exceptionTo;
+            ExceptionFrom = exceptionFrom;
         }
 
         public override void OnEntry(MethodArguments arg)
@@ -43,23 +40,23 @@ namespace Aspekt
         public override void OnException(MethodArguments arg, Exception e)
         {
             //Console.WriteLine($"OnException - {e.Message}");
-            if (e.GetType() == exceptionFrom_)
+            if (e.GetType() == ExceptionFrom)
             {
                 // then we rethrow
-                var ctor = exceptionTo_.GetConstructor(new Type[] { exceptionFrom_ });
+                var ctor = ExceptionTo.GetConstructor(new Type[] { ExceptionFrom });
                 if (ctor == null)
                 {
                     throw e;
                 }
-                var e2 = Convert.ChangeType(ctor.Invoke(new object[] { Convert.ChangeType(e, exceptionFrom_) }), exceptionTo_);
+                var e2 = Convert.ChangeType(ctor.Invoke(new object[] { Convert.ChangeType(e, ExceptionFrom) }), ExceptionTo);
                 throw (Exception)e2;
             }
             else
                 throw e;
         }
 
-        public Type ExceptionTo {  get { return exceptionTo_;  } }
-        public Type ExceptionFrom { get { return exceptionFrom_;  } }
+        public Type ExceptionTo { get; }
+        public Type ExceptionFrom { get; }
 
 
     }
