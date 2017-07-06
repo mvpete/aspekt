@@ -22,10 +22,8 @@ namespace Aspekt
             message_ = val;
         }
 
-        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo)
+        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo) : this(exceptionFrom, exceptionTo, null)
         {
-            ExceptionTo   = exceptionTo;
-            ExceptionFrom = exceptionFrom;
         }
 
         public override void OnEntry(MethodArguments arg)
