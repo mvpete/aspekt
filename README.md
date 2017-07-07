@@ -7,7 +7,7 @@ Aspekt is a small AOP foundation library written in C#. Aspect Oriented Programm
 
 ### Usage
 
-The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just derive from Aspekt.Aspect and implement the OnEntry, OnExit, OnException methods. Currently, Aspekt only supports method processing but I'm hoping to implement class and property aspects.
+The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just derive from Aspekt.Aspect and implement the OnEntry, OnExit, OnException methods. Aspekt will only call the calls implemented on the class i.e. OnEntry, OnExit, OnException -- the issue here now becomes inheritence in Aspects...
 
 Also, no PDBs are generated.
 
@@ -66,7 +66,7 @@ Aspekt re-writes methods in the following manner.
 
 0.5. Tests -- While I clean up, I should implement some tests... You know TDD... :) /DONE
 
-1. Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions.
+1. Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions. /DONE
 
 2. PDBs -- I'm not sure about this. I'm sure I missed something with Cecil for the recompile.
 

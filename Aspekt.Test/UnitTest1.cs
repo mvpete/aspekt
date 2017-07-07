@@ -76,15 +76,15 @@ namespace Aspekt.Test
         }
 
         [TestMethod]
-        public void TestUseThisAttribute()
+        public void TestInstanceEqual()
         {
             TestAspect.Reset();
             DummyClass dc = new DummyClass();
             bool called = false;
-            TestAspect.InspectInstance = (inst) =>
+            TestAspect.OnEntryAction = (args) =>
             {
                 called = true;
-                Assert.AreSame(inst, dc, "object reference mismatch");
+                Assert.AreSame(args.Instance, dc, "object reference mismatch");
             };
             dc.Call();
             Assert.IsTrue(called);

@@ -11,8 +11,9 @@ namespace Aspekt
         public String MethodName { get; internal set; }
         public Arguments Arguments { get; internal set; }
         public String FullName { get; internal set; }
+        public object Instance { get; internal set; }
 
-        public MethodArguments(String methodName, String fullName, Arguments args)
+        public MethodArguments(String methodName, String fullName, Arguments args, object obj)
         {
             MethodName = methodName;
             FullName = fullName;
@@ -20,6 +21,8 @@ namespace Aspekt
                 Arguments = Arguments.Empty;
             else
                 Arguments = args;
+
+            Instance = obj;
         }
     }
 }

@@ -33,6 +33,28 @@ namespace Aspekt.Bootstrap
             return false;
         }
 
+        private static bool CompareParameters(Collection<ParameterDefinition> pars, params Type[] types)
+        {
+            if (pars.Count != types.Length)
+                return false;
+            for(int i=0; i<pars.Count; ++i)
+            {
+                if (pars[i].ParameterType.FullName != types[i].FullName)
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool HasMethod(TypeDefinition td, String methodName, params Type[] types)
+        {
+            foreach (var mth in td.Methods)
+            {
+                if (mth.Name == methodName && CompareParameters(mth.Parameters, types))
+                    return true;
+            }
+            return false;
+        }
+
         private static PropertyDefinition GetAttributeProperty(CustomAttribute attr, Predicate<PropertyDefinition> pred)
         {
             foreach (var p in attr.AttributeType.Resolve().Properties)
@@ -86,7 +108,8 @@ namespace Aspekt.Bootstrap
                 ic.Next(OpCodes.Ldnull);
             else
                 ic.Next(OpCodes.Ldloc, argList);
-            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(Arguments));
+            ic.Next(OpCodes.Ldarg_0);
+            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(Arguments), typeof(object));
             ic.Next(OpCodes.Stloc, methArgs);
             return methArgs;
         }
@@ -216,52 +239,45 @@ namespace Aspekt.Bootstrap
                  // Otherwise, we will not.
                  var attrVar = CreateAttribute(ih, methArgs, meth, attr);
 
-                 // What about static??
-                 //
-                 var prop = GetAttributeProperty(attr, (p) => { return HasCustomAttributeType(p.CustomAttributes, typeof(UseThisAttribute)); });
-                 if (prop != null)
-                 {
-                     // set the thing
-                     // if it has a setter and it's a convertible type?? I don't know how to do that.
-                     if (prop.SetMethod != null && (prop.PropertyType.FullName == classType.FullName || prop.PropertyType.FullName == typeof(object).FullName))
-                     {
-                         ih.Next(OpCodes.Ldloc, attrVar);
-                         ih.Next(OpCodes.Ldarg_0);
-                         ih.Call(prop.SetMethod);
-                     }
-                 }
-
-                 InsertOnEntryCalls(ih, attrVar, methArgs);
+                 if(HasMethod(attr.AttributeType.Resolve(), "OnEntry", typeof(MethodArguments)))
+                    InsertOnEntryCalls(ih, attrVar, methArgs);
 
                  // walk the instructions looking for returns, based on what teh function is returning 
                  // is where we inject the OnExit instructions.
                  // so how do I tell what the function returns?
-                 PlaceOnExitCalls(il,module,meth,attrVar,methArgs);
+                 if (HasMethod(attr.AttributeType.Resolve(), "OnExit", typeof(MethodArguments)))
+                     PlaceOnExitCalls(il,module,meth,attrVar,methArgs);
 
-                 var ret = il.Create(OpCodes.Ret);
-                 var leave = il.Create(OpCodes.Leave, ret);
-                 
-                 var exception = new VariableDefinition("ex", meth.Module.Import(typeof(Exception)));
-                 meth.Body.Variables.Add(exception);
-                 var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
-                 c.Next(il.Create(OpCodes.Stloc_S, exception))
-                     .Next(OpCodes.Ldloc, attrVar)
-                     .Next(OpCodes.Ldloc, methArgs)
-                     .Next(OpCodes.Ldloc_S, exception)
-                     .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
-                     .Next(OpCodes.Rethrow)
-                     .Next(OpCodes.Ret);
-                 
-                 var handler = new ExceptionHandler(ExceptionHandlerType.Catch)
+
+                 if (HasMethod(attr.AttributeType.Resolve(), "OnException", typeof(MethodArguments), typeof(Exception)))
                  {
-                     TryStart = fi,
-                     TryEnd = c.FirstInstruction,
-                     HandlerStart = c.FirstInstruction,
-                     HandlerEnd = c.LastInstruction,
-                     CatchType = module.Import(typeof(Exception)),
-                 };
+                     var ret = il.Create(OpCodes.Ret);
+                     var leave = il.Create(OpCodes.Leave, ret);
 
-                 meth.Body.ExceptionHandlers.Add(handler);
+                     var exception = new VariableDefinition("ex", meth.Module.Import(typeof(Exception)));
+                     meth.Body.Variables.Add(exception);
+                     var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
+                     c.Next(il.Create(OpCodes.Stloc_S, exception))
+                         .Next(OpCodes.Ldloc, attrVar)
+                         .Next(OpCodes.Ldloc, methArgs)
+                         .Next(OpCodes.Ldloc_S, exception)
+                         .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
+                         .Next(OpCodes.Rethrow)
+                         .Next(OpCodes.Ret);
+
+                     var handler = new ExceptionHandler(ExceptionHandlerType.Catch)
+                     {
+                         TryStart = fi,
+                         TryEnd = c.FirstInstruction,
+                         HandlerStart = c.FirstInstruction,
+                         HandlerEnd = c.LastInstruction,
+                         CatchType = module.Import(typeof(Exception)),
+                     };
+
+                     meth.Body.ExceptionHandlers.Add(handler);
+                 }
+
+                 
 
                  meth.Body.OptimizeMacros();
              }, (attr) =>

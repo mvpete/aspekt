@@ -8,8 +8,8 @@ namespace Aspekt
 {
     public abstract class Aspect : System.Attribute
     {
-        public abstract void OnEntry(MethodArguments args);
-        public abstract void OnExit(MethodArguments args);
-        public abstract void OnException(MethodArguments args, Exception e);
+        public virtual void OnEntry(MethodArguments args) { }
+        public virtual void OnExit(MethodArguments args) { }
+        public virtual void OnException(MethodArguments args, Exception e) { }
     }
 }
