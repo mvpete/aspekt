@@ -33,8 +33,6 @@ Also, no PDBs are generated.
        }
     }
 
-
-### Information
 Aspekt re-writes methods in the following manner.
 
     class Foo
@@ -42,7 +40,7 @@ Aspekt re-writes methods in the following manner.
         [SampleAspect("Some Value")]
         public void Bar(String s, int i)
         {
-           MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }));
+           MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }), this);
            SampleAspect sa = new SampleAspect("Some Value");
            sa.OnEntry(ma);
            try
@@ -58,6 +56,12 @@ Aspekt re-writes methods in the following manner.
     }
     
  Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
+
+Since Aspekt works on pre-compiled code, in order to use it you must run the Bootstrap against your assembly. 
+
+   > Aspekt.Bootstrap.Host [PathToAssembly] 
+
+This will process the assembly and add in the aspects.
 
 
 ### TODO
