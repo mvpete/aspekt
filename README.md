@@ -33,8 +33,6 @@ Also, no PDBs are generated.
        }
     }
 
-
-### Information
 Aspekt re-writes methods in the following manner.
 
     class Foo
@@ -42,7 +40,7 @@ Aspekt re-writes methods in the following manner.
         [SampleAspect("Some Value")]
         public void Bar(String s, int i)
         {
-           MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }));
+           MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }), this);
            SampleAspect sa = new SampleAspect("Some Value");
            sa.OnEntry(ma);
            try
@@ -59,17 +57,23 @@ Aspekt re-writes methods in the following manner.
     
  Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
+Since Aspekt works post compile, in order to use it you must run the Bootstrap application against your assembly.
+    
+    > Aspekt.Bootstrap.Host [PathToAssembly] 
+
+This will process the assembly and add in the aspects to their respective members.
+
 
 ### TODO
 
 0. Clean up -- I just threw this together this week. I need to clean up the host program and clean up some of the code. Also, manage multiple Aspects, etc...
 
-0.5. Tests -- While I clean up, I should implement some tests... You know TDD... :) /DONE
+~~0.5. Tests -- While I clean up, I should implement some tests... You know TDD... :)~~
 
-1. Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions. /DONE
+~~1. Pay for what you use. --  Only call functions that are overridden from the base Aspect. Currently Aspect is an abstract class for all three functions. The plan is to change that and only call overridden functions.~~
 
 2. PDBs -- I'm not sure about this. I'm sure I missed something with Cecil for the recompile.
 
 3. Class attributes -- Implement class attribute processing. If an attribute exists on a class, then implement each method in the class with the Aspect.
 
-4. UseThis Property attribute -- UseThis as an attribute on the Aspect, allow for assignment of "this" to a property on the Aspect. This allows for inspection of the targeted class. /DONE
+~~4. UseThis Property attribute -- UseThis as an attribute on the Aspect, allow for assignment of "this" to a property on the Aspect. This allows for inspection of the targeted class.~~
