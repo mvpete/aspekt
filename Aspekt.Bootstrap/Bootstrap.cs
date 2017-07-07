@@ -123,6 +123,23 @@ namespace Aspekt.Bootstrap
                     else
                         throw new Exception("unknown type");
                 // Charly -- Removed some redundant enum types, since default will catch the ones not stated in the switch statement. 
+                case MetadataType.Single:
+                case MetadataType.Pointer:
+                case MetadataType.ByReference:
+                case MetadataType.Var:
+                case MetadataType.Array:
+                case MetadataType.GenericInstance:
+                case MetadataType.TypedByReference:
+                case MetadataType.IntPtr:
+                case MetadataType.UIntPtr:
+                case MetadataType.FunctionPointer:
+                case MetadataType.Object:
+                case MetadataType.MVar:
+                case MetadataType.RequiredModifier:
+                case MetadataType.OptionalModifier:
+                case MetadataType.Sentinel:
+                case MetadataType.Pinned:
+                    throw new NotImplementedException($"Type {type} is not implemented");
                 default:
                     throw new Exception("unknown type");
             }
