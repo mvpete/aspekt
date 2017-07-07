@@ -59,9 +59,9 @@ Aspekt re-writes methods in the following manner.
 
 Since Aspekt works on pre-compiled code, in order to use it you must run the Bootstrap against your assembly. 
     
-    \>Aspekt.Bootstrap.Host [PathToAssembly] 
+    \> Aspekt.Bootstrap.Host [PathToAssembly] 
 
-This will process the assembly and add in the aspects.
+This will process the assembly and add in the aspects to their respective members.
 
 
 ### TODO
