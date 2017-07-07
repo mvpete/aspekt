@@ -43,12 +43,7 @@ namespace Aspekt.Bootstrap
 
         private static bool HasMethod(TypeDefinition td, String methodName, params Type[] types)
         {
-            foreach (var mth in td.Methods)
-            {
-                if (mth.Name == methodName && CompareParameters(mth.Parameters, types))
-                    return true;
-            }
-            return false;
+            return td.Methods.Any((mth) => { return mth.Name == methodName && CompareParameters(mth.Parameters, types); });
         }
 
         private static PropertyDefinition GetAttributeProperty(CustomAttribute attr, Predicate<PropertyDefinition> pred)
