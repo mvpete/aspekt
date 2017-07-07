@@ -104,17 +104,29 @@ namespace Aspekt.Bootstrap
             return argList;
         }
 
+        private static String GenerateMethodNameFormat(MethodDefinition md)
+        {
+            var name = md.FullName;
+            int i = 0;
+            foreach (var p in md.Parameters)
+            {
+                name = name.Replace(p.ParameterType.FullName, $"{{{i++}}}");
+            }
+            return name;
+        }
+
         private static VariableDefinition GenerateMethodArgs(InstructionHelper ic, VariableDefinition argList, MethodDefinition md)
         {
             var methArgs = ic.NewVariable<MethodArguments>();
             ic.Next(OpCodes.Ldstr, md.Name);
             ic.Next(OpCodes.Ldstr, md.FullName);
+            ic.Next(OpCodes.Ldstr, GenerateMethodNameFormat(md));
             if (argList == null)
                 ic.Next(OpCodes.Ldnull);
             else
                 ic.Next(OpCodes.Ldloc, argList);
             ic.Next(OpCodes.Ldarg_0);
-            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(Arguments), typeof(object));
+            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(String), typeof(Arguments), typeof(object));
             ic.Next(OpCodes.Stloc, methArgs);
             return methArgs;
         }

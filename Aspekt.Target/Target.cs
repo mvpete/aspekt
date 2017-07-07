@@ -19,9 +19,10 @@ namespace Aspekt.Target
 
     class Application
     {
+        public enum Choice { Yes, No}
         [Target]
         [Logged]
-        public void Test()
+        public static void Test(object o, Type t, int i, Choice c)
         {
             Console.WriteLine("the quick brown fox.");
         }
