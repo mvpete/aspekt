@@ -58,8 +58,8 @@ Aspekt re-writes methods in the following manner.
  Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
 Since Aspekt works on pre-compiled code, in order to use it you must run the Bootstrap against your assembly. 
-
-   > \>Aspekt.Bootstrap.Host [PathToAssembly] 
+    
+    \>Aspekt.Bootstrap.Host [PathToAssembly] 
 
 This will process the assembly and add in the aspects.
 
