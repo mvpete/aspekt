@@ -8,9 +8,9 @@ namespace Aspekt.Target
         {
         }
 
-        //public override void OnException(MethodArguments args, Exception e)
-        //{
-        //}
+        public override void OnException(MethodArguments args, Exception e)
+        {
+        }
 
         public override void OnExit(MethodArguments args)
         {
@@ -20,6 +20,7 @@ namespace Aspekt.Target
     class Application
     {
         [Target]
+        [Logged]
         public void Test()
         {
             Console.WriteLine("the quick brown fox.");

@@ -9,18 +9,36 @@ using System.Linq;
 namespace Aspekt.Bootstrap
 {
 
+    class MethodTarget
+    {
+        public MethodDefinition Method { get; internal set; }
+        public VariableDefinition MethodArguments { get; set; }
+        public VariableDefinition Exception { get; set; }
+        public ExceptionHandler ExceptionHandler { get; set; }
+
+        public Instruction StartInstruction { get; set; }
+
+        public MethodTarget(MethodDefinition md)
+        {
+            Method = md;
+        }
+    }
+
     public static class Bootstrap
     {
         // EnumerateMethods
-        private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodDefinition, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
+        private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodTarget, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
         {
             foreach (var t in module.Types)
                 foreach (var meth in t.Methods)
+                {
+                    var target = new MethodTarget(meth);
                     foreach (var attr in meth.CustomAttributes)
                     {
-                        if(pred!=null && pred(attr))
-                            enumFn(t, meth, attr);
+                        if (pred != null && pred(attr))
+                            enumFn(t, target, attr);
                     }
+                }
         }
 
         // Enhancement here, use IEnumerable since it's a more generic collection type. (Collection<T> impllements IEnumerable)
@@ -213,58 +231,80 @@ namespace Aspekt.Bootstrap
 
             // I know that right now, if we have multiple attributes, we're going to generate multiple method arguments.
             // I know how to deal with this.
-            EnumerateMethodAttributes(module, (classType, meth, attr) =>
+            EnumerateMethodAttributes(module, (classType, target, attr) =>
              {
+                 var meth = target.Method;
                  meth.Body.SimplifyMacros();
                  var il = meth.Body.GetILProcessor();
 
                  var fi = meth.Body.Instructions.First();
-
-                 var ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
-                 var args = CaptureMethodArguments(ih, meth);
-                 var methArgs = GenerateMethodArgs(ih, args, meth);
+                 InstructionHelper ih;
+                 if(target.StartInstruction == null)
+                    ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
+                 else
+                    ih = new InstructionHelper(module, il, target.StartInstruction, InstructionHelper.Insert.After);
+                 
+                 if (target.MethodArguments == null)
+                 {
+                    var args = CaptureMethodArguments(ih, meth);
+                    target.MethodArguments = GenerateMethodArgs(ih, args, meth);
+                 }
 
                  
                  // if the attribute overrides the method, we will put the call in.
                  // Otherwise, we will not.
-                 var attrVar = CreateAttribute(ih, methArgs, meth, attr);
+                 var attrVar = CreateAttribute(ih, target.MethodArguments, meth, attr);
 
                  if(HasMethod(attr.AttributeType.Resolve(), "OnEntry", typeof(MethodArguments)))
-                    InsertOnEntryCalls(ih, attrVar, methArgs);
+                    InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
+
+                 target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
 
                  // walk the instructions looking for returns, based on what teh function is returning 
                  // is where we inject the OnExit instructions.
                  // so how do I tell what the function returns?
                  if (HasMethod(attr.AttributeType.Resolve(), "OnExit", typeof(MethodArguments)))
-                     PlaceOnExitCalls(il,module,meth,attrVar,methArgs);
+                     PlaceOnExitCalls(il,module,meth,attrVar,target.MethodArguments);
 
 
                  if (HasMethod(attr.AttributeType.Resolve(), "OnException", typeof(MethodArguments), typeof(Exception)))
                  {
-                     var ret = il.Create(OpCodes.Ret);
-                     var leave = il.Create(OpCodes.Leave, ret);
-
-                     var exception = new VariableDefinition("ex", meth.Module.Import(typeof(Exception)));
-                     meth.Body.Variables.Add(exception);
-                     var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
-                     c.Next(il.Create(OpCodes.Stloc_S, exception))
-                         .Next(OpCodes.Ldloc, attrVar)
-                         .Next(OpCodes.Ldloc, methArgs)
-                         .Next(OpCodes.Ldloc_S, exception)
-                         .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
-                         .Next(OpCodes.Rethrow)
-                         .Next(OpCodes.Ret);
-
-                     var handler = new ExceptionHandler(ExceptionHandlerType.Catch)
+                     if (target.ExceptionHandler == null)
                      {
-                         TryStart = fi,
-                         TryEnd = c.FirstInstruction,
-                         HandlerStart = c.FirstInstruction,
-                         HandlerEnd = c.LastInstruction,
-                         CatchType = module.Import(typeof(Exception)),
-                     };
+                         var exception = new VariableDefinition("ex", meth.Module.Import(typeof(Exception)));
+                         meth.Body.Variables.Add(exception);
 
-                     meth.Body.ExceptionHandlers.Add(handler);
+                         var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
+                         c.Next(il.Create(OpCodes.Stloc_S, exception))
+                            .Next(OpCodes.Ldloc, attrVar)
+                            .Next(OpCodes.Ldloc, target.MethodArguments)
+                            .Next(OpCodes.Ldloc_S, exception)
+                            .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
+                            .Next(OpCodes.Rethrow)
+                            .Next(OpCodes.Ret);
+
+                         var handler = new ExceptionHandler(ExceptionHandlerType.Catch)
+                         {
+                             TryStart = target.StartInstruction.Next,
+                             TryEnd = c.FirstInstruction,
+                             HandlerStart = c.FirstInstruction,
+                             HandlerEnd = c.LastInstruction,
+                             CatchType = module.Import(typeof(Exception)),
+                         };
+
+                         target.Exception = exception;
+                         target.ExceptionHandler = handler;
+                         meth.Body.ExceptionHandlers.Add(handler);
+                     }
+                     else
+                     {
+                         var c = new InstructionHelper(module, il, target.ExceptionHandler.HandlerStart);
+                         c.Next(OpCodes.Ldloc, attrVar)
+                             .Next(OpCodes.Ldloc, target.MethodArguments)
+                             .Next(OpCodes.Ldloc_S, target.Exception)
+                             .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception));
+                     }
+                     
                  }
 
                  
