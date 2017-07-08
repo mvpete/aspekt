@@ -42,10 +42,10 @@
   <ItemGroup>
     <Compile Include="Arguments.cs" />
     <Compile Include="Aspect.cs" />
-    <Compile Include="LoggedAttribute.cs" />
+    <Compile Include="Aspects\LoggedAttribute.cs" />
     <Compile Include="MethodArguments.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TranslateExceptionAttribute.cs" />
+    <Compile Include="Aspects\TranslateExceptionAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
