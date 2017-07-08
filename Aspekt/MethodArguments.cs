@@ -8,8 +8,9 @@ namespace Aspekt
         public Arguments Arguments { get; internal set; }
         public String FullName { get; internal set; }
         public object Instance { get; internal set; }
+        public String FormattedName { get; internal set; }
 
-        public MethodArguments(String methodName, String fullName, Arguments args, object obj)
+        public MethodArguments(String methodName, String fullName, String methodNameFormat, Arguments args, object instance)
         {
             MethodName = methodName;
             FullName = fullName;
@@ -18,7 +19,14 @@ namespace Aspekt
             else
                 Arguments = args;
 
-            Instance = obj;
+            Instance = instance;
+
+            FormatName(methodNameFormat);
+        }
+
+        private void FormatName(String nameFormat)
+        {
+            FormattedName = string.Format(nameFormat, Arguments.ToArray());
         }
     }
 }
