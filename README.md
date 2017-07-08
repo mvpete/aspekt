@@ -11,50 +11,51 @@ The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just d
 
 Also, no PDBs are generated.
 
-    class SampleAspect : Aspekt.Aspect
-    {
-       public SampleAspect(String val)
-       {
-       }
-       
-       public OnEntry(MethodArgs ma)
-       {
-          // called before any existing code is ran
-       }
-       
-       public OnExit(MethodArgs ma)
-       {
-         // called before ANY return statement
-       }
-       
-       public OnException(MethodArgs ma, Exception e)
-       {
-         // called if existing codes excepts
-       }
-    }
+```csharp
+class SampleAspect : Aspekt.Aspect
+{
+   public SampleAspect(String val)
+   {
+   }
 
+   public OnEntry(MethodArgs ma)
+   {
+      // called before any existing code is ran
+   }
+
+   public OnExit(MethodArgs ma)
+   {
+     // called before ANY return statement
+   }
+
+   public OnException(MethodArgs ma, Exception e)
+   {
+     // called if existing codes excepts
+   }
+}
+```
 Aspekt re-writes methods in the following manner.
-
-    class Foo
+```csharp
+class Foo
+{
+    [SampleAspect("Some Value")]
+    public void Bar(String s, int i)
     {
-        [SampleAspect("Some Value")]
-        public void Bar(String s, int i)
-        {
-           MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }), this);
-           SampleAspect sa = new SampleAspect("Some Value");
-           sa.OnEntry(ma);
-           try
-           {
-               // original code
-               sa.OnExit(ma);
-           }
-           catch(Exception e)
-           {
-              sa.OnException(ma,e);
-           }
-        }
+       MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }), this);
+       SampleAspect sa = new SampleAspect("Some Value");
+       sa.OnEntry(ma);
+       try
+       {
+           // original code
+           sa.OnExit(ma);
+       }
+       catch(Exception e)
+       {
+          sa.OnException(ma,e);
+       }
     }
-    
+}
+ ```
  Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
 Since Aspekt works post compile, in order to use it you must run the Bootstrap application against your assembly.
