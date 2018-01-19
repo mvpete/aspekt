@@ -19,7 +19,7 @@ namespace Aspekt
         }
         public override void OnException(MethodArguments args, Exception e)
         {
-            Console.WriteLine($"OnEception- {args.FormattedName}; '{e.ToString()}'");
+            Console.WriteLine($"OnExeception- {args.FormattedName}; '{e.ToString()}'");
         }
 
         

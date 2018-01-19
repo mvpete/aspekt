@@ -1,9 +1,11 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Cecil.Pdb;
 using Mono.Cecil.Rocks;
 using Mono.Collections.Generic;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Aspekt.Bootstrap
@@ -239,7 +241,8 @@ namespace Aspekt.Bootstrap
 
         public static void Apply(String targetFileName)
         {
-            var module = ModuleDefinition.ReadModule(targetFileName);
+            var rp = new ReaderParameters { ReadSymbols = true };
+            var module = ModuleDefinition.ReadModule(targetFileName, rp);
 
             // I know that right now, if we have multiple attributes, we're going to generate multiple method arguments.
             // I know how to deal with this.
@@ -334,8 +337,13 @@ namespace Aspekt.Bootstrap
                  }
              });
 
-
-            module.Write(targetFileName);
+            var pdbName = Path.ChangeExtension(targetFileName, "pdb");
+            var wp = new WriterParameters();
+            if (File.Exists(pdbName))
+            {
+                wp.WriteSymbols = true;
+            }
+            module.Write(targetFileName, wp);
         }
     }
 
