@@ -79,9 +79,11 @@ namespace Aspekt.Bootstrap
         {
             if (md.Parameters.Count == 0)
                 return null;
+
             // first we need something to store the parameters in
             var argList = new VariableDefinition(md.Module.Import(typeof(Arguments)));
             md.Body.Variables.Add(argList);
+                    
 
             ic.Next(OpCodes.Ldc_I4, md.Parameters.Count);
             ic.NewObj<Arguments>(typeof(Int32)); // this will create the object we want on the stack
@@ -127,7 +129,14 @@ namespace Aspekt.Bootstrap
                 ic.Next(OpCodes.Ldnull);
             else
                 ic.Next(OpCodes.Ldloc, argList);
-            ic.Next(OpCodes.Ldarg_0);
+
+            if (md.IsStatic)
+            {
+                ic.Next(OpCodes.Ldnull);
+            }
+            else
+                ic.Next(OpCodes.Ldarg_0);
+
             ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(String), typeof(Arguments), typeof(object));
             ic.Next(OpCodes.Stloc, methArgs);
             return methArgs;

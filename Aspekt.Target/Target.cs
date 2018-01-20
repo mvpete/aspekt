@@ -19,6 +19,16 @@ namespace Aspekt.Target
 
     class Application
     {
+
+        [Logged]
+        public static void Bar()
+        {
+
+            Console.WriteLine("Bar None");
+
+        }
+
+
         public enum Choice { Yes, No}
         [Target]
         [Logged]
