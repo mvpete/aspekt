@@ -1,5 +1,9 @@
 ASPEKT
 ===
+
+[![Build Status](https://travis-ci.org/mvpete/aspekt.svg?branch=master)](https://travis-ci.org/mvpete/aspekt)
+
+
 A lightweight (Aspect Oriented Programming) AOP foundation
 
 ### Overview
