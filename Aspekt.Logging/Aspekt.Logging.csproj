@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FD93096A-2A56-4DB9-889C-2E60419D8B85}</ProjectGuid>
+    <ProjectGuid>{CF7B9122-471C-4981-BAE0-72C147E32666}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aspekt</RootNamespace>
-    <AssemblyName>Aspekt</AssemblyName>
+    <RootNamespace>Aspekt.Logging</RootNamespace>
+    <AssemblyName>Aspekt.Logging</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,11 +40,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Arguments.cs" />
-    <Compile Include="Aspect.cs" />
-    <Compile Include="MethodArguments.cs" />
+    <Compile Include="Aspects\LoggedAttribute.cs" />
+    <Compile Include="Formatters\DefaultLogFormatter.cs" />
+    <Compile Include="Interfaces\ILogFormatter.cs" />
+    <Compile Include="Interfaces\ILogTarget.cs" />
+    <Compile Include="LogWriter.cs" />
+    <Compile Include="LoggingService.cs" />
+    <Compile Include="LogMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Aspects\TranslateExceptionAttribute.cs" />
+    <Compile Include="Targets\ConsoleLogTarget.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aspekt\Aspekt.csproj">
+      <Project>{FD93096A-2A56-4DB9-889C-2E60419D8B85}</Project>
+      <Name>Aspekt</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

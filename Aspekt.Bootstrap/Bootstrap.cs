@@ -340,7 +340,7 @@ namespace Aspekt.Bootstrap
                  {
                      return attr.AttributeType.Resolve().BaseType.FullName == (typeof(Aspect).FullName);
                  }
-                 catch (Exception)
+                 catch (Exception e)
                  {
                      return false; // if we can't resolve, then we just skip it.
                  }

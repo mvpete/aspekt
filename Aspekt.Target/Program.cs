@@ -6,7 +6,14 @@ namespace Aspekt.Target
     {
         static void Main(string[] args)
         {
-            Application.Test("Object", typeof(Program), 15, Application.Choice.No);
+            while (true)
+            {
+                Application.Test("Object", typeof(Program), 15, Application.Choice.No);
+                var k = Console.ReadKey();
+                if (k.Key == ConsoleKey.Q)
+                    break;
+            }
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }

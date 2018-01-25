@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Aspekt;
+using Aspekt.Logging;
+using System;
 
 namespace Aspekt.Target
 {
@@ -20,21 +22,20 @@ namespace Aspekt.Target
     class Application
     {
 
-        [Logged]
+        [Log]
         public static void Bar()
         {
 
             Console.WriteLine("Bar None");
 
         }
-
-
+        
         public enum Choice { Yes, No}
         [Target]
-        [Logged]
+        [Log]
         public static void Test(object o, Type t, int i, Choice c)
         {
-            Console.WriteLine("the quick brown fox.");
+            LogWriter.Debug("the quick brown fox.");
         }
     }
 }
