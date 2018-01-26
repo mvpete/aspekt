@@ -4,10 +4,10 @@ using System;
 namespace Aspekt.Test
 {
     
-    class TestAspect : Aspect
+    class MockAspect : Aspect
     {
         public String MethodName { get; internal set; }
-        public TestAspect(String methodName)
+        public MockAspect(String methodName)
         {
             MethodName = methodName;
         }

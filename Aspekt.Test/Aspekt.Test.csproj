@@ -51,14 +51,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DummyClass.cs" />
-    <Compile Include="TestAspect.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="MockAspect.cs" />
+    <Compile Include="TestBootstrap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDefaultLogFormatter.cs" />
+    <Compile Include="TestLogService.cs" />
+    <Compile Include="MockLogTarget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aspekt.Logging\Aspekt.Logging.csproj">
+      <Project>{CF7B9122-471C-4981-BAE0-72C147E32666}</Project>
+      <Name>Aspekt.Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aspekt\Aspekt.csproj">
       <Project>{fd93096a-2a56-4db9-889c-2e60419d8b85}</Project>
       <Name>Aspekt</Name>

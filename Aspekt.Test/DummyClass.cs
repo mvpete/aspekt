@@ -3,7 +3,7 @@
     
     class DummyClass
     {
-        [TestAspect("Call")]
+        [MockAspect("Call")]
         public int Call()
         {
             return 5;

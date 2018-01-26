@@ -5,21 +5,21 @@ using System.Threading;
 namespace Aspekt.Test
 {
     [TestClass]
-    public class UnitTest1
+    public class TestBootstrap
     {
-        [TestAspect("CallMe")]
+        [MockAspect("CallMe")]
         void CallMe()
         {
             Thread.Sleep(500);
         }
 
-        [TestAspect("CallMeMaybe")]
+        [MockAspect("CallMeMaybe")]
         void CallMeMaybe(String value)
         {
 
         }
 
-        [TestAspect("CallMeException")]
+        [MockAspect("CallMeException")]
         void CallMeException()
         {
             throw new Exception("Blah");
@@ -28,18 +28,18 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestEntryExit()
         {
-            TestAspect.Reset();
+            MockAspect.Reset();
             CallMe();
-            Assert.AreEqual(TestAspect.Entries, 1);
-            Assert.AreEqual(TestAspect.Exits, 1);
+            Assert.AreEqual(MockAspect.Entries, 1);
+            Assert.AreEqual(MockAspect.Exits, 1);
         }
 
         [TestMethod]
         public void TestMethodArguments()
         {
             bool called = false;
-            TestAspect.Reset();
-            TestAspect.OnEntryAction = (MethodArguments a) =>
+            MockAspect.Reset();
+            MockAspect.OnEntryAction = (MethodArguments a) =>
             {
                 Assert.AreEqual(a.Arguments.Count, 1);
                 Assert.AreEqual(a.Arguments[0], "SomeValue");
@@ -55,8 +55,8 @@ namespace Aspekt.Test
         public void TestMethodException()
         {
             bool called = false;
-            TestAspect.Reset();
-            TestAspect.OnExceptionAction = (args, e) =>
+            MockAspect.Reset();
+            MockAspect.OnExceptionAction = (args, e) =>
             {
                 called = true;
                 Assert.AreEqual(e.Message, "Blah");
@@ -78,19 +78,16 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestInstanceEqual()
         {
-            TestAspect.Reset();
+            MockAspect.Reset();
             DummyClass dc = new DummyClass();
             bool called = false;
-            TestAspect.OnEntryAction = (args) =>
+            MockAspect.OnEntryAction = (args) =>
             {
                 called = true;
                 Assert.AreSame(args.Instance, dc, "object reference mismatch");
             };
             dc.Call();
             Assert.IsTrue(called);
-
-
-
             // Assert that dc == Property
         }
     }
