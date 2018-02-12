@@ -6,6 +6,9 @@ namespace Aspekt.Target
 {
     class TargetAttribute : Aspect
     {
+        public TargetAttribute(object s)
+        {
+        }
         public override void OnEntry(MethodArguments args)
         {
         }
@@ -19,19 +22,34 @@ namespace Aspekt.Target
         }
     }
 
+    class TestAttribute : Aspect
+    {
+        public TestAttribute(object obj)
+        {
+
+        }
+    } 
+
     class Application
     {
+
+        public void Function(object o)
+        {
+            TestAttribute ta = new TestAttribute(6);
+        }
 
         [Log]
         public static void Bar()
         {
+
+
 
             Console.WriteLine("Bar None");
 
         }
         
         public enum Choice { Yes, No}
-        [Target]
+        [Target(6)]
         [Log]
         public static void Test(object o, Type t, int i, Choice c)
         {

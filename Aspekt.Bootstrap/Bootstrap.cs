@@ -142,6 +142,9 @@ namespace Aspekt.Bootstrap
             return methArgs;
         }
 
+
+
+
         private static void LoadArg(InstructionHelper ic, CustomAttributeArgument arg)
         {
             var type = arg.Type.MetadataType;
@@ -182,7 +185,10 @@ namespace Aspekt.Bootstrap
                     }
                     else
                         throw new Exception("unknown type");
-                // Charly -- Removed some redundant enum types, since default will catch the ones not stated in the switch statement. 
+                case MetadataType.Object:
+                    // The object comes in as a CustomAttributeArgument.
+                    LoadArg(ic, (CustomAttributeArgument)arg.Value);
+                    return;
                 case MetadataType.Single:
                 case MetadataType.Pointer:
                 case MetadataType.ByReference:
@@ -193,7 +199,6 @@ namespace Aspekt.Bootstrap
                 case MetadataType.IntPtr:
                 case MetadataType.UIntPtr:
                 case MetadataType.FunctionPointer:
-                case MetadataType.Object:
                 case MetadataType.MVar:
                 case MetadataType.RequiredModifier:
                 case MetadataType.OptionalModifier:

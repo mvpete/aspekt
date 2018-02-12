@@ -104,6 +104,7 @@ namespace Aspekt.Bootstrap
             return this;
         }
 
+    
         public InstructionHelper Next(OpCode op, long i)
         {
             return Next(il_.Create(op, i));
