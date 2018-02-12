@@ -94,14 +94,20 @@ namespace Aspekt.Bootstrap
             {
                 var p = md.Parameters[i];
                 var pType = p.ParameterType;
-                ic.Next(OpCodes.Ldloc, argList);
-                ic.Next(OpCodes.Ldarg, p);
-                // I don't think I care if it
 
+                var arg = new VariableDefinition(md.Module.Import(typeof(Argument)));
+                md.Body.Variables.Add(arg);
+
+                ic.Next(OpCodes.Ldstr, p.Name);
+                ic.Next(OpCodes.Ldarg, p);
                 if (pType.IsValueType || pType.IsGenericParameter)
                     ic.Next(OpCodes.Box, pType);
-
-                ic.CallVirt<Arguments>("Add", typeof(object));
+                ic.NewObj<Argument>(typeof(string), typeof(object));
+                ic.Next(OpCodes.Stloc, arg);
+             
+                ic.Next(OpCodes.Ldloc, argList);
+                ic.Next(OpCodes.Ldloc, arg);
+                ic.CallVirt<Arguments>("Add", typeof(Argument));
 
             }
 
@@ -248,6 +254,7 @@ namespace Aspekt.Bootstrap
             {
                 LoadArg(ic, arg);
             }
+            
             ic.NewObj(attr.Constructor);
             ic.Next(OpCodes.Stloc, attrVar);
             return attrVar;

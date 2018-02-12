@@ -5,7 +5,7 @@ using System.Threading;
 namespace Aspekt.Test
 {
     [TestClass]
-    public class UnitTest1
+    public class FoundationTest
     {
         [TestAspect("CallMe")]
         void CallMe()

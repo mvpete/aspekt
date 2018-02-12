@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Collections.Generic;
 using System;
 
 namespace Aspekt.Bootstrap
@@ -37,7 +38,6 @@ namespace Aspekt.Bootstrap
             var ctorRef = module_.Import(ctor);
             return NewObj(ctorRef);
         }
-
         public InstructionHelper NewObj(MethodReference t)
         {
             return Next(il_.Create(OpCodes.Newobj, t));

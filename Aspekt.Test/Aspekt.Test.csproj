@@ -52,13 +52,18 @@
   <ItemGroup>
     <Compile Include="DummyClass.cs" />
     <Compile Include="TestAspect.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="FoundationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContractTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Aspekt.Contracts\Aspekt.Contracts.csproj">
+      <Project>{3391154B-B919-40F3-BD06-743D00B3395D}</Project>
+      <Name>Aspekt.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Aspekt\Aspekt.csproj">
       <Project>{fd93096a-2a56-4db9-889c-2e60419d8b85}</Project>
       <Name>Aspekt</Name>
@@ -74,7 +79,7 @@
     <Error Condition="!Exists('..\packages\MSTest.TestAdapter.1.2.0\build\net45\MSTest.TestAdapter.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSTest.TestAdapter.1.2.0\build\net45\MSTest.TestAdapter.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)Aspekt.Bootstrap.Host/bin/$(Configuration)/Aspekt.Bootstrap.Host.exe" "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>"../../../Aspekt.Bootstrap.Host/bin/$(Configuration)/Aspekt.Bootstrap.Host.exe" "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\MSTest.TestAdapter.1.2.0\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.1.2.0\build\net45\MSTest.TestAdapter.targets')" />
 </Project>

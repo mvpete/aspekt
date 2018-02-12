@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Aspekt
 {
@@ -26,7 +27,7 @@ namespace Aspekt
 
         private void FormatName(String nameFormat)
         {
-            FormattedName = string.Format(nameFormat, Arguments.ToArray());
+            FormattedName = string.Format(nameFormat, Arguments.Values.ToArray());
         }
     }
 }
