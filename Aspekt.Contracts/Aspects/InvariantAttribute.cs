@@ -17,7 +17,7 @@ namespace Aspekt.Contracts.Aspects
         Contract.Target Target { get; set; }
 
         IContractEvaluator Evaluator;
-
+        #region Constructors
         public InvariantAttribute(String nameOf, Type constraintType, Contract.Target target, Contract.Constraint constraint)
         {
             NameOf = nameOf;
@@ -101,9 +101,12 @@ namespace Aspekt.Contracts.Aspects
             Evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-
+        #endregion
         private void Evaluate(MethodArguments args, String condition)
         {
+            if (args.Instance == null)
+                throw new InvalidOperationException("Invariants cannot exist on static methods.");
+
             // check invariant here.
             // use reflection to get the type. Thennnnn
             switch (Target)
