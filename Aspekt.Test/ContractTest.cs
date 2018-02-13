@@ -12,11 +12,20 @@ namespace Aspekt.Test
         {
         }
 
-        [RequiresArgument("value", typeof(int), Contract.Comparison.LessThan, 5)]
+        [RequiresArgument("value", typeof(int), Contract.Comparison.LessThanEqualTo, 5)]
         public void ValueMustBeLessThanEqualTo5(int value)
         {
         }
 
+        [RequiresArgument("value", typeof(int), Contract.Comparison.GreaterThan, 5)]
+        public void ValueMustBeGreaterThan5(int value)
+        {
+        }
+
+        [RequiresArgument("value", typeof(int), Contract.Comparison.GreaterThanEqualTo, 5)]
+        public void ValueMustBeGreaterThanEqualTo5(int value)
+        {
+        }
     }
 
 
@@ -48,35 +57,50 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestRequiresArgumentLessThanEqualTo()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeLessThanEqualTo5(Int32.MinValue);
+            to.ValueMustBeLessThanEqualTo5(4);
+            to.ValueMustBeLessThanEqualTo5(5);
         }
         [TestMethod]
+        [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessThanEqualToViolated()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeLessThanEqualTo5(6);
         }
 
         [TestMethod]
         public void TestRequiresArgumentGreaterThan()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeGreaterThan5(Int32.MaxValue);
+            to.ValueMustBeGreaterThan5(10);
+            to.ValueMustBeGreaterThan5(6);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentGreaterThanViolated()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeGreaterThan5(5);
         }
 
         [TestMethod]
         public void TestRequiresArgumentGreaterThanEqualTo()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeGreaterThanEqualTo5(Int32.MaxValue);
+            to.ValueMustBeGreaterThanEqualTo5(10);
+            to.ValueMustBeGreaterThanEqualTo5(5);
         }
         [TestMethod]
+        [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessGreaterEqualToViolated()
         {
-            Assert.Fail();
+            TestObject to = new TestObject();
+            to.ValueMustBeGreaterThanEqualTo5(4);
         }
 
     }
