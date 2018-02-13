@@ -11,6 +11,12 @@ namespace Aspekt.Test
         public void ValueMustBeLessThan5(int value)
         {
         }
+
+        [RequiresArgument("value", typeof(int), Contract.Comparison.LessThan, 5)]
+        public void ValueMustBeLessThanEqualTo5(int value)
+        {
+        }
+
     }
 
 
