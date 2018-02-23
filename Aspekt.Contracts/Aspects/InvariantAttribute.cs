@@ -111,7 +111,7 @@ namespace Aspekt.Contracts
                     {
                         // find the field
                         var inst = args.Instance;
-                        var field = inst.GetType().GetFields().SingleOrDefault(f => f.Name == NameOf);
+                        var field = inst.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
                         if (field == null)
                             throw new MissingFieldException($"{NameOf} field does not exist on object {args.Instance.GetType()}.");
 
@@ -123,7 +123,7 @@ namespace Aspekt.Contracts
                     {
                         // find the field
                         var inst = args.Instance;
-                        var field = inst.GetType().GetProperties().SingleOrDefault(f => f.Name == NameOf);
+                        var field = inst.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
                         if (field == null)
                             throw new MissingFieldException($"{NameOf} field does not exist on object {args.Instance.GetType()}.");
 
