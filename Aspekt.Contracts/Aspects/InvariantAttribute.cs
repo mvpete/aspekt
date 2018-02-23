@@ -1,12 +1,8 @@
-﻿using Aspekt;
-using Aspekt.Contracts.Contracts;
+﻿using Aspekt.Contracts.Contracts;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Aspekt.Contracts.Aspects
+namespace Aspekt.Contracts
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class InvariantAttribute : Aspect
