@@ -143,5 +143,15 @@ namespace Aspekt.Test
             Assert.IsNotNull(message);
             Assert.IsTrue(message.Contains("E:"), "Message does not contain correct level");
         }
+
+        [TestMethod]
+        public void TestDefaultLogFormatterCR()
+        {
+        }
+
+        [TestMethod]
+        public void TestDefaultLogFormatterCRLF()
+        {
+        }
     }
 }
