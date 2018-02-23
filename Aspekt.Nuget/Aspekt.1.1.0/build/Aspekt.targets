@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="AspektTarget" AfterTargets="Build">
+        <Message Importance="high" Text="Exec Command : $(MSBuildThisFileDirectory)..\tools\Aspekt.Bootstrap.Host.exe $(TargetPath)" />
+        <Exec  Command="$(MSBuildThisFileDirectory)..\tools\Aspekt.Bootstrap.Host.exe $(TargetPath)" WorkingDirectory="$(TargetDir)"/>
+        <Message Importance="high" Text="Fin" />
+    </Target>
+</Project>

@@ -8,6 +8,7 @@ namespace Aspekt.Target
         {
             while (true)
             {
+
                 Application.Test("Object", typeof(Program), 15, Application.Choice.No);
                 var k = Console.ReadKey();
                 if (k.Key == ConsoleKey.Q)

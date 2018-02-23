@@ -5,7 +5,7 @@ using System.Threading;
 namespace Aspekt.Test
 {
     [TestClass]
-    public class TestBootstrap
+    public class FoundationTest
     {
         [MockAspect("CallMe")]
         void CallMe()
@@ -42,7 +42,9 @@ namespace Aspekt.Test
             MockAspect.OnEntryAction = (MethodArguments a) =>
             {
                 Assert.AreEqual(a.Arguments.Count, 1);
-                Assert.AreEqual(a.Arguments[0], "SomeValue");
+                Assert.AreEqual("SomeValue", a.Arguments[0].Value);
+                Assert.AreEqual("value", a.Arguments[0].Name);
+                Assert.AreEqual(typeof(string), a.Arguments[0].Type);
                 called = true;
             };
 

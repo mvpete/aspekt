@@ -94,14 +94,20 @@ namespace Aspekt.Bootstrap
             {
                 var p = md.Parameters[i];
                 var pType = p.ParameterType;
-                ic.Next(OpCodes.Ldloc, argList);
-                ic.Next(OpCodes.Ldarg, p);
-                // I don't think I care if it
 
+                var arg = new VariableDefinition(md.Module.Import(typeof(Argument)));
+                md.Body.Variables.Add(arg);
+
+                ic.Next(OpCodes.Ldstr, p.Name);
+                ic.Next(OpCodes.Ldarg, p);
                 if (pType.IsValueType || pType.IsGenericParameter)
                     ic.Next(OpCodes.Box, pType);
-
-                ic.CallVirt<Arguments>("Add", typeof(object));
+                ic.NewObj<Argument>(typeof(string), typeof(object));
+                ic.Next(OpCodes.Stloc, arg);
+             
+                ic.Next(OpCodes.Ldloc, argList);
+                ic.Next(OpCodes.Ldloc, arg);
+                ic.CallVirt<Arguments>("Add", typeof(Argument));
 
             }
 
@@ -141,6 +147,9 @@ namespace Aspekt.Bootstrap
             ic.Next(OpCodes.Stloc, methArgs);
             return methArgs;
         }
+
+
+
 
         private static void LoadArg(InstructionHelper ic, CustomAttributeArgument arg)
         {
@@ -182,7 +191,10 @@ namespace Aspekt.Bootstrap
                     }
                     else
                         throw new Exception("unknown type");
-                // Charly -- Removed some redundant enum types, since default will catch the ones not stated in the switch statement. 
+                case MetadataType.Object:
+                    // The object comes in as a CustomAttributeArgument.
+                    LoadArg(ic, (CustomAttributeArgument)arg.Value);
+                    return;
                 case MetadataType.Single:
                 case MetadataType.Pointer:
                 case MetadataType.ByReference:
@@ -193,7 +205,6 @@ namespace Aspekt.Bootstrap
                 case MetadataType.IntPtr:
                 case MetadataType.UIntPtr:
                 case MetadataType.FunctionPointer:
-                case MetadataType.Object:
                 case MetadataType.MVar:
                 case MetadataType.RequiredModifier:
                 case MetadataType.OptionalModifier:
@@ -243,6 +254,7 @@ namespace Aspekt.Bootstrap
             {
                 LoadArg(ic, arg);
             }
+            
             ic.NewObj(attr.Constructor);
             ic.Next(OpCodes.Stloc, attrVar);
             return attrVar;
