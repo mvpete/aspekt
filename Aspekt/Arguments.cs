@@ -14,7 +14,7 @@ namespace Aspekt
         public Argument(string name, object value)
         {
             Name = name;
-            Type = value.GetType();
+            Type = value?.GetType();
             Value = value;
         }
     }
