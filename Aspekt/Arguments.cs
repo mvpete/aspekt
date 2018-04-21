@@ -40,9 +40,19 @@ namespace Aspekt
             }
         }
 
+        public object GetArgumentByIndex(int index)
+        {
+            if (index >= Count)
+                throw new IndexOutOfRangeException($"Argument '{index}' out of range");
+            return this[index].Value;
+        }
+
         public object GetArgumentValueByName(String argumentName)
         {
-            return this.FirstOrDefault(i => i.Name == argumentName)?.Value;
+            var argument = this.FirstOrDefault(i => i.Name == argumentName);
+            if(argument == null)
+                throw new ArgumentException($"Argument '{argumentName}' does not exist");
+            return argument.Value;
         } 
 
         public static readonly Arguments Empty = new Arguments();

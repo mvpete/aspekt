@@ -26,6 +26,16 @@ namespace Aspekt.Test
         public void ValueMustBeGreaterThanEqualTo5(int value)
         {
         }
+
+        [NotNull("value")]
+        public void ValueNotNull(string value)
+        {
+        }
+
+        [RequiresArgument("value", typeof(string), Contract.Constraint.NotNull)]
+        public void ValueNotNullConstraint(string value)
+        {
+        }
     }
 
 
@@ -101,6 +111,22 @@ namespace Aspekt.Test
         {
             TestObject to = new TestObject();
             to.ValueMustBeGreaterThanEqualTo5(4);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ContractViolatedException))]
+        public void TestRequiresArgumentNotNull()
+        {
+            var to = new TestObject();
+            to.ValueNotNullConstraint(null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestNotNull()
+        {
+            var to = new TestObject();
+            to.ValueNotNull(null);
         }
 
     }

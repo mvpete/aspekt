@@ -166,13 +166,10 @@ namespace Aspekt.Contracts
         public override void OnEntry(MethodArguments args)
         {
             object arg = null;
-            if (ArgumentIndex != null && ArgumentIndex.Value < args.Arguments.Count)
-                arg = args.Arguments.ElementAt(ArgumentIndex.Value).Value;
+            if (ArgumentIndex != null)
+                arg = args.Arguments.GetArgumentByIndex(ArgumentIndex.Value);
             else
                 arg = args.Arguments.GetArgumentValueByName(ArgumentName);
-
-            if (arg == null)
-                throw new ArgumentException($"Argument '{(ArgumentName == null ? ArgumentIndex.Value.ToString() : ArgumentName)}' does not exist");
 
             if (!Evaluator.Evaluate(arg))
                 throw new ContractViolatedException($"{args.FormattedName} failed pre-condition {Evaluator.ToString()}.");

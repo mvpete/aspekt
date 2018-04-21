@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aspekt.Contracts.Aspects
+namespace Aspekt.Contracts
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class NotNull : Aspect
@@ -24,13 +24,10 @@ namespace Aspekt.Contracts.Aspects
         public override void OnEntry(MethodArguments args)
         {
             object arg = null;
-            if (ArgumentIndex != null && ArgumentIndex.Value < args.Arguments.Count)
-                arg = args.Arguments.ElementAt(ArgumentIndex.Value).Value;
+            if (ArgumentIndex != null)
+                arg = args.Arguments.GetArgumentByIndex(ArgumentIndex.Value);
             else
                 arg = args.Arguments.GetArgumentValueByName(ArgumentName);
-
-            if (arg == null)
-                throw new ArgumentException($"Argument '{(ArgumentName == null ? ArgumentIndex.Value.ToString() : ArgumentName)}' does not exist");
 
             if (arg == null)
                 throw new ArgumentNullException(ArgumentName ?? ArgumentIndex.ToString());
