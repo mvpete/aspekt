@@ -1,4 +1,4 @@
-ASPEKT
+[ASPeKT]
 ===
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ysr9ebr6dwaqamus?svg=true)](https://ci.appveyor.com/project/mvpete/aspekt)
