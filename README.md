@@ -10,9 +10,8 @@ Aspekt is a small AOP foundation library written in C#. Aspect Oriented Programm
 
 ### Usage
 
-The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just derive from Aspekt.Aspect and implement the OnEntry, OnExit, OnException methods. Aspekt will only call the calls implemented on the class i.e. OnEntry, OnExit, OnException -- the issue here now becomes inheritence in Aspects...
+The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just derive from Aspekt.Aspect and implement the OnEntry, OnExit, OnException methods. Aspekt will only place the calls implemented on the class i.e. OnEntry, OnExit, OnException
 
-Also, no PDBs are generated.
 
 ```csharp
 class SampleAspect : Aspekt.Aspect
