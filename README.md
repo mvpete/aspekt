@@ -54,7 +54,7 @@ class Foo
        catch(Exception e)
        {
           sa.OnException(ma,e);
-		  throw;
+          throw;
        }
     }
 }
