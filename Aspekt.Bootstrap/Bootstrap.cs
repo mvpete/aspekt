@@ -1,316 +1,68 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Pdb;
 using Mono.Cecil.Rocks;
-using Mono.Collections.Generic;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace Aspekt.Bootstrap
 {
 
-    class MethodTarget
-    {
-        public MethodDefinition Method { get; internal set; }
-        public VariableDefinition MethodArguments { get; set; }
-        public VariableDefinition Exception { get; set; }
-        public ExceptionHandler ExceptionHandler { get; set; }
-
-        public Instruction StartInstruction { get; set; }
-
-        public MethodTarget(MethodDefinition md)
-        {
-            Method = md;
-        }
-    }
-
     public static class Bootstrap
     {
-        // EnumerateMethods
-        private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodTarget, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
-        {
-            foreach (var t in module.Types)
-            {
-                foreach (var meth in t.Methods)
-                {
-                    var target = new MethodTarget(meth);
-                    foreach (var attr in meth.CustomAttributes)
-                    {
-                        if (pred != null && pred(attr))
-                            enumFn(t, target, attr);
-                    }
-                }
-            }
-        }
-
-        // Enhancement here, use IEnumerable since it's a more generic collection type. (Collection<T> impllements IEnumerable)
-        private static bool HasCustomAttributeType(IEnumerable<CustomAttribute> attributes, Type t)
-        {
-            return attributes.Any(attr => attr.AttributeType.FullName == t.FullName);
-        }
-
-        private static bool CompareParameters(Collection<ParameterDefinition> pars, params Type[] types)
-        {
-            if (pars.Count != types.Length)
-                return false;
-            for(int i=0; i<pars.Count; ++i)
-            {
-                if (pars[i].ParameterType.FullName != types[i].FullName)
-                    return false;
-            }
-            return true;
-        }
-
-        private static bool HasMethod(TypeDefinition td, String methodName, params Type[] types)
-        {
-            return td.Methods.Any((mth) => { return mth.Name == methodName && CompareParameters(mth.Parameters, types); });
-        }
-
-        private static PropertyDefinition GetAttributeProperty(CustomAttribute attr, Predicate<PropertyDefinition> pred)
-        {
-            // FirstOrDefault extension method will return null if no item matches predicate.
-            return attr.AttributeType.Resolve().Properties.FirstOrDefault(p => pred(p));
-        }
-
-
         // Generating IL
 
-        private static VariableDefinition CaptureMethodArguments(InstructionHelper ic, MethodDefinition md)
-        {
-            if (md.Parameters.Count == 0)
-                return null;
-
-            // first we need something to store the parameters in
-            var argList = new VariableDefinition(md.Module.Import(typeof(Arguments)));
-            md.Body.Variables.Add(argList);
-                    
-
-            ic.Next(OpCodes.Ldc_I4, md.Parameters.Count);
-            ic.NewObj<Arguments>(typeof(Int32)); // this will create the object we want on the stack
-            ic.Next(OpCodes.Stloc, argList);
-              
-
-            for (int i = 0; i < md.Parameters.Count; ++i)
-            {
-                var p = md.Parameters[i];
-                var pType = p.ParameterType;
-
-                var arg = new VariableDefinition(md.Module.Import(typeof(Argument)));
-                md.Body.Variables.Add(arg);
-
-                ic.Next(OpCodes.Ldstr, p.Name);
-                ic.Next(OpCodes.Ldarg, p);
-                if (pType.IsValueType || pType.IsGenericParameter)
-                    ic.Next(OpCodes.Box, pType);
-                ic.NewObj<Argument>(typeof(string), typeof(object));
-                ic.Next(OpCodes.Stloc, arg);
-             
-                ic.Next(OpCodes.Ldloc, argList);
-                ic.Next(OpCodes.Ldloc, arg);
-                ic.CallVirt<Arguments>("Add", typeof(Argument));
-
-            }
-
-            return argList;
-        }
-
-        private static String GenerateMethodNameFormat(MethodDefinition md)
-        {
-            var name = md.FullName;
-            int i = 0;
-            foreach (var p in md.Parameters)
-            {
-                name = name.Replace(p.ParameterType.FullName, $"{{{i++}}}");
-            }
-            return name;
-        }
-
-        private static VariableDefinition GenerateMethodArgs(InstructionHelper ic, VariableDefinition argList, MethodDefinition md)
-        {
-            var methArgs = ic.NewVariable<MethodArguments>();
-            ic.Next(OpCodes.Ldstr, md.Name);
-            ic.Next(OpCodes.Ldstr, md.FullName);
-            ic.Next(OpCodes.Ldstr, GenerateMethodNameFormat(md));
-            if (argList == null)
-                ic.Next(OpCodes.Ldnull);
-            else
-                ic.Next(OpCodes.Ldloc, argList);
-
-            if (md.IsStatic)
-            {
-                ic.Next(OpCodes.Ldnull);
-            }
-            else
-                ic.Next(OpCodes.Ldarg_0);
-
-            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(String), typeof(Arguments), typeof(object));
-            ic.Next(OpCodes.Stloc, methArgs);
-            return methArgs;
-        }
-
-        private static void LoadArg(InstructionHelper ic, CustomAttributeArgument arg)
-        {
-            var type = arg.Type.MetadataType;
-            switch (type)
-            {
-                case MetadataType.Void:
-                    throw new Exception("no support for void ctor");
-                case MetadataType.Boolean:
-                    ic.Next(OpCodes.Ldc_I4, (bool)arg.Value);
-                    return;
-                case MetadataType.ValueType:
-                case MetadataType.SByte:
-                case MetadataType.Byte:
-                case MetadataType.Char:
-                case MetadataType.Int16:
-                case MetadataType.Int32:
-                case MetadataType.UInt16:
-                case MetadataType.UInt32:
-                    ic.Next(OpCodes.Ldc_I4, (int)arg.Value);
-                    return;
-		        case MetadataType.Int64:
-                case MetadataType.UInt64:
-                    ic.Next(OpCodes.Ldc_I8, (long)arg.Value);
-                    return;
-                case MetadataType.Double:
-                    ic.Next(OpCodes.Ldc_R8, (double)arg.Value);
-                    return;
-                case MetadataType.String:
-                    ic.Next(OpCodes.Ldstr, (string)arg.Value);
-                    return;
-                case MetadataType.Class:
-                    // If it's a class type AND System.Type then I need to load the type. Otherwise not sure.
-                    if (arg.Type.FullName == typeof(Type).FullName)
-                    {
-                        ic.Next(OpCodes.Ldtoken, (TypeReference)arg.Value);
-                        ic.Call<Type>("GetTypeFromHandle", typeof(RuntimeTypeHandle));
-                        return;
-                    }
-                    else
-                        throw new Exception("unknown type");
-                case MetadataType.Object:
-                    // The object comes in as a CustomAttributeArgument.
-                    LoadArg(ic, (CustomAttributeArgument)arg.Value);
-                    return;
-                case MetadataType.Single:
-                case MetadataType.Pointer:
-                case MetadataType.ByReference:
-                case MetadataType.Var:
-                case MetadataType.Array:
-                case MetadataType.GenericInstance:
-                case MetadataType.TypedByReference:
-                case MetadataType.IntPtr:
-                case MetadataType.UIntPtr:
-                case MetadataType.FunctionPointer:
-                case MetadataType.MVar:
-                case MetadataType.RequiredModifier:
-                case MetadataType.OptionalModifier:
-                case MetadataType.Sentinel:
-                case MetadataType.Pinned:
-                    throw new NotImplementedException($"Type {type} is not implemented");
-                default:
-                    throw new Exception("unknown type");
-            }
-        }
-
-        private static void InsertOnExitCalls(ILProcessor il, ModuleDefinition module, MethodDefinition md, VariableDefinition attrVar, VariableDefinition methArgs)
-        {
-            for(int i=0; i<md.Body.Instructions.Count; ++i)
-            {
-                Instruction inst = md.Body.Instructions[i];
-                // Find each return code, and add our three instructions.
-                if (inst.OpCode == OpCodes.Ret)
-                {
-                    Instruction rep = inst;
-                    if (md.ReturnType.FullName != typeof(void).FullName)
-                        rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
-
-                    var ih = new InstructionHelper(module, il, rep, InstructionHelper.Insert.Before);
-                    ih.Next(OpCodes.Ldloc, attrVar);
-                    ih.Next(OpCodes.Ldloc, methArgs);
-                    ih.CallVirt<Aspect>("OnExit", typeof(MethodArguments));
-                    i = i + 3;  // We just added 3 instructions
-                }
-
-            }
-        }
-
-        private static void InsertOnEntryCalls(InstructionHelper ih, VariableDefinition attrVar, VariableDefinition methArgs)
-        {
-            // load the attribute on the stack
-            ih.Next(OpCodes.Ldloc, attrVar);
-            // load the method args on the stck
-            ih.Next(OpCodes.Ldloc, methArgs);
-            // make the call
-            ih.CallVirt<Aspect>("OnEntry", typeof(MethodArguments));
-        }
-
-        private static VariableDefinition CreateAttribute(InstructionHelper ic, CustomAttribute attr)
-        {
-            // charly some arguments on this method are not used. (methodArgs and md)
-            
-            var attrVar = ic.NewVariable(attr.AttributeType);
-            // put the arguments on the stack. What about calling convention???
-            foreach(var arg in attr.ConstructorArguments)
-            {
-                LoadArg(ic, arg);
-            }
-            
-            ic.NewObj(attr.Constructor);
-            ic.Next(OpCodes.Stloc, attrVar);
-            return attrVar;
-        }
 
         public static void Apply(String targetFileName)
         {
             var rp = new ReaderParameters { ReadSymbols = true };
-            var module = ModuleDefinition.ReadModule(targetFileName, rp);
+            var assembly = AssemblyDefinition.ReadAssembly(targetFileName, rp);
 
             // I know that right now, if we have multiple attributes, we're going to generate multiple method arguments.
             // I know how to deal with this.
-            EnumerateMethodAttributes(module, (classType, target, attr) =>
+            AttributeEnumerator.EnumerateMethodAttributes(assembly, (classType, target, attr) =>
              {
                  var meth = target.Method;
+                 var module = meth.Module;
+
                  // In order to work with the parameters call simplifymacros / optimize macros
                  meth.Body.SimplifyMacros();
                  var il = meth.Body.GetILProcessor();
 
                  var fi = meth.Body.Instructions.First();
                  InstructionHelper ih;
-                 
+
                  // This is really hacky. This is used to signal whether it's our first aspect, or 
                  // the next one.
-                 if(target.StartInstruction == null)
-                    ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
+                 if (target.StartInstruction == null)
+                     ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
                  else
-                    ih = new InstructionHelper(module, il, target.StartInstruction, InstructionHelper.Insert.After);
-                 
+                     ih = new InstructionHelper(module, il, target.StartInstruction, InstructionHelper.Insert.After);
+
                  if (target.MethodArguments == null)
                  {
-                    var args = CaptureMethodArguments(ih, meth);
-                    target.MethodArguments = GenerateMethodArgs(ih, args, meth);
+                     var args = IlGenerator.CaptureMethodArguments(ih, meth);
+                     target.MethodArguments = IlGenerator.GenerateMethodArgs(ih, args, meth);
                  }
 
-                 
+
                  // if the attribute overrides the method, we will put the call in.
                  // Otherwise, we will not.
-                 var attrVar = CreateAttribute(ih, attr);
+                 var attrVar = IlGenerator.CreateAttribute(ih, attr);
 
-                 if(HasMethod(attr.AttributeType.Resolve(), "OnEntry", typeof(MethodArguments)))
-                    InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
+                 if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnEntry), typeof(MethodArguments)))
+                     IlGenerator.InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
 
                  target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
 
                  // walk the instructions looking for returns, based on what teh function is returning 
                  // is where we inject the OnExit instructions.
                  // so how do I tell what the function returns?
-                 if (HasMethod(attr.AttributeType.Resolve(), "OnExit", typeof(MethodArguments)))
-                     InsertOnExitCalls(il,module,meth,attrVar,target.MethodArguments);
+                 if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments)))
+                     IlGenerator.InsertOnExitCalls(il, module, meth, attrVar, target.MethodArguments);
 
 
-                 if (HasMethod(attr.AttributeType.Resolve(), "OnException", typeof(MethodArguments), typeof(Exception)))
+                 if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception)))
                  {
                      if (target.ExceptionHandler == null)
                      {
@@ -322,7 +74,7 @@ namespace Aspekt.Bootstrap
                             .Next(OpCodes.Ldloc, attrVar)
                             .Next(OpCodes.Ldloc, target.MethodArguments)
                             .Next(OpCodes.Ldloc_S, exception)
-                            .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception))
+                            .CallVirt<Aspect>(nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception))
                             .Next(OpCodes.Rethrow)
                             .Next(OpCodes.Ret);
 
@@ -345,12 +97,10 @@ namespace Aspekt.Bootstrap
                          c.Next(OpCodes.Ldloc, attrVar)
                              .Next(OpCodes.Ldloc, target.MethodArguments)
                              .Next(OpCodes.Ldloc_S, target.Exception)
-                             .CallVirt<Aspect>("OnException", typeof(MethodArguments), typeof(Exception));
+                             .CallVirt<Aspect>(nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception));
                      }
-                     
-                 }
 
-                 
+                 }
 
                  meth.Body.OptimizeMacros();
              }, (attr) =>
@@ -371,7 +121,7 @@ namespace Aspekt.Bootstrap
             {
                 wp.WriteSymbols = true;
             }
-            module.Write(targetFileName, wp);
+            assembly.Write(targetFileName, wp);
         }
     }
 

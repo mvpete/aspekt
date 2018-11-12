@@ -23,6 +23,24 @@ namespace Aspekt.Target
         }
     }
 
+    class TargetClassAttribute : Aspect
+    {
+        public TargetClassAttribute()
+        {
+        }
+        public override void OnEntry(MethodArguments args)
+        {
+        }
+
+        public override void OnException(MethodArguments args, Exception e)
+        {
+        }
+
+        public override void OnExit(MethodArguments args)
+        {
+        }
+    }
+
     class TestAttribute : Aspect
     {
         public TestAttribute(object obj)
@@ -31,6 +49,7 @@ namespace Aspekt.Target
         }
     } 
 
+    [TargetClassAttribute]
     class Application
     {
 

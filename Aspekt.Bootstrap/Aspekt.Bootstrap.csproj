@@ -56,8 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributeEnumerator.cs" />
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="IlGenerator.cs" />
     <Compile Include="InstructionHelper.cs" />
+    <Compile Include="MethodTarget.cs" />
+    <Compile Include="MethodTraits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
