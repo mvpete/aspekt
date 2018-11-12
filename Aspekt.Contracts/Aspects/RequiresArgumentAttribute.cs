@@ -38,6 +38,7 @@ namespace Aspekt.Contracts
 
             Evaluator = ContractEvaluatorFactory.Create(op, value);
         }
+
         public RequiresArgumentAttribute(String argumentName, Type argumentType, Contract.Comparison op, double value)
         {
             ArgumentName = argumentName;
@@ -45,6 +46,7 @@ namespace Aspekt.Contracts
 
             Evaluator = ContractEvaluatorFactory.Create(op, value);
         }
+
         public RequiresArgumentAttribute(String argumentName, Type argumentType, Contract.Comparison op, float value)
         {
             ArgumentName = argumentName;
@@ -117,6 +119,7 @@ namespace Aspekt.Contracts
 
             Evaluator = ContractEvaluatorFactory.Create(op, value);
         }
+
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, double value)
         {
             ArgumentIndex = argumentIndex;
@@ -124,6 +127,7 @@ namespace Aspekt.Contracts
 
             Evaluator = ContractEvaluatorFactory.Create(op, value);
         }
+
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, float value)
         {
             ArgumentIndex = argumentIndex;
@@ -163,6 +167,7 @@ namespace Aspekt.Contracts
 
             Evaluator = ContractEvaluatorFactory.Create(op, value);
         }
+
         public override void OnEntry(MethodArguments args)
         {
             object arg = null;

@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace Aspekt.Contracts
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-    public class InvariantAttribute : Aspect
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
+    class InvariantAttribute : Aspect
     {
 
         String NameOf { get; set; }
@@ -111,7 +111,7 @@ namespace Aspekt.Contracts
                     {
                         // find the field
                         var inst = args.Instance;
-                        var field = inst.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
+                        var field = inst.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
                         if (field == null)
                             throw new MissingFieldException($"{NameOf} field does not exist on object {args.Instance.GetType()}.");
 
@@ -123,9 +123,10 @@ namespace Aspekt.Contracts
                     {
                         // find the field
                         var inst = args.Instance;
-                        var field = inst.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
+                        var type = inst.GetType();
+                        var field = inst.GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
                         if (field == null)
-                            throw new MissingFieldException($"{NameOf} field does not exist on object {args.Instance.GetType()}.");
+                            throw new MissingFieldException($"{NameOf} property does not exist on object {args.Instance.GetType()}.");
 
                         if (!Evaluator.Evaluate(field.GetValue(inst)))
                             throw new ContractViolatedException($"{args.FormattedName} {condition} property '{NameOf}' failed invariant {Evaluator.ToString()}.");

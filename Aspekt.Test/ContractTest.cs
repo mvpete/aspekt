@@ -36,6 +36,7 @@ namespace Aspekt.Test
         public void ValueNotNullConstraint(string value)
         {
         }
+
     }
 
 
@@ -72,6 +73,7 @@ namespace Aspekt.Test
             to.ValueMustBeLessThanEqualTo5(4);
             to.ValueMustBeLessThanEqualTo5(5);
         }
+
         [TestMethod]
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessThanEqualToViolated()
@@ -105,6 +107,7 @@ namespace Aspekt.Test
             to.ValueMustBeGreaterThanEqualTo5(10);
             to.ValueMustBeGreaterThanEqualTo5(5);
         }
+
         [TestMethod]
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessGreaterEqualToViolated()
@@ -129,5 +132,19 @@ namespace Aspekt.Test
             to.ValueNotNull(null);
         }
 
+        [TestMethod]
+        public void TestSetInvariantToValue()
+        {
+            var to = new TestObject();
+            to.SetMyInvariant("Value");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ContractViolatedException))]
+        public void TestSetInvariantNull()
+        {
+            var to = new TestObject();
+            to.SetMyInvariant(null);
+        }
     }
 }

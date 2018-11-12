@@ -32,6 +32,7 @@ namespace Aspekt.Bootstrap
         private static void EnumerateMethodAttributes(ModuleDefinition module, Action<TypeDefinition, MethodTarget, CustomAttribute> enumFn, Predicate<CustomAttribute> pred)
         {
             foreach (var t in module.Types)
+            {
                 foreach (var meth in t.Methods)
                 {
                     var target = new MethodTarget(meth);
@@ -41,6 +42,7 @@ namespace Aspekt.Bootstrap
                             enumFn(t, target, attr);
                     }
                 }
+            }
         }
 
         // Enhancement here, use IEnumerable since it's a more generic collection type. (Collection<T> impllements IEnumerable)
@@ -148,9 +150,6 @@ namespace Aspekt.Bootstrap
             return methArgs;
         }
 
-
-
-
         private static void LoadArg(InstructionHelper ic, CustomAttributeArgument arg)
         {
             var type = arg.Type.MetadataType;
@@ -216,11 +215,12 @@ namespace Aspekt.Bootstrap
             }
         }
 
-        private static void PlaceOnExitCalls(ILProcessor il, ModuleDefinition module, MethodDefinition md, VariableDefinition attrVar, VariableDefinition methArgs)
+        private static void InsertOnExitCalls(ILProcessor il, ModuleDefinition module, MethodDefinition md, VariableDefinition attrVar, VariableDefinition methArgs)
         {
             for(int i=0; i<md.Body.Instructions.Count; ++i)
             {
                 Instruction inst = md.Body.Instructions[i];
+                // Find each return code, and add our three instructions.
                 if (inst.OpCode == OpCodes.Ret)
                 {
                     Instruction rep = inst;
@@ -239,12 +239,15 @@ namespace Aspekt.Bootstrap
 
         private static void InsertOnEntryCalls(InstructionHelper ih, VariableDefinition attrVar, VariableDefinition methArgs)
         {
+            // load the attribute on the stack
             ih.Next(OpCodes.Ldloc, attrVar);
+            // load the method args on the stck
             ih.Next(OpCodes.Ldloc, methArgs);
+            // make the call
             ih.CallVirt<Aspect>("OnEntry", typeof(MethodArguments));
         }
 
-        private static VariableDefinition CreateAttribute(InstructionHelper ic, VariableDefinition methodArgs, MethodDefinition md, CustomAttribute attr)
+        private static VariableDefinition CreateAttribute(InstructionHelper ic, CustomAttribute attr)
         {
             // charly some arguments on this method are not used. (methodArgs and md)
             
@@ -270,11 +273,15 @@ namespace Aspekt.Bootstrap
             EnumerateMethodAttributes(module, (classType, target, attr) =>
              {
                  var meth = target.Method;
+                 // In order to work with the parameters call simplifymacros / optimize macros
                  meth.Body.SimplifyMacros();
                  var il = meth.Body.GetILProcessor();
 
                  var fi = meth.Body.Instructions.First();
                  InstructionHelper ih;
+                 
+                 // This is really hacky. This is used to signal whether it's our first aspect, or 
+                 // the next one.
                  if(target.StartInstruction == null)
                     ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
                  else
@@ -289,7 +296,7 @@ namespace Aspekt.Bootstrap
                  
                  // if the attribute overrides the method, we will put the call in.
                  // Otherwise, we will not.
-                 var attrVar = CreateAttribute(ih, target.MethodArguments, meth, attr);
+                 var attrVar = CreateAttribute(ih, attr);
 
                  if(HasMethod(attr.AttributeType.Resolve(), "OnEntry", typeof(MethodArguments)))
                     InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
@@ -300,7 +307,7 @@ namespace Aspekt.Bootstrap
                  // is where we inject the OnExit instructions.
                  // so how do I tell what the function returns?
                  if (HasMethod(attr.AttributeType.Resolve(), "OnExit", typeof(MethodArguments)))
-                     PlaceOnExitCalls(il,module,meth,attrVar,target.MethodArguments);
+                     InsertOnExitCalls(il,module,meth,attrVar,target.MethodArguments);
 
 
                  if (HasMethod(attr.AttributeType.Resolve(), "OnException", typeof(MethodArguments), typeof(Exception)))
@@ -352,7 +359,7 @@ namespace Aspekt.Bootstrap
                  {
                      return attr.AttributeType.Resolve().BaseType.FullName == (typeof(Aspect).FullName);
                  }
-                 catch (Exception e)
+                 catch (Exception)
                  {
                      return false; // if we can't resolve, then we just skip it.
                  }
