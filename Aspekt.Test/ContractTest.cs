@@ -132,19 +132,5 @@ namespace Aspekt.Test
             to.ValueNotNull(null);
         }
 
-        [TestMethod]
-        public void TestSetInvariantToValue()
-        {
-            var to = new TestObject();
-            to.SetMyInvariant("Value");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ContractViolatedException))]
-        public void TestSetInvariantNull()
-        {
-            var to = new TestObject();
-            to.SetMyInvariant(null);
-        }
     }
 }
