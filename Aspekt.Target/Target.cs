@@ -66,22 +66,16 @@ namespace Aspekt.Target
             Console.Write($"Some Value: {someValue}");
         }
 
-        [Log]
         public static void Bar()
         {
-
-
-
             Console.WriteLine("Bar None");
 
         }
         
         public enum Choice { Yes, No}
         [Target(6)]
-        [Log]
         public static void Test(object otter, Type tail, int indigo, Choice choice)
         {
-            LogWriter.Debug("the quick brown fox.");
         }
     }
 }

@@ -2,6 +2,7 @@
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace Aspekt.Bootstrap
 {
@@ -60,10 +61,21 @@ namespace Aspekt.Bootstrap
             return NewVariable(module_.Import(t));
         }
 
+        public InstructionHelper Call(TypeDefinition type, string callName, params Type[] args)
+        {
+            var mth = type.Methods.SingleOrDefault(m => m.Name == callName && m.Parameters.Select(p => p.ParameterType).SequenceEqual(args.Select(a => module_.Import(a))));
+            return Call(mth);
+        }
+
+        public InstructionHelper Call(Type type, string callName, params Type[] args)
+        {
+            var mth = type.GetMethod(callName, args);
+            return Call(module_.Import(mth));
+        }
+
         public InstructionHelper Call<T>(String callName, params Type[] args)
         {
-            var mth = typeof(T).GetMethod(callName, args);
-            return Call(module_.Import(mth));
+            return Call(typeof(T), callName, args);
         }
 
         public InstructionHelper Call(MethodDefinition md)

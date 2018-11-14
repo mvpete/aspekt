@@ -107,7 +107,8 @@ namespace Aspekt.Bootstrap
              {
                  try
                  {
-                     return attr.AttributeType.Resolve().BaseType.FullName == (typeof(Aspect).FullName);
+                     var type = attr.AttributeType.Resolve();
+                     return type.IsSubclassOf(typeof(Aspect));
                  }
                  catch (Exception)
                  {

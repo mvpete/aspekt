@@ -3,33 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aspekt.Logging.Targets
 {
     public class ConsoleLogTarget : ILogTarget
     {
-        public Levels Level { get; set; }
-
-        public ConsoleColor TextColor
+        public void Log(Levels level, string message)
         {
-            get { return Console.ForegroundColor; }
-            set { Console.ForegroundColor = value; }
+            var now = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff");
+            var tid = Thread.CurrentThread.ManagedThreadId;
+            var lvl = level.ToLogString();
+            Console.WriteLine($"{now} {tid} {lvl}: {message}");            
         }
 
-        public void Write(string message)
-        {
-            Console.Write(message);
-        }
-
-        public void WriteLine()
-        {
-            Console.WriteLine();
-        }
-
-        public void WriteLine(string message)
-        {
-            Console.WriteLine(message);
-        }
     }
 }

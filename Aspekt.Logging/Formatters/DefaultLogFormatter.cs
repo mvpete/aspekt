@@ -7,55 +7,21 @@ using System.Threading.Tasks;
 
 namespace Aspekt.Logging.Formatters
 {
-    public class DefaultLogFormatter : ILogFormatter
+    public class DefaultLogFormatter : ILogMessageFormatter
     {
-
-        public enum LineEndings { CR, CRLF, DEFAULT }
-
-        public LineEndings LineEnding { get; set; }
-
-        public DefaultLogFormatter()
+        public string Format(Events evt, MethodArguments a, Exception e)
         {
-            LineEnding = LineEndings.DEFAULT;
-        }
-
-
-        public void Format(LogMessage msg, ILogTarget target)
-        {
-            var message = $"{msg.Time.UtcDateTime.ToString("o")} {ToString(msg.Level)}: tid={msg.Thread.ManagedThreadId}; {msg.Message}";
-            target.Write(message);
-            switch (LineEnding)
+            switch (evt)
             {
-                case LineEndings.CR:
-                    target.Write("\r");
-                    break;
-                case LineEndings.CRLF:
-                    target.Write("\r\n");
-                    break;
+                case Events.OnEnter:
+                    return string.Format($"Entering {a.FormattedName}", a.Arguments.ToArray());
+                case Events.OnExit:
+                    return string.Format($"Exiting {a.FullName}");
+                case Events.OnException:
+                    return string.Format($"Exception occured {a.FullName}; {e.Message}");
                 default:
-                    target.WriteLine();
-                    break;
-            }
-
-        }
-
-        private String ToString(Levels lvl)
-        {
-            switch (lvl)
-            {
-                case Levels.Trace:
-                    return "T";
-                case Levels.Debug:
-                    return "D";
-                case Levels.Information:
-                    return "I";
-                case Levels.Warning:
-                    return "W";
-                default:
-                case Levels.Error:
-                    return "E";
+                    throw new InvalidOperationException("unknown log event");
             }
         }
-
     }
 }

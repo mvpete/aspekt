@@ -1,9 +1,17 @@
-﻿using System;
+﻿using Aspekt.Logging;
+using System;
 
 namespace Aspekt.Target
 {
     class Program
     {
+        [Log]
+        void Foo()
+        {
+            LogAttribute la = new LogAttribute();
+            la.OnEntryLevel = Levels.Debug;
+        }
+
         static void Main(string[] args)
         {
             while (true)

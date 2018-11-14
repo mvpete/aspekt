@@ -63,6 +63,7 @@
     <Compile Include="MethodTarget.cs" />
     <Compile Include="MethodTraits.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeDefinitonExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aspekt\Aspekt.csproj">

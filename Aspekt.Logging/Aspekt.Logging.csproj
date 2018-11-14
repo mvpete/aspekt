@@ -40,14 +40,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspects\LoggedAttribute.cs" />
+    <Compile Include="Aspects\LogAttribute.cs" />
+    <Compile Include="Aspects\LogEntryAttribute.cs" />
+    <Compile Include="Aspects\LogExceptionAttribute.cs" />
+    <Compile Include="Aspects\LogExitAttribute.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Formatters\DefaultLogFormatter.cs" />
     <Compile Include="Interfaces\ILogFormatter.cs" />
     <Compile Include="Interfaces\ILogTarget.cs" />
-    <Compile Include="LogWriter.cs" />
     <Compile Include="LoggingService.cs" />
-    <Compile Include="LogMessage.cs" />
+    <Compile Include="Enumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Targets\ActionLogTarget.cs" />
     <Compile Include="Targets\ConsoleLogTarget.cs" />
   </ItemGroup>
   <ItemGroup>

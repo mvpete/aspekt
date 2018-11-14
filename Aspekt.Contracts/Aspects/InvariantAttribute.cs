@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace Aspekt.Contracts
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true)]
-    class InvariantAttribute : Aspect
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class InvariantAttribute : Aspect
     {
 
         String NameOf { get; set; }

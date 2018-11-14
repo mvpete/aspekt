@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Aspekt.Logging.Interfaces
 {
-    public interface ILogFormatter
+    public interface ILogMessageFormatter
     {
-        void Format(LogMessage msg, ILogTarget target);
+        String Format(Events evt, MethodArguments a, Exception e);
     }
 }

@@ -8,10 +8,6 @@ namespace Aspekt.Logging.Interfaces
 {
     public interface ILogTarget
     {
-        Levels Level { get; }
-        void Write(String message);
-        void WriteLine(String message);
-        void WriteLine();
-        ConsoleColor TextColor { get; set; }
+        void Log(Levels level, String message);
     }
 }

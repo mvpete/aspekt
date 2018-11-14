@@ -219,8 +219,6 @@ namespace Aspekt.Bootstrap
 
         public static VariableDefinition CreateAttribute(InstructionHelper ic, CustomAttribute attr)
         {
-            // charly some arguments on this method are not used. (methodArgs and md)
-
             var attrVar = ic.NewVariable(attr.AttributeType);
             // put the arguments on the stack. What about calling convention???
             foreach (var arg in attr.ConstructorArguments)
@@ -232,5 +230,7 @@ namespace Aspekt.Bootstrap
             ic.Next(OpCodes.Stloc, attrVar);
             return attrVar;
         }
+
+        
     }
 }
