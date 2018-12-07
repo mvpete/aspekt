@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aspekt.Contracts.Contracts
+namespace Aspekt.Contracts
 {
     class ComparisonContractEvaluator : IContractEvaluator
     {

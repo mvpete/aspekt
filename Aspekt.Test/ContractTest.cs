@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Aspekt.Contracts;
-using Aspekt.Contracts.Contracts;
+
 
 namespace Aspekt.Test
 {

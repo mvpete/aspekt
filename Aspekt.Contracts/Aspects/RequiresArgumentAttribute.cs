@@ -1,4 +1,4 @@
-﻿using Aspekt.Contracts.Contracts;
+﻿using Aspekt.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

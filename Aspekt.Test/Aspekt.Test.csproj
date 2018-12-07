@@ -53,6 +53,7 @@
     <Compile Include="ClassLevelAspect.cs" />
     <Compile Include="ClassUnderTest.cs" />
     <Compile Include="DummyClass.cs" />
+    <Compile Include="InvariantTest.cs" />
     <Compile Include="MockAspect.cs" />
     <Compile Include="FoundationTest.cs" />
     <Compile Include="ModuleLevelAspect.cs" />

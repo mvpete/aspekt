@@ -40,8 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspects\InvariantAttribute.cs" />
+    <Compile Include="Aspects\FieldInvariantAttribute.cs" />
     <Compile Include="Aspects\NotNull.cs" />
+    <Compile Include="Aspects\PropertyInvariantAttribute.cs" />
     <Compile Include="Aspects\RequiresArgumentAttribute.cs" />
     <Compile Include="Contract.cs" />
     <Compile Include="Contracts\ComparisonContractEvaluator.cs" />
