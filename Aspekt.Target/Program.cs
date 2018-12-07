@@ -9,7 +9,6 @@ namespace Aspekt.Target
         void Foo()
         {
             LogAttribute la = new LogAttribute();
-            la.OnEntryLevel = Levels.Debug;
         }
 
         static void Main(string[] args)
