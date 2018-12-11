@@ -20,17 +20,17 @@ class SampleAspect : Aspekt.Aspect
    {
    }
 
-   public OnEntry(MethodArgs ma)
+   public void override OnEntry(MethodArgs ma)
    {
       // called before any existing code is ran
    }
 
-   public OnExit(MethodArgs ma)
+   public void override OnExit(MethodArgs ma)
    {
      // called before ANY return statement
    }
 
-   public OnException(MethodArgs ma, Exception e)
+   public void override OnException(MethodArgs ma, Exception e)
    {
      // called if existing codes excepts
    }
@@ -61,9 +61,12 @@ class Foo
  ```
  Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
+If you're using NuGet to get ASPeKT, your project will have the appropriate post build steps. You can ignore anything below.
+
 Since Aspekt works post compile, in order to use it you must run the Bootstrap application against your assembly.
     
     > Aspekt.Bootstrap.Host [PathToAssembly] 
 
 This will process the assembly and add in the aspects to their respective members.
+
 
