@@ -6,7 +6,7 @@
 A lightweight (Aspect Oriented Programming) AOP foundation
 
 ### Overview
-Aspekt is a small AOP foundation library written in C#. Aspect Oriented Programming (AOP) allows to ease the pain associated with cross-cutting concerns. A cross-cutting concern is a pattern that gets across a program that cannot easily be factored into its own module. This raises the so called signal-to-noise ratio. One common cross cutting concern is logging, when logging entry/exit/exception of a function, the code becomes cluttered with log code and the intent can become lost. Aspekt addresses these concerns, by using attributes as annotation of functions. Like PostSharp aspect utilizes Mono.Cecil to post process the .NET binaries, inserting the aspects post build.
+Aspekt is a small AOP foundation library written in C#. Aspect Oriented Programming (AOP) allows to ease the pain associated with cross-cutting concerns. A cross-cutting concern is a pattern that gets across a program that cannot easily be factored into its own module. This raises the so called signal-to-noise ratio. One common cross cutting concern is logging, when logging entry/exit/exception of a function, the code becomes cluttered with log code and the intent can become lost. Aspekt addresses these concerns, by using attributes as annotation of functions. Like PostSharp aspect utilizes post processing of the .NET binaries, inserting the aspects post build. For ASPeKT this is done using Mono.Cecil.
 
 ### Usage
 
