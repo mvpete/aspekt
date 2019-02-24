@@ -8,7 +8,7 @@ namespace Aspekt.Contracts
     /// <summary>
     /// PropertInvariant, by nature of how a property works, we can only ever evaluate the backing
     /// field on the Exit. Typically this property invariant would only ever be used on auto-properties
-    /// which means they will be set via the set_Property function. Which will be tested on exit of 
+    /// which means they will be set via the set_Property function. Which will be tested on exit of
     /// the function.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
@@ -17,70 +17,70 @@ namespace Aspekt.Contracts
 
         public string NameOf { get; set; }
 
-        private readonly IContractEvaluator _evaluator;
+        private readonly IContractEvaluator evaluator_;
 
         #region Constructors
         public PropertyInvariantAttribute(string nameOf, Contract.Constraint constraint)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(constraint);
+            evaluator_ = ContractEvaluatorFactory.Create(constraint);
         }
         // One of the following types: bool, byte, char,  double, float, int, long, short, string
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, bool value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, byte value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, char value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, double value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, float value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, int value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
 
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, long value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
 
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, short value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
 
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, string value)
         {
             NameOf = nameOf;
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
         #endregion
@@ -113,10 +113,10 @@ namespace Aspekt.Contracts
 
             var v = field.GetValue(inst);
 
-            if (!_evaluator.Evaluate(field.GetValue(inst)))
+            if (!evaluator_.Evaluate(field.GetValue(inst)))
             {
                 throw new ContractViolatedException(
-                    $"{args.FormattedName} {condition} property '{NameOf}' failed invariant {_evaluator}.");
+                    $"{args.FormattedName} {condition} property '{NameOf}' failed invariant {evaluator_}.");
             }
         }
 

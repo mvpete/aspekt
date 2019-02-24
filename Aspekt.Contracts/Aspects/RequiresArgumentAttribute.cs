@@ -14,7 +14,7 @@ namespace Aspekt.Contracts
         public int? ArgumentIndex { get; set; }
         public Type ArgumentType { get; set; }
 
-        private readonly IContractEvaluator _evaluator;
+        private readonly IContractEvaluator evaluator_;
 
         // One of the following types: bool, byte, char,  double, float, int, long, short, string
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, bool value)
@@ -22,7 +22,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, byte value)
@@ -30,7 +30,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, char value)
@@ -38,7 +38,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, double value)
@@ -46,7 +46,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, float value)
@@ -54,7 +54,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, int value)
@@ -62,7 +62,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, long value)
@@ -70,7 +70,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, short value)
@@ -78,7 +78,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(string argumentName, Type argumentType, Contract.Comparison op, string value)
@@ -86,7 +86,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
 
@@ -95,7 +95,7 @@ namespace Aspekt.Contracts
             ArgumentName = argumentName;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(c);
+            evaluator_ = ContractEvaluatorFactory.Create(c);
 
         }
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, bool value)
@@ -103,7 +103,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, byte value)
@@ -111,7 +111,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, char value)
@@ -119,7 +119,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, double value)
@@ -127,7 +127,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, float value)
@@ -135,7 +135,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, int value)
@@ -143,7 +143,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, long value)
@@ -151,7 +151,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, short value)
@@ -159,7 +159,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public RequiresArgumentAttribute(int argumentIndex, Type argumentType, Contract.Comparison op, string value)
@@ -167,7 +167,7 @@ namespace Aspekt.Contracts
             ArgumentIndex = argumentIndex;
             ArgumentType = argumentType;
 
-            _evaluator = ContractEvaluatorFactory.Create(op, value);
+            evaluator_ = ContractEvaluatorFactory.Create(op, value);
         }
 
         public override void OnEntry(MethodArguments args)
@@ -182,9 +182,9 @@ namespace Aspekt.Contracts
                 arg = args.Arguments.GetArgumentValueByName(ArgumentName);
             }
 
-            if (!_evaluator.Evaluate(arg))
+            if (!evaluator_.Evaluate(arg))
             {
-                throw new ContractViolatedException($"{args.FormattedName} failed pre-condition {_evaluator}.");
+                throw new ContractViolatedException($"{args.FormattedName} failed pre-condition {evaluator_}.");
             }
         }
 
