@@ -17,7 +17,7 @@ namespace Aspekt.Bootstrap
                 return null;
 
             // first we need something to store the parameters in
-            var argList = new VariableDefinition(md.Module.Import(typeof(Arguments)));
+            var argList = new VariableDefinition(md.Module.ImportReference(typeof(Arguments)));
             md.Body.Variables.Add(argList);
 
 
@@ -31,7 +31,7 @@ namespace Aspekt.Bootstrap
                 var p = md.Parameters[i];
                 var pType = p.ParameterType;
 
-                var arg = new VariableDefinition(md.Module.Import(typeof(Argument)));
+                var arg = new VariableDefinition(md.Module.ImportReference(typeof(Argument)));
                 md.Body.Variables.Add(arg);
 
                 ic.Next(OpCodes.Ldstr, p.Name);

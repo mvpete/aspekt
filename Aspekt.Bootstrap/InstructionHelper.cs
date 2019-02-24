@@ -36,7 +36,7 @@ namespace Aspekt.Bootstrap
         {
             // get the constructor ref
             var ctor = typeof(T).GetConstructor(args);
-            var ctorRef = module_.Import(ctor);
+            var ctorRef = module_.ImportReference(ctor);
             return NewObj(ctorRef);
         }
         public InstructionHelper NewObj(MethodReference t)
@@ -58,19 +58,19 @@ namespace Aspekt.Bootstrap
 
         public VariableDefinition NewVariable(Type t)
         {
-            return NewVariable(module_.Import(t));
+            return NewVariable(module_.ImportReference(t));
         }
 
         public InstructionHelper Call(TypeDefinition type, string callName, params Type[] args)
         {
-            var mth = type.Methods.SingleOrDefault(m => m.Name == callName && m.Parameters.Select(p => p.ParameterType).SequenceEqual(args.Select(a => module_.Import(a))));
+            var mth = type.Methods.SingleOrDefault(m => m.Name == callName && m.Parameters.Select(p => p.ParameterType).SequenceEqual(args.Select(a => module_.ImportReference(a))));
             return Call(mth);
         }
 
         public InstructionHelper Call(Type type, string callName, params Type[] args)
         {
             var mth = type.GetMethod(callName, args);
-            return Call(module_.Import(mth));
+            return Call(module_.ImportReference(mth));
         }
 
         public InstructionHelper Call<T>(String callName, params Type[] args)
@@ -80,7 +80,7 @@ namespace Aspekt.Bootstrap
 
         public InstructionHelper Call(MethodDefinition md)
         {
-            return Call(module_.Import(md));
+            return Call(module_.ImportReference(md));
         }
 
         public InstructionHelper Call(MethodReference mr)
@@ -91,14 +91,14 @@ namespace Aspekt.Bootstrap
         public InstructionHelper CallVirt<T>(String callName, params Type[] args)
         {
             var mth = typeof(T).GetMethod(callName, args);
-            return Next(OpCodes.Callvirt, module_.Import(mth));
+            return Next(OpCodes.Callvirt, module_.ImportReference(mth));
         }
          
         public InstructionHelper CallVirt(TypeReference tr, String methodName, params Type[] args)
         {
             var t = Type.GetType(tr.FullName + ", " + tr.Module.Assembly.FullName);
             var mth = t.GetMethod(methodName, args);
-            return Next(OpCodes.Callvirt, module_.Import(mth));
+            return Next(OpCodes.Callvirt, module_.ImportReference(mth));
         }
 
         public InstructionHelper Next(Instruction i)

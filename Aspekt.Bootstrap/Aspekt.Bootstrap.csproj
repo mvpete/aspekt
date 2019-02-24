@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.9.6.4" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.3" />
   </ItemGroup>
 </Project>
