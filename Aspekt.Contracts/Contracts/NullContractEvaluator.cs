@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Aspekt.Contracts
 {
-    class NullContractEvaluator : IContractEvaluator
+    internal class NullContractEvaluator : IContractEvaluator
     {
         public Contract.Constraint Constraint { get; set; }
         public NullContractEvaluator(Contract.Constraint c)
@@ -27,7 +27,7 @@ namespace Aspekt.Contracts
             }
         }
 
-        public override String ToString()
+        public override string ToString()
         {
             switch (Constraint)
             {

@@ -1,7 +1,6 @@
-﻿namespace Aspekt.Test
+namespace Aspekt.Test
 {
-    
-    class DummyClass
+    internal class DummyClass
     {
         [MockAspect("Call")]
         public int Call()

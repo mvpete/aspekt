@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Aspekt.Contracts;
 
 
 namespace Aspekt.Test
 {
-    class TestObject
+    internal class TestObject
     {
         [RequiresArgument("value", typeof(int), Contract.Comparison.LessThan, 5)]
         public void ValueMustBeLessThan5(int value)
@@ -46,7 +46,7 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestRequiresArgumentLessThan()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeLessThan5(4);
         }
 
@@ -54,22 +54,22 @@ namespace Aspekt.Test
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessThanViolatedEqualTo()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeLessThan5(5);
         }
         [TestMethod]
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessThanViolated()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeLessThan5(6);
         }
 
         [TestMethod]
         public void TestRequiresArgumentLessThanEqualTo()
         {
-            TestObject to = new TestObject();
-            to.ValueMustBeLessThanEqualTo5(Int32.MinValue);
+            var to = new TestObject();
+            to.ValueMustBeLessThanEqualTo5(int.MinValue);
             to.ValueMustBeLessThanEqualTo5(4);
             to.ValueMustBeLessThanEqualTo5(5);
         }
@@ -78,15 +78,15 @@ namespace Aspekt.Test
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessThanEqualToViolated()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeLessThanEqualTo5(6);
         }
 
         [TestMethod]
         public void TestRequiresArgumentGreaterThan()
         {
-            TestObject to = new TestObject();
-            to.ValueMustBeGreaterThan5(Int32.MaxValue);
+            var to = new TestObject();
+            to.ValueMustBeGreaterThan5(int.MaxValue);
             to.ValueMustBeGreaterThan5(10);
             to.ValueMustBeGreaterThan5(6);
         }
@@ -95,15 +95,15 @@ namespace Aspekt.Test
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentGreaterThanViolated()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeGreaterThan5(5);
         }
 
         [TestMethod]
         public void TestRequiresArgumentGreaterThanEqualTo()
         {
-            TestObject to = new TestObject();
-            to.ValueMustBeGreaterThanEqualTo5(Int32.MaxValue);
+            var to = new TestObject();
+            to.ValueMustBeGreaterThanEqualTo5(int.MaxValue);
             to.ValueMustBeGreaterThanEqualTo5(10);
             to.ValueMustBeGreaterThanEqualTo5(5);
         }
@@ -112,7 +112,7 @@ namespace Aspekt.Test
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestRequiresArgumentLessGreaterEqualToViolated()
         {
-            TestObject to = new TestObject();
+            var to = new TestObject();
             to.ValueMustBeGreaterThanEqualTo5(4);
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,8 +9,8 @@ namespace Aspekt.Contracts
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class NotNull : Aspect
     {
-        String ArgumentName { get; set; }
-        int? ArgumentIndex { get; set; }
+        public string ArgumentName { get; set; }
+        public int? ArgumentIndex { get; set; }
 
         public NotNull(int argumentIndex)
         {
@@ -25,13 +25,18 @@ namespace Aspekt.Contracts
         {
             object arg = null;
             if (ArgumentIndex != null)
+            {
                 arg = args.Arguments.GetArgumentByIndex(ArgumentIndex.Value);
+            }
             else
+            {
                 arg = args.Arguments.GetArgumentValueByName(ArgumentName);
+            }
 
             if (arg == null)
+            {
                 throw new ArgumentNullException(ArgumentName ?? ArgumentIndex.ToString());
-
+            }
         }
     }
 }

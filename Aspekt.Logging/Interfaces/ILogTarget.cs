@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,6 @@ namespace Aspekt.Logging.Interfaces
 {
     public interface ILogTarget
     {
-        void Log(Levels level, String message);
+        void Log(Levels level, string message);
     }
 }

@@ -1,31 +1,28 @@
-﻿using System;
+using System;
 using System.Linq;
 
 namespace Aspekt
 {
     public class MethodArguments
     {
-        public String MethodName { get; internal set; }
+        public string MethodName { get; internal set; }
         public Arguments Arguments { get; internal set; }
-        public String FullName { get; internal set; }
+        public string FullName { get; internal set; }
         public object Instance { get; internal set; }
-        public String FormattedName { get; internal set; }
+        public string FormattedName { get; internal set; }
 
-        public MethodArguments(String methodName, String fullName, String methodNameFormat, Arguments args, object instance)
+        public MethodArguments(string methodName, string fullName, string methodNameFormat, Arguments args, object instance)
         {
             MethodName = methodName;
             FullName = fullName;
-            if (args == null)
-                Arguments = Arguments.Empty;
-            else
-                Arguments = args;
+            Arguments = args ?? Arguments.Empty;
 
             Instance = instance;
 
             FormatName(methodNameFormat);
         }
 
-        private void FormatName(String nameFormat)
+        private void FormatName(string nameFormat)
         {
             FormattedName = string.Format(nameFormat, Arguments.Values.ToArray());
         }

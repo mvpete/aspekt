@@ -1,4 +1,4 @@
-﻿using Aspekt.Logging.Formatters;
+using Aspekt.Logging.Formatters;
 using Aspekt.Logging.Interfaces;
 using Aspekt.Logging.Targets;
 using System;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Aspekt.Logging
 {
-    
+
      public static class LoggingService
     {
         public static ILogMessageFormatter Formatter { get; set; }
@@ -31,26 +31,18 @@ namespace Aspekt.Logging
 
         public static void OnEntry(MethodArguments args)
         {
-            if (DefaultTarget==null)
-                return;
-            DefaultTarget.Log(OnEntryLevel, Formatter.Format(Events.OnEnter, args, null));
+            DefaultTarget?.Log(OnEntryLevel, Formatter.Format(Events.OnEnter, args, null));
         }
 
         public static void OnExit(MethodArguments args)
         {
-            if (DefaultTarget == null)
-                return;
-
-            DefaultTarget.Log(OnExitLevel, Formatter.Format(Events.OnExit, args, null));
+            DefaultTarget?.Log(OnExitLevel, Formatter.Format(Events.OnExit, args, null));
         }
 
         public static void OnException(MethodArguments args, Exception e)
         {
-            if (DefaultTarget == null)
-                return;
-
-            DefaultTarget.Log(OnExceptionLevel, Formatter.Format(Events.OnException, args, e));
+            DefaultTarget?.Log(OnExceptionLevel, Formatter.Format(Events.OnException, args, e));
         }
-      
+
     }
 }

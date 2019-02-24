@@ -1,4 +1,4 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
@@ -13,7 +13,7 @@ namespace Aspekt.Bootstrap
         // Generating IL
 
 
-        public static void Apply(String targetFileName)
+        public static void Apply(string targetFileName)
         {
             var targetOutputName = Path.ChangeExtension(targetFileName, "tmp");
             var rp = new ReaderParameters { ReadSymbols = true, ReadWrite = true };
@@ -37,9 +37,14 @@ namespace Aspekt.Bootstrap
                      // This is really hacky. This is used to signal whether it's our first aspect, or
                      // the next one.
                      if (target.StartInstruction == null)
+                     {
                          ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
+                     }
                      else
-                         ih = new InstructionHelper(module, il, target.StartInstruction, InstructionHelper.Insert.After);
+                     {
+                         ih = new InstructionHelper(module, il, target.StartInstruction,
+                             InstructionHelper.Insert.After);
+                     }
 
                      if (target.MethodArguments == null)
                      {
@@ -52,16 +57,22 @@ namespace Aspekt.Bootstrap
                      // Otherwise, we will not.
                      var attrVar = IlGenerator.CreateAttribute(ih, attr);
 
-                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnEntry), typeof(MethodArguments)))
+                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnEntry),
+                         typeof(MethodArguments)))
+                     {
                          IlGenerator.InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
+                     }
 
                      target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
 
                      // walk the instructions looking for returns, based on what teh function is returning
                      // is where we inject the OnExit instructions.
                      // so how do I tell what the function returns?
-                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments)))
+                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit),
+                         typeof(MethodArguments)))
+                     {
                          IlGenerator.InsertOnExitCalls(il, module, meth, attrVar, target.MethodArguments);
+                     }
 
 
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception)))

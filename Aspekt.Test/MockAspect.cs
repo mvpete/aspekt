@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace Aspekt.Test
 {
-    
-    class MockAspect : Aspect
+
+    internal class MockAspect : Aspect
     {
-        public String MethodName { get; internal set; }
-        public MockAspect(String methodName)
+        public string MethodName { get; internal set; }
+        public MockAspect(string methodName)
         {
             MethodName = methodName;
         }

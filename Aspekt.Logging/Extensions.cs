@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Aspekt.Logging
 {
-    static class Extensions
+    internal static class Extensions
     {
         public static string ToLogString(this Levels level)
         {
