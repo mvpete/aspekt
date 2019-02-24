@@ -17,9 +17,7 @@ namespace Aspekt.Bootstrap
                 return null;
 
             // first we need something to store the parameters in
-            var argList = new VariableDefinition(md.Module.ImportReference(typeof(Arguments)));
-            md.Body.Variables.Add(argList);
-
+            var argList = ic.NewVariable(typeof(Arguments));
 
             ic.Next(OpCodes.Ldc_I4, md.Parameters.Count);
             ic.NewObj<Arguments>(typeof(Int32)); // this will create the object we want on the stack
@@ -170,8 +168,8 @@ namespace Aspekt.Bootstrap
                     ih.Next(OpCodes.Ldloc, methArgs);
                     ih.CallVirt<Aspect>(nameof(Aspect.OnExit), typeof(MethodArguments));
 
-                    // This is kind of dumb. I need to store the return instruction, and the first instruction to 
-                    // what I added. So that I can go through later, and find instructions that branch to 
+                    // This is kind of dumb. I need to store the return instruction, and the first instruction to
+                    // what I added. So that I can go through later, and find instructions that branch to
                     // the old instruction, and replace that with instruction to branch
                     // to this new instruction.
                     returnInst.Add(new Tuple<Instruction, Instruction>(rep, ih.FirstInstruction));
@@ -231,6 +229,6 @@ namespace Aspekt.Bootstrap
             return attrVar;
         }
 
-        
+
     }
 }

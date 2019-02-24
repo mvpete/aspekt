@@ -53,6 +53,10 @@ namespace Aspekt.Bootstrap
         {
             var vd = new VariableDefinition(tr);
             il_.Body.Variables.Add(vd);
+
+            // Ensure that the method is initializing locals
+            il_.Body.InitLocals = true;
+
             return vd;
         }
 
@@ -93,7 +97,7 @@ namespace Aspekt.Bootstrap
             var mth = typeof(T).GetMethod(callName, args);
             return Next(OpCodes.Callvirt, module_.ImportReference(mth));
         }
-         
+
         public InstructionHelper CallVirt(TypeReference tr, String methodName, params Type[] args)
         {
             var t = Type.GetType(tr.FullName + ", " + tr.Module.Assembly.FullName);
@@ -116,7 +120,7 @@ namespace Aspekt.Bootstrap
             return this;
         }
 
-    
+
         public InstructionHelper Next(OpCode op, long i)
         {
             return Next(il_.Create(op, i));
