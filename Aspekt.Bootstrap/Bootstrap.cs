@@ -34,7 +34,7 @@ namespace Aspekt.Bootstrap
                      var fi = meth.Body.Instructions.First();
                      InstructionHelper ih;
 
-                     // This is really hacky. This is used to signal whether it's our first aspect, or 
+                     // This is really hacky. This is used to signal whether it's our first aspect, or
                      // the next one.
                      if (target.StartInstruction == null)
                          ih = new InstructionHelper(module, il, fi, InstructionHelper.Insert.Before);
@@ -57,7 +57,7 @@ namespace Aspekt.Bootstrap
 
                      target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
 
-                     // walk the instructions looking for returns, based on what teh function is returning 
+                     // walk the instructions looking for returns, based on what teh function is returning
                      // is where we inject the OnExit instructions.
                      // so how do I tell what the function returns?
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments)))
@@ -68,10 +68,10 @@ namespace Aspekt.Bootstrap
                      {
                          if (target.ExceptionHandler == null)
                          {
-                             var exception = new VariableDefinition(meth.Module.ImportReference(typeof(Exception)));
-                             meth.Body.Variables.Add(exception);
-
                              var c = new InstructionHelper(module, il, meth.Body.Instructions.Last());
+
+                             var exception = c.NewVariable(typeof(Exception));
+
                              c.Next(il.Create(OpCodes.Stloc_S, exception))
                                 .Next(OpCodes.Ldloc, attrVar)
                                 .Next(OpCodes.Ldloc, target.MethodArguments)
@@ -123,10 +123,10 @@ namespace Aspekt.Bootstrap
                 {
                     wp.WriteSymbols = true;
                 }
-                
+
                 assembly.Write(wp);
             }
-           
+
         }
     }
 
