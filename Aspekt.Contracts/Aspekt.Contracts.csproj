@@ -1,69 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3391154B-B919-40F3-BD06-743D00B3395D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aspekt.Contracts</RootNamespace>
-    <AssemblyName>Aspekt.Contracts</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFrameworks>net452</TargetFrameworks>
+    
+    <Title>Aspekt AOP Contracts</Title>
+    <Authors>mvpete</Authors>
+    <Description>Aspekt Contract built on the lightweight AOP foundation Aspekt to allow for code contracts</Description>
+    <Copyright>Peter Lorimer  © 2018</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Support for function level contracts and class level invariants.</PackageReleaseNotes>
+    <PackageTags>AOP;Aspect Oriented Programming</PackageTags>
+    <RepositoryUrl>http://github.com/mvpete/aspekt</RepositoryUrl>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Aspekt\Aspekt.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Aspects\FieldInvariantAttribute.cs" />
-    <Compile Include="Aspects\NotNull.cs" />
-    <Compile Include="Aspects\PropertyInvariantAttribute.cs" />
-    <Compile Include="Aspects\RequiresArgumentAttribute.cs" />
-    <Compile Include="Contract.cs" />
-    <Compile Include="Contracts\ComparisonContractEvaluator.cs" />
-    <Compile Include="Contracts\ContractEvaluatorFactory.cs" />
-    <Compile Include="Contracts\ContractViolatedException.cs" />
-    <Compile Include="Contracts\IContractEvaluator.cs" />
-    <Compile Include="Contracts\NullContractEvaluator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Aspekt\Aspekt.csproj">
-      <Project>{FD93096A-2A56-4DB9-889C-2E60419D8B85}</Project>
-      <Name>Aspekt</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
