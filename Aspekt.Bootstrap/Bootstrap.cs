@@ -16,7 +16,7 @@ namespace Aspekt.Bootstrap
         public static void Apply(String targetFileName)
         {
             var targetOutputName = Path.ChangeExtension(targetFileName, "tmp");
-            var rp = new ReaderParameters { ReadSymbols = true };
+            var rp = new ReaderParameters { ReadSymbols = true, ReadWrite = true };
             using (var assembly = AssemblyDefinition.ReadAssembly(targetFileName, rp))
             {
 
@@ -124,14 +124,8 @@ namespace Aspekt.Bootstrap
                     wp.WriteSymbols = true;
                 }
                 
-                assembly.Write(targetOutputName, wp);
+                assembly.Write(wp);
             }
-            // cannot overwrite assemblies with Cecil 10 beta
-            // for whatever reason, the ReadWrite = true, doesn't work
-            // for assemblies
-            File.Delete(targetFileName);
-            File.Move(targetOutputName, targetFileName);
-
            
         }
     }
