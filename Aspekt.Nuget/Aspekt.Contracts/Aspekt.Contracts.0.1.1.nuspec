@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
+  <metadata minClientVersion="2.5">
+    <id>Aspekt.Contracts</id>
+    <version>0.1.1</version>
+    <title>Aspekt AOP Contracts</title>
+    <authors>mvpete</authors>
+    <owners>mvpete</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>http://github.com/mvpete/aspekt</projectUrl>
+    <description>Aspekt Contract built on the lightweight AOP foundation Aspekt to allow for code contracts</description>
+    <summary>A light weight contracts library.</summary>
+    <releaseNotes>Alpha release. Still has 'features' that need to be worked on.</releaseNotes>
+    <copyright>Peter Lorimer  © 2018</copyright>
+    <language>es-US</language>
+    <tags>AOP, Aspect Oriented Programming</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.2">
+        <dependency id="Aspekt" version="1.1.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="lib\net452\Aspekt.Contracts.dll" target="lib\net452\Aspekt.Contracts.dll" />
+  </files>
+</package>
