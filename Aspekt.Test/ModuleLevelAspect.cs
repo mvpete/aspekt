@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Aspekt.Test
 {
     [AttributeUsage(AttributeTargets.Module, AllowMultiple = false)]
-    class ModuleLevelAspect : Aspect
+    internal class ModuleLevelAspect : Aspect
     {
         public static Action<MethodArguments> OnMethodEntry { get; set; } = (e) => { };
         public static Action<MethodArguments> OnMethodExit { get; set; } = (e) => { };

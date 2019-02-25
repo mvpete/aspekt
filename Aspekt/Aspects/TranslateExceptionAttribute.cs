@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Aspekt
 {
@@ -9,16 +9,16 @@ namespace Aspekt
     [AttributeUsage(AttributeTargets.Method)]
     public class TranslateExceptionAttribute : Aspect
     {
-        String message_;
+        private readonly string message_;
 
-        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo, String val)
+        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo, string val)
         {
             ExceptionFrom = exceptionFrom;
             ExceptionTo = exceptionTo;
             message_ = val;
         }
 
-        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo) 
+        public TranslateExceptionAttribute(Type exceptionFrom, Type exceptionTo)
             : this(exceptionFrom, exceptionTo, null)
         {
         }
@@ -39,7 +39,9 @@ namespace Aspekt
                 throw (Exception)e2;
             }
             else
+            {
                 throw e;
+            }
         }
 
         public Type ExceptionTo { get; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,6 @@ namespace Aspekt.Logging.Interfaces
 {
     public interface ILogMessageFormatter
     {
-        String Format(Events evt, MethodArguments a, Exception e);
+        string Format(Events evt, MethodArguments a, Exception e);
     }
 }

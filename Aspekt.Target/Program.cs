@@ -1,17 +1,17 @@
-﻿using Aspekt.Logging;
+using Aspekt.Logging;
 using System;
 
 namespace Aspekt.Target
 {
-    class Program
+    public class Program
     {
         [Log]
-        void Foo()
+        private void Foo()
         {
-            LogAttribute la = new LogAttribute();
+            var la = new LogAttribute();
         }
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             while (true)
             {
@@ -19,7 +19,9 @@ namespace Aspekt.Target
                 Application.Test("Object", typeof(Program), 15, Application.Choice.No);
                 var k = Console.ReadKey();
                 if (k.Key == ConsoleKey.Q)
+                {
                     break;
+                }
             }
 
             Console.WriteLine("Press any key to exit...");

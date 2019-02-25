@@ -1,4 +1,4 @@
-﻿using Aspekt.Logging.Interfaces;
+using Aspekt.Logging.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Aspekt.Logging.Targets
             var now = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff");
             var tid = Thread.CurrentThread.ManagedThreadId;
             var lvl = level.ToLogString();
-            Console.WriteLine($"{now} {tid} {lvl}: {message}");            
+            Console.WriteLine($"{now} {tid} {lvl}: {message}");
         }
 
     }

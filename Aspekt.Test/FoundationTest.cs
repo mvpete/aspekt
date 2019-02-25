@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
@@ -8,30 +8,30 @@ using System.Threading;
 
 namespace Aspekt.Test
 {
-    
+
     [TestClass]
     public class FoundationTest
     {
         [MockAspect("CallMe")]
-        void CallMe()
+        private void CallMe()
         {
             Thread.Sleep(500);
         }
 
         [MockAspect("TestIntFn")]
-        int TestIntFn()
+        private int TestIntFn()
         {
             return 1 + 1;
         }
 
         [MockAspect("CallMeMaybe")]
-        void CallMeMaybe(String value)
+        private void CallMeMaybe(string value)
         {
 
         }
 
         [MockAspect("CallMeException")]
-        void CallMeException()
+        private void CallMeException()
         {
             throw new Exception("Blah");
         }
@@ -58,7 +58,7 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestMethodArguments()
         {
-            bool called = false;
+            var called = false;
             MockAspect.Reset();
             MockAspect.OnEntryAction = (MethodArguments a) =>
             {
@@ -77,7 +77,7 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestMethodException()
         {
-            bool called = false;
+            var called = false;
             MockAspect.Reset();
             MockAspect.OnExceptionAction = (args, e) =>
             {
@@ -102,8 +102,8 @@ namespace Aspekt.Test
         public void TestInstanceEqual()
         {
             MockAspect.Reset();
-            DummyClass dc = new DummyClass();
-            bool called = false;
+            var dc = new DummyClass();
+            var called = false;
             MockAspect.OnEntryAction = (args) =>
             {
                 called = true;
@@ -115,7 +115,7 @@ namespace Aspekt.Test
         }
 
         /// <summary>
-        /// This method, will have module decoration. So I will set up the callbacks in the 
+        /// This method, will have module decoration. So I will set up the callbacks in the
         /// test method. Then call this.
         /// </summary>
         /// <returns></returns>
@@ -140,9 +140,9 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestModuleLevelAspect()
         {
-            int entry = 0;
-            int exit = 0;
-            int exception = 0;
+            var entry = 0;
+            var exit = 0;
+            var exception = 0;
 
             ModuleLevelAspect.OnMethodEntry = (e) => { entry++; };
             ModuleLevelAspect.OnMethodExit = (e) => { exit++; };
@@ -158,9 +158,9 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestModuleLevelAspectException()
         {
-            int entry = 0;
-            int exit = 0;
-            int exception = 0;
+            var entry = 0;
+            var exit = 0;
+            var exception = 0;
 
             ModuleLevelAspect.OnMethodEntry = (e) => { entry++; };
             ModuleLevelAspect.OnMethodExit = (e) => { exit++; };
@@ -185,15 +185,15 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestClassLevelAspect()
         {
-            int entry = 0;
-            int exit = 0;
-            int exception = 0;
+            var entry = 0;
+            var exit = 0;
+            var exception = 0;
 
             ClassLevelAspect.OnMethodEntry = (e) => { entry++; };
             ClassLevelAspect.OnMethodExit = (e) => { exit++; };
             ClassLevelAspect.OnMethodException = (e, ex) => { exception++; };
 
-            ClassUnderTest interest = new ClassUnderTest();
+            var interest = new ClassUnderTest();
 
             interest.TestMethod1();
             Assert.AreEqual(2, entry, "Entry");
@@ -206,15 +206,15 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestClassLevelAspectException()
         {
-            int entry = 0;
-            int exit = 0;
-            int exception = 0;
+            var entry = 0;
+            var exit = 0;
+            var exception = 0;
 
             ClassLevelAspect.OnMethodEntry = (e) => { entry++; };
             ClassLevelAspect.OnMethodExit = (e) => { exit++; };
             ClassLevelAspect.OnMethodException = (e, ex) => { exception++; };
 
-            ClassUnderTest interest = new ClassUnderTest();
+            var interest = new ClassUnderTest();
 
             try
             {

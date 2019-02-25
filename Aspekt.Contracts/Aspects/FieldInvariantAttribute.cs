@@ -1,4 +1,4 @@
-﻿using Aspekt.Contracts;
+using Aspekt.Contracts;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -12,79 +12,81 @@ namespace Aspekt.Contracts
     public class FieldInvariantAttribute : Aspect
     {
 
-        String NameOf { get; set; }
+        public string NameOf { get; set; }
 
-        IContractEvaluator Evaluator;
+        private readonly IContractEvaluator _evaluator;
 
         #region Constructors
-        public FieldInvariantAttribute(String nameOf, Contract.Constraint constraint)
+        public FieldInvariantAttribute(string nameOf, Contract.Constraint constraint)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(constraint);
+            _evaluator = ContractEvaluatorFactory.Create(constraint);
         }
         // One of the following types: bool, byte, char,  double, float, int, long, short, string
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, bool value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, bool value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, byte value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, byte value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, char value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, char value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, double value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, double value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, float value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, float value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, int value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, int value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
-
-        }
-
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, long value)
-        {
-            NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
 
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, short value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, long value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
 
-        public FieldInvariantAttribute(String nameOf, Contract.Comparison op, string value)
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, short value)
         {
             NameOf = nameOf;
-            Evaluator = ContractEvaluatorFactory.Create(op, value);
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
+
+        }
+
+        public FieldInvariantAttribute(string nameOf, Contract.Comparison op, string value)
+        {
+            NameOf = nameOf;
+            _evaluator = ContractEvaluatorFactory.Create(op, value);
 
         }
         #endregion
-        private void Evaluate(MethodArguments args, String condition)
+        private void Evaluate(MethodArguments args, string condition)
         {
             if (args.Instance == null)
+            {
                 throw new InvalidOperationException("Invariants cannot exist on static methods.");
+            }
 
             // check invariant here.
             // use reflection to get the type. Thennnnn
@@ -92,10 +94,15 @@ namespace Aspekt.Contracts
             var inst = args.Instance;
             var field = inst.GetType().GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic).SingleOrDefault(f => f.Name == NameOf);
             if (field == null)
+            {
                 throw new MissingFieldException($"{NameOf} field does not exist on object {args.Instance.GetType()}.");
+            }
 
-            if (!Evaluator.Evaluate(field.GetValue(inst)))
-                throw new ContractViolatedException($"{args.FormattedName} {condition} field '{NameOf}' failed invariant {Evaluator.ToString()}.");
+            if (!_evaluator.Evaluate(field.GetValue(inst)))
+            {
+                throw new ContractViolatedException(
+                    $"{args.FormattedName} {condition} field '{NameOf}' failed invariant {_evaluator}.");
+            }
         }
 
         public override void OnEntry(MethodArguments args)

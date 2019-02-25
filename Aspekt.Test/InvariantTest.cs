@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Aspekt.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,9 +7,9 @@ namespace Aspekt.Test
 
     [FieldInvariant("myInt", Contract.Comparison.NotEqualTo, 5)]
     [PropertyInvariant(nameof(MyProperty), Contract.Constraint.NotNull)]
-    class InvariantClass
+    internal class InvariantClass
     {
-        int myInt = 0;
+        private int myInt = 0;
         public string MyProperty { get; set; } = "NotNull";
 
         public int GetMyInt()
@@ -47,8 +47,10 @@ namespace Aspekt.Test
         [TestMethod]
         public void TestSetPropertySuccess()
         {
-            var c = new InvariantClass();
-            c.MyProperty = "Value";
+            var c = new InvariantClass
+            {
+                MyProperty = "Value"
+            };
             Assert.AreEqual("Value", c.MyProperty);
         }
 
@@ -56,8 +58,10 @@ namespace Aspekt.Test
         [ExpectedException(typeof(ContractViolatedException))]
         public void TestSetPropertyViolateInvariant()
         {
-            var c = new InvariantClass();
-            c.MyProperty = null;
+            var c = new InvariantClass
+            {
+                MyProperty = null
+            };
         }
 
         [TestMethod]

@@ -1,4 +1,4 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,9 @@ namespace Aspekt.Bootstrap
         public static VariableDefinition CaptureMethodArguments(InstructionHelper ic, MethodDefinition md)
         {
             if (md.Parameters.Count == 0)
+            {
                 return null;
+            }
 
             // first we need something to store the parameters in
             var argList = ic.NewVariable(typeof(Arguments));
@@ -34,8 +36,12 @@ namespace Aspekt.Bootstrap
 
                 ic.Next(OpCodes.Ldstr, p.Name);
                 ic.Next(OpCodes.Ldarg, p);
+
                 if (pType.IsValueType || pType.IsGenericParameter)
+                {
                     ic.Next(OpCodes.Box, pType);
+                }
+
                 ic.NewObj<Argument>(typeof(string), typeof(object));
                 ic.Next(OpCodes.Stloc, arg);
 
@@ -66,16 +72,22 @@ namespace Aspekt.Bootstrap
             ic.Next(OpCodes.Ldstr, md.FullName);
             ic.Next(OpCodes.Ldstr, GenerateMethodNameFormat(md));
             if (argList == null)
+            {
                 ic.Next(OpCodes.Ldnull);
+            }
             else
+            {
                 ic.Next(OpCodes.Ldloc, argList);
+            }
 
             if (md.IsStatic)
             {
                 ic.Next(OpCodes.Ldnull);
             }
             else
+            {
                 ic.Next(OpCodes.Ldarg_0);
+            }
 
             ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(String), typeof(Arguments), typeof(object));
             ic.Next(OpCodes.Stloc, methArgs);
@@ -121,7 +133,10 @@ namespace Aspekt.Bootstrap
                         return;
                     }
                     else
+                    {
                         throw new Exception("unknown type");
+                    }
+
                 case MetadataType.Object:
                     // The object comes in as a CustomAttributeArgument.
                     LoadArg(ic, (CustomAttributeArgument)arg.Value);

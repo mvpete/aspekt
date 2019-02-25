@@ -1,11 +1,11 @@
-﻿using Aspekt;
+using Aspekt;
 using Aspekt.Contracts;
 using Aspekt.Logging;
 using System;
 
 namespace Aspekt.Target
 {
-    class TargetAttribute : Aspect
+    internal class TargetAttribute : Aspect
     {
         public TargetAttribute(object s)
         {
@@ -23,7 +23,7 @@ namespace Aspekt.Target
         }
     }
 
-    class TargetClassAttribute : Aspect
+    internal class TargetClassAttribute : Aspect
     {
         public TargetClassAttribute()
         {
@@ -41,22 +41,22 @@ namespace Aspekt.Target
         }
     }
 
-    class TestAttribute : Aspect
+    internal class TestAttribute : Aspect
     {
         public TestAttribute(object obj)
         {
 
         }
-    } 
+    }
 
     [TargetClassAttribute]
-    class Application
+    internal class Application
     {
 
-        
+
         public void Function(int someValue)
         {
-            RequiresArgumentAttribute ra = new RequiresArgumentAttribute(0, typeof(int), Contract.Comparison.LessThan, 5);
+            var ra = new RequiresArgumentAttribute(0, typeof(int), Contract.Comparison.LessThan, 5);
             Console.Write($"Some Value: {someValue}");
         }
 
@@ -71,7 +71,7 @@ namespace Aspekt.Target
             Console.WriteLine("Bar None");
 
         }
-        
+
         public enum Choice { Yes, No}
         [Target(6)]
         public static void Test(object otter, Type tail, int indigo, Choice choice)

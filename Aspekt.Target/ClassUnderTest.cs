@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +9,9 @@ namespace Aspekt.Test
     /// <summary>
     /// This class is specifically used to test the class level aspect
     /// </summary>
-    /// 
+    ///
     [ClassLevelAspect]
-    class ClassUnderTest
+    internal class ClassUnderTest
     {
 
         public void Test(__arglist)
@@ -29,7 +29,10 @@ namespace Aspekt.Test
         public int TestMethod2(bool t)
         {
             if (t)
+            {
                 return 3;
+            }
+
             return 3 + 3;
         }
 
