@@ -65,16 +65,6 @@ namespace Aspekt.Bootstrap
 
                      target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
 
-                     // walk the instructions looking for returns, based on what teh function is returning
-                     // is where we inject the OnExit instructions.
-                     // so how do I tell what the function returns?
-                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit),
-                         typeof(MethodArguments)))
-                     {
-                         IlGenerator.InsertOnExitCalls(il, module, meth, attrVar, target.MethodArguments);
-                     }
-
-
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception)))
                      {
                          if (target.ExceptionHandler == null)
@@ -88,15 +78,65 @@ namespace Aspekt.Bootstrap
                                 .Next(OpCodes.Ldloc, target.MethodArguments)
                                 .Next(OpCodes.Ldloc_S, exception)
                                 .CallVirt<Aspect>(nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception))
-                                .Next(OpCodes.Rethrow)
-                                .Next(OpCodes.Ret);
+                                .Next(OpCodes.Rethrow);
+
+                             var ret = il.Create(OpCodes.Ret);
+                             VariableDefinition returnVariable = null;
+                             Instruction returnBlockStart;
+
+                             if (meth.ReturnType.MetadataType != MetadataType.Void)
+                             {
+                                 // Create a variable to store/retrieve the return value from within the try/catch block
+                                 returnVariable = ih.NewVariable(meth.ReturnType);
+
+                                 // Load the variable before the Ret operation
+                                 c.Next(OpCodes.Ldloc, returnVariable);
+                                 returnBlockStart = c.LastInstruction;
+                                 c.Next(ret);
+                             }
+                             else
+                             {
+                                 // No return type, so just return
+                                 c.Next(ret);
+                                 returnBlockStart = c.LastInstruction;
+                             }
+
+                             // Find all Ret operations (except the new one), and replace them with leave operations,
+                             // branching to the new returnBlockStart. For methods which don't return void,
+                             // store the return value first since the leave operation clears the stack.
+                             for (var i = 0; i<meth.Body.Instructions.Count; ++i)
+                             {
+                                 var instruction = meth.Body.Instructions[i];
+                                 if (instruction.OpCode == OpCodes.Ret && instruction != ret)
+                                 {
+                                     if (returnVariable != null)
+                                     {
+                                         IlGenerator.ReplaceInstruction(
+                                             il,
+                                             meth,
+                                             instruction,
+                                             il.Create(OpCodes.Stloc, returnVariable),
+                                             il.Create(OpCodes.Leave, returnBlockStart));
+
+                                         i++; // We added an extra instruction
+                                     }
+                                     else
+                                     {
+                                         IlGenerator.ReplaceInstruction(
+                                             il,
+                                             meth,
+                                             instruction,
+                                             il.Create(OpCodes.Leave, returnBlockStart));
+                                     }
+                                 }
+                             }
 
                              var handler = new ExceptionHandler(ExceptionHandlerType.Catch)
                              {
                                  TryStart = target.StartInstruction.Next,
                                  TryEnd = c.FirstInstruction,
                                  HandlerStart = c.FirstInstruction,
-                                 HandlerEnd = c.LastInstruction,
+                                 HandlerEnd = returnBlockStart,
                                  CatchType = module.ImportReference(typeof(Exception)),
                              };
 
@@ -113,6 +153,15 @@ namespace Aspekt.Bootstrap
                                  .CallVirt<Aspect>(nameof(Aspect.OnException), typeof(MethodArguments), typeof(Exception));
                          }
 
+                     }
+
+                     // walk the instructions looking for returns, based on what teh function is returning
+                     // is where we inject the OnExit instructions.
+                     // so how do I tell what the function returns?
+                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit),
+                         typeof(MethodArguments)))
+                     {
+                         IlGenerator.InsertOnExitCalls(il, module, meth, attrVar, target.MethodArguments);
                      }
 
                      meth.Body.OptimizeMacros();
