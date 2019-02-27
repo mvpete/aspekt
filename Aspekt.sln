@@ -3,26 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt", "Aspekt\Aspekt.csproj", "{FD93096A-2A56-4DB9-889C-2E60419D8B85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt", "Aspekt\Aspekt.csproj", "{FD93096A-2A56-4DB9-889C-2E60419D8B85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Bootstrap", "Aspekt.Bootstrap\Aspekt.Bootstrap.csproj", "{C85A941D-1AC7-49B9-B30F-2A36716D2AB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Bootstrap", "Aspekt.Bootstrap\Aspekt.Bootstrap.csproj", "{C85A941D-1AC7-49B9-B30F-2A36716D2AB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Bootstrap.Host", "Aspekt.Bootstrap.Host\Aspekt.Bootstrap.Host.csproj", "{72F01A7B-82EB-4EE3-BE38-89864E8246D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Bootstrap.Host", "Aspekt.Bootstrap.Host\Aspekt.Bootstrap.Host.csproj", "{72F01A7B-82EB-4EE3-BE38-89864E8246D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Target", "Aspekt.Target\Aspekt.Target.csproj", "{3D82C1DA-DCAE-4CA0-A4F0-69CDFA5D40F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Target", "Aspekt.Target\Aspekt.Target.csproj", "{3D82C1DA-DCAE-4CA0-A4F0-69CDFA5D40F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Test", "Aspekt.Test\Aspekt.Test.csproj", "{0F7031A9-4C0E-4C31-8508-32CDE8C05524}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Test", "Aspekt.Test\Aspekt.Test.csproj", "{0F7031A9-4C0E-4C31-8508-32CDE8C05524}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5D8BA503-006A-4EA9-B322-215302007764}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Logging", "Aspekt.Logging\Aspekt.Logging.csproj", "{CF7B9122-471C-4981-BAE0-72C147E32666}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Logging", "Aspekt.Logging\Aspekt.Logging.csproj", "{CF7B9122-471C-4981-BAE0-72C147E32666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Contracts", "Aspekt.Contracts\Aspekt.Contracts.csproj", "{3391154B-B919-40F3-BD06-743D00B3395D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Contracts", "Aspekt.Contracts\Aspekt.Contracts.csproj", "{3391154B-B919-40F3-BD06-743D00B3395D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Logging.Test", "Aspekt.Logging.Test\Aspekt.Logging.Test.csproj", "{C4AACDE6-B8BE-4BC5-BB67-7917F02F0B6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt.Logging.Test", "Aspekt.Logging.Test\Aspekt.Logging.Test.csproj", "{C4AACDE6-B8BE-4BC5-BB67-7917F02F0B6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspekt.Bootstrap.UnitTests", "Aspekt.Bootstrap.UnitTests\Aspekt.Bootstrap.UnitTests.csproj", "{70A121EC-894D-4380-A907-0CDABE6D85FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +65,10 @@ Global
 		{C4AACDE6-B8BE-4BC5-BB67-7917F02F0B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4AACDE6-B8BE-4BC5-BB67-7917F02F0B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4AACDE6-B8BE-4BC5-BB67-7917F02F0B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70A121EC-894D-4380-A907-0CDABE6D85FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70A121EC-894D-4380-A907-0CDABE6D85FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70A121EC-894D-4380-A907-0CDABE6D85FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70A121EC-894D-4380-A907-0CDABE6D85FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
