@@ -161,7 +161,11 @@ namespace Aspekt.Bootstrap
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit),
                          typeof(MethodArguments)))
                      {
-                         IlGenerator.InsertOnExitCalls(il, module, meth, attrVar, target.MethodArguments);
+                         IlGenerator.InsertOnExitCalls(il, meth, attrVar, target.MethodArguments);
+                     }
+                     else if (MethodTraits.HasGenericMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), 2) && meth.ReturnType.MetadataType != MetadataType.Void)
+                     {
+                         IlGenerator.InsertOnExitResultCalls(il, meth, attrVar, target.MethodArguments);
                      }
 
                      meth.Body.OptimizeMacros();

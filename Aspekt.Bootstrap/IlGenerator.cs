@@ -16,6 +16,8 @@ namespace Aspekt.Bootstrap
             nameof(Aspect.OnExit),
             new [] {typeof(MethodArguments)});
 
+        private static readonly MethodInfo OnExitResult = typeof(Aspect).GetMethods().First(p => p.Name == nameof(Aspect.OnExit) && p.GetParameters().Length == 2);
+
         public static VariableDefinition CaptureMethodArguments(InstructionHelper ic, MethodDefinition md)
         {
             if (md.Parameters.Count == 0)
@@ -167,20 +169,71 @@ namespace Aspekt.Bootstrap
             }
         }
 
-        public static void InsertOnExitCalls(ILProcessor il, ModuleDefinition module, MethodDefinition md, VariableDefinition attrVar, VariableDefinition methArgs)
+        public static void InsertOnExitCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
         {
             // adjust all the return instructions
-            for (var i = 0; i < md.Body.Instructions.Count; ++i)
+            for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
             {
-                var inst = md.Body.Instructions[i];
+                var inst = targetMethod.Body.Instructions[i];
                 // Find each return code, and add our three instructions.
                 if (inst.OpCode == OpCodes.Ret)
                 {
                     var rep = inst;
-                    if (md.ReturnType.FullName != typeof(void).FullName)
+                    if (targetMethod.ReturnType.MetadataType != MetadataType.Void)
                     {
                         rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
                     }
+                    // Replace it with three new instructions, plus itself. We use ReplaceInstructionAndLeaveTarget
+                    // to reuse the logic to adjust all the branch and exception handling adjustments.
+                    // This would be low performance (during bootstrap phase) if there are lots of Ret instructions,
+                    // but generally there is only one Ret per method.
+                    ReplaceInstructionAndLeaveTarget(
+                        il,
+                        targetMethod,
+                        rep,
+                        il.Create(OpCodes.Ldloc, attrVar),
+                        il.Create(OpCodes.Ldloc, methArgs),
+                        il.Create(OpCodes.Callvirt, targetMethod.Module.ImportReference(OnExitMethod)));
+
+                    i = i + 3;  // We just added 3 instructions
+                }
+            }
+        }
+
+        public static void InsertOnExitResultCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
+        {
+            // adjust all the return instructions
+            for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
+            {
+                var inst = targetMethod.Body.Instructions[i];
+                // Find each return code, and add our three instructions.
+                if (inst.OpCode == OpCodes.Ret)
+                {
+                    var rep = inst;
+                    rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
+
+
+                    // If it's a load instruction, I can just go one up, and put the 
+                    if (IsLoadInstruction(rep.OpCode))
+                    {
+                        var ih = new InstructionHelper(targetMethod.Module, il, rep, InstructionHelper.Insert.Before);
+                        ih.Next(il.Create(OpCodes.Ldloc, attrVar));
+                        i++;
+                    }
+                    else
+                    {
+                        // Create a variable, store it, load the
+                        var ih = new InstructionHelper(targetMethod.Module, il, rep, InstructionHelper.Insert.After);
+                        var retVar = ih.NewVariable(targetMethod.ReturnType);
+                        ih.Next(il.Create(OpCodes.Stloc_S, retVar));
+                        ih.Next(il.Create(OpCodes.Ldloc, attrVar));
+                        ih.Next(il.Create(OpCodes.Ldloc, retVar));
+                        i = i + 3;
+                    }
+
+
+                    var git = new GenericInstanceMethod(targetMethod.Module.ImportReference(OnExitResult));
+                    git.GenericArguments.Add(targetMethod.ReturnType);
 
                     // Replace it with three new instructions, plus itself. We use ReplaceInstructionAndLeaveTarget
                     // to reuse the logic to adjust all the branch and exception handling adjustments.
@@ -188,13 +241,12 @@ namespace Aspekt.Bootstrap
                     // but generally there is only one Ret per method.
                     ReplaceInstructionAndLeaveTarget(
                         il,
-                        md,
-                        rep,
-                        il.Create(OpCodes.Ldloc, attrVar),
+                        targetMethod,
+                        inst,
                         il.Create(OpCodes.Ldloc, methArgs),
-                        il.Create(OpCodes.Callvirt, md.Module.ImportReference(OnExitMethod)));
+                        il.Create(OpCodes.Callvirt, git));
 
-                    i = i + 3;  // We just added 3 instructions
+                    i = i + 2;  // We just added 3 instructions
                 }
             }
         }
@@ -284,6 +336,23 @@ namespace Aspekt.Bootstrap
                    code == OpCodes.Brtrue_S ||
                    code == OpCodes.Leave ||
                    code == OpCodes.Leave_S;
+        }
+
+        private static bool IsLoadInstruction(OpCode code)
+        {
+            return code == OpCodes.Ldloc ||
+                   code == OpCodes.Ldloca ||
+                   code == OpCodes.Ldloca_S ||
+                   code == OpCodes.Ldloc_0 ||
+                   code == OpCodes.Ldloc_1 ||
+                   code == OpCodes.Ldloc_2 ||
+                   code == OpCodes.Ldloc_3 ||
+                   code == OpCodes.Ldnull ||
+                   code == OpCodes.Ldobj ||
+                   code == OpCodes.Ldsfld ||
+                   code == OpCodes.Ldsflda ||
+                   code == OpCodes.Ldstr ||
+                   code == OpCodes.Ldtoken;
         }
 
         public static void InsertOnEntryCalls(InstructionHelper ih, VariableDefinition attrVar, VariableDefinition methArgs)
