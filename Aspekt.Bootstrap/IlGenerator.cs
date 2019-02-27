@@ -212,13 +212,10 @@ namespace Aspekt.Bootstrap
                     var rep = inst;
                     rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
 
-
-                    // If it's a load instruction, I can just go one up, and put the 
                     if (IsLoadInstruction(rep.OpCode))
                     {
-                        var ih = new InstructionHelper(targetMethod.Module, il, rep, InstructionHelper.Insert.Before);
-                        ih.Next(il.Create(OpCodes.Ldloc, attrVar));
-                        i++;
+                        ReplaceInstructionAndLeaveTarget(il, targetMethod, rep, il.Create(OpCodes.Ldloc, attrVar), il.Create(OpCodes.Ldloc, methArgs));
+                        i = i + 2;
                     }
                     else
                     {
@@ -227,10 +224,12 @@ namespace Aspekt.Bootstrap
                         var retVar = ih.NewVariable(targetMethod.ReturnType);
                         ih.Next(il.Create(OpCodes.Stloc_S, retVar));
                         ih.Next(il.Create(OpCodes.Ldloc, attrVar));
+                        ih.Next(il.Create(OpCodes.Ldloc, methArgs));
                         ih.Next(il.Create(OpCodes.Ldloc, retVar));
                         i = i + 3;
                     }
 
+                    // If it's a load instruction, I can just go one up, and put the   
 
                     var git = new GenericInstanceMethod(targetMethod.Module.ImportReference(OnExitResult));
                     git.GenericArguments.Add(targetMethod.ReturnType);
@@ -242,8 +241,7 @@ namespace Aspekt.Bootstrap
                     ReplaceInstructionAndLeaveTarget(
                         il,
                         targetMethod,
-                        inst,
-                        il.Create(OpCodes.Ldloc, methArgs),
+                        inst,                        
                         il.Create(OpCodes.Callvirt, git));
 
                     i = i + 2;  // We just added 3 instructions
