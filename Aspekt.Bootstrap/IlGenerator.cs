@@ -186,7 +186,7 @@ namespace Aspekt.Bootstrap
                     // to reuse the logic to adjust all the branch and exception handling adjustments.
                     // This would be low performance (during bootstrap phase) if there are lots of Ret instructions,
                     // but generally there is only one Ret per method.
-                    ReplaceInstructionAndLeaveTarget(
+                    InsertInstructionsAt(
                         il,
                         md,
                         rep,
@@ -210,21 +210,21 @@ namespace Aspekt.Bootstrap
         public static void ReplaceInstruction(ILProcessor il, MethodDefinition method,
             Instruction targetInstruction, params Instruction[] instructions)
         {
-            ReplaceInstructionAndLeaveTarget(il, method, targetInstruction, instructions);
+            InsertInstructionsAt(il, method, targetInstruction, instructions);
 
             il.Remove(targetInstruction);
         }
 
         /// <summary>
-        /// Replace an instruction with a new set of instructions, redirecting all branches to
-        /// the new instruction and adjusting exception handlers. The target instruction, however,
-        /// is left in place after the new instructions.
+        /// Inserts new instructions before an existing instruction, redirecting all branches to the new instruction and
+        /// adjusting exception handlers. The new instructions will always be executed before the target, regardless of
+        /// branch statements, and will be including within any exception handler blocks with the target.
         /// </summary>
         /// <param name="il"><see cref="ILProcessor"/> to use.</param>
         /// <param name="method"><see cref="MethodDefinition"/> where the replacement is taking place.</param>
         /// <param name="targetInstruction">Instruction where the new instructions are inserted.</param>
         /// <param name="instructions">New instructions to insert.</param>
-        public static void ReplaceInstructionAndLeaveTarget(ILProcessor il, MethodDefinition method,
+        public static void InsertInstructionsAt(ILProcessor il, MethodDefinition method,
             Instruction targetInstruction, params Instruction[] instructions)
         {
             var ih = new InstructionHelper(method.Module, il, targetInstruction, InstructionHelper.Insert.Before);

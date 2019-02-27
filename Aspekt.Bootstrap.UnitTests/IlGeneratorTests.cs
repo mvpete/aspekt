@@ -253,11 +253,11 @@ namespace Aspekt.Bootstrap.UnitTests
 
         #endregion
 
-        #region ReplaceInstructionAndLeaveTarget
+        #region InsertInstructionsAt
 
         [Theory]
         [MemberData(nameof(InstructionSets))]
-        public void ReplaceInstructionAndLeaveTarget_BasicInstruction_Replaces(params Instruction[] instructions)
+        public void InsertInstructionsAt_BasicInstruction_Replaces(params Instruction[] instructions)
         {
             // Arrange
 
@@ -273,7 +273,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, testMethod.Body.Instructions[0],
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, testMethod.Body.Instructions[0],
                 instructions);
 
             // Assert
@@ -290,7 +290,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
         [Theory]
         [MemberData(nameof(BranchInstructions))]
-        public void ReplaceInstructionAndLeaveTarget_BranchedTo_ReplacesBranch(OpCode branchCode)
+        public void InsertInstructionsAt_BranchedTo_ReplacesBranch(OpCode branchCode)
         {
             // Arrange
 
@@ -308,7 +308,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, target,
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, target,
                 ilProcessor.Create(OpCodes.Ldc_I4, 1),
                 ilProcessor.Create(OpCodes.Ldc_I4, 2),
                 ilProcessor.Create(OpCodes.Add));
@@ -321,7 +321,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
         [Theory]
         [MemberData(nameof(BranchInstructions))]
-        public void ReplaceInstructionAndLeaveTarget_BranchedTo_Recursive(OpCode branchCode)
+        public void InsertInstructionsAt_BranchedTo_Recursive(OpCode branchCode)
         {
             // Arrange
 
@@ -341,7 +341,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, target2,
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, target2,
                 ilProcessor.Create(OpCodes.Ldc_I4, 1),
                 ilProcessor.Create(OpCodes.Ldc_I4, 2),
                 ilProcessor.Create(OpCodes.Add));
@@ -356,7 +356,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
         [Theory]
         [MemberData(nameof(InstructionSets))]
-        public void ReplaceInstructionAndLeaveTarget_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
+        public void InsertInstructionsAt_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
 
@@ -383,7 +383,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, testMethod.Body.Instructions[0],
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, testMethod.Body.Instructions[0],
                 instructions);
 
             // Assert
@@ -393,7 +393,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
         [Theory]
         [MemberData(nameof(InstructionSets))]
-        public void ReplaceInstructionAndLeaveTarget_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
+        public void InsertInstructionsAt_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
 
@@ -420,7 +420,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, testMethod.Body.Instructions[2],
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, testMethod.Body.Instructions[2],
                 instructions);
 
             // Assert
@@ -431,7 +431,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
         [Theory]
         [MemberData(nameof(InstructionSets))]
-        public void ReplaceInstructionAndLeaveTarget_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
+        public void InsertInstructionsAt_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
 
@@ -458,7 +458,7 @@ namespace Aspekt.Bootstrap.UnitTests
 
             // Act
 
-            IlGenerator.ReplaceInstructionAndLeaveTarget(ilProcessor, testMethod, testMethod.Body.Instructions[3],
+            IlGenerator.InsertInstructionsAt(ilProcessor, testMethod, testMethod.Body.Instructions[3],
                 instructions);
 
             // Assert
