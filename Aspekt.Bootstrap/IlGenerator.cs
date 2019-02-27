@@ -200,8 +200,20 @@ namespace Aspekt.Bootstrap
             }
         }
 
+        /// <summary>
+        /// Inserts an appropriate call to OnExit<T> where return values are present. If applied to void function, does nothing.
+        /// </summary>
+        /// <param name="il"></param>
+        /// <param name="targetMethod"></param>
+        /// <param name="attrVar"></param>
+        /// <param name="methArgs"></param>
         public static void InsertOnExitResultCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
         {
+            if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
+            {
+                return;
+            }
+
             // adjust all the return instructions
             for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
             {
