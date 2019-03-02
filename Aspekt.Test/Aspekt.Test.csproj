@@ -1,14 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;net461</TargetFrameworks>
+    <TargetFrameworks>net452;net461;netcoreapp2.0</TargetFrameworks>
 
     <Copyright>Peter Lorimer  © 2018</Copyright>
   </PropertyGroup>
 
   <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
     <Exec Command="&quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net452/Aspekt.Bootstrap.Host.exe&quot; &quot;$(AssemblyName).dll&quot;"
-          WorkingDirectory="$(OutputPath)" />
+          WorkingDirectory="$(OutputPath)"
+          Condition=" '$(TargetFramework)' != 'netcoreapp2.0' " />
+
+    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/netcoreapp2.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;"
+          WorkingDirectory="$(OutputPath)"
+          Condition=" '$(TargetFramework)' == 'netcoreapp2.0' " />
   </Target>
 
   <ItemGroup>
