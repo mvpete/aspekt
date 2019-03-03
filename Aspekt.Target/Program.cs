@@ -51,6 +51,12 @@ namespace Aspekt.Target
         {
             return param;
         }
+
+        [IgnoreWarning]
+        [IntReturnValueHandler]
+        public void TestVoid()
+        {
+        }
     }
 
     public class Program

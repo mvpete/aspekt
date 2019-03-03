@@ -31,7 +31,7 @@ namespace Aspekt.Bootstrap
             ic.Next(OpCodes.Stloc, argList);
 
 
-            for (int i = 0; i < md.Parameters.Count; ++i)
+            for (var i = 0; i < md.Parameters.Count; ++i)
             {
                 var p = md.Parameters[i];
                 var pType = p.ParameterType;
@@ -209,6 +209,7 @@ namespace Aspekt.Bootstrap
         {
             if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
             {
+                WeaverLog.LogMethodWarning(targetMethod, 1, "return value handler on void function");
                 return;
             }
 
@@ -224,6 +225,7 @@ namespace Aspekt.Bootstrap
             // If it implements the right interface
             if (!attrInst.Interfaces.Any(i => i.InterfaceType.FullName == gii.FullName))
             {
+                WeaverLog.LogMethodWarning(targetMethod, 2, $"return value handler implements invalid handler type; requires {gii.FullName}");
                 return;
             }
 

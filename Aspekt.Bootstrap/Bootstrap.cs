@@ -158,12 +158,18 @@ namespace Aspekt.Bootstrap
                      // walk the instructions looking for returns, based on what teh function is returning
                      // is where we inject the OnExit instructions.
                      // so how do I tell what the function returns?
-                     if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit),
-                         typeof(MethodArguments)))
+                     var hasOnExit = MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments));
+                     var hasOnExitVal = MethodTraits.HasGenericMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), 2);
+                     if ( hasOnExit && hasOnExitVal )
+                     {
+                         WeaverLog.LogMethodWarning(meth, 3, "multiple OnExit found; override void used");
+                     }
+
+                     if (hasOnExit)
                      {
                          IlGenerator.InsertOnExitCalls(il, meth, attrVar, target.MethodArguments);
                      }
-                     else if (MethodTraits.HasGenericMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), 2) && meth.ReturnType.MetadataType != MetadataType.Void)
+                     else if (hasOnExitVal)
                      {
                          IlGenerator.InsertOnExitResultCalls(il, meth, attrVar, target.MethodArguments);
                      }
