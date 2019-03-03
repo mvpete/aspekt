@@ -3,9 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>net452</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
 
     <Copyright>Peter Lorimer  © 2018</Copyright>
+
+    <ApplicationIcon />
+
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>

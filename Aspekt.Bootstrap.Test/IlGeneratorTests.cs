@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 using Xunit;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 
-namespace Aspekt.Bootstrap.UnitTests
+namespace Aspekt.Bootstrap.Test
 {
     public class IlGeneratorTests
     {
