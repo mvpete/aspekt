@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aspekt.Test
+namespace Aspekt.Foundation.Test
 {
     /// <summary>
     /// This class is specifically used to test the class level aspect

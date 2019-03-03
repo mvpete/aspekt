@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aspekt.Test
+namespace Aspekt.Foundation.Test
 {
     [AttributeUsage(AttributeTargets.Module, AllowMultiple = false)]
     internal class ModuleLevelAspect : Aspect

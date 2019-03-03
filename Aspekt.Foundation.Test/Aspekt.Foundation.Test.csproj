@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <ApplicationIcon />
+
+    <OutputType>Library</OutputType>
+
+    <StartupObject />
+  </PropertyGroup>
+
+  <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
+    <Exec Command="&quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net452/Aspekt.Bootstrap.Host.exe&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition=" '$(TargetFramework)' != 'netcoreapp2.0' " />
+
+    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/netcoreapp2.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition=" '$(TargetFramework)' == 'netcoreapp2.0' " />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aspekt.Bootstrap.Host\Aspekt.Bootstrap.Host.csproj" />
+    <ProjectReference Include="..\Aspekt.Bootstrap\Aspekt.Bootstrap.csproj" />
+    <ProjectReference Include="..\Aspekt\Aspekt.csproj" />
+  </ItemGroup>
+
+</Project>
