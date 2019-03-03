@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Aspekt
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class IgnoreAspectWarningAttributeAttribute : Attribute
+    public class IgnoreAspectWarningAttribute : Attribute
     {
     }
 }

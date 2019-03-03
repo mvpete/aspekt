@@ -38,7 +38,7 @@ namespace Aspekt.Bootstrap
 
         public static void LogMethodWarning(MethodDefinition md, int errNo, string message)
         {
-            if (md.CustomAttributes.Any(cs => cs.AttributeType.FullName == md.Module.ImportReference(typeof(IgnoreAspectWarningAttributeAttribute)).FullName))
+            if (md.CustomAttributes.Any(cs => cs.AttributeType.FullName == md.Module.ImportReference(typeof(IgnoreAspectWarningAttribute)).FullName))
             {
                 return;
             }

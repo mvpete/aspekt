@@ -113,33 +113,33 @@ namespace Aspekt.Test
             return value;
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [StringValueHandler]
         public void TestDoesNotWorkString()
         {
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [IntValueHandler]
         public void TestDoesNotWorkInt()
         {
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [VoidOverrideHandler]
         public int OnExitOverrides()
         {
             return 42;
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [StringValueHandler]
         public int ReturnsAnInt()
         {
             return -1;
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [StringIntHandler]
         [IntValueHandler]
         public void VoidFunction()
