@@ -10,7 +10,7 @@ namespace Aspekt.Bootstrap
     /// <summary>
     /// A static helper class for capturing and writing appropriate IL instructions
     /// </summary>
-    public static class IlGenerator
+    internal static class IlGenerator
     {
         private static readonly MethodBase OnExitMethod = typeof(Aspect).GetMethod(
             nameof(Aspect.OnExit),
@@ -237,7 +237,10 @@ namespace Aspekt.Bootstrap
             for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
             {
                 var inst = targetMethod.Body.Instructions[i];
-                // Find each return code, and add our three instructions.
+                // Find each return code, and add our instructions
+                // We need to either, a) insert our attr and method args, before the load op, so the stack lines up
+                // b) store the value, load our attr and method args, then load what we stored.
+                // then make the call, directly on the attribute.
                 if (inst.OpCode == OpCodes.Ret)
                 {
                     var rep = inst;
@@ -245,7 +248,9 @@ namespace Aspekt.Bootstrap
 
                     if (IsLoadInstruction(rep.OpCode))
                     {
-                        InsertInstructionsAt(il, targetMethod, rep, il.Create(OpCodes.Ldloc, attrVar), il.Create(OpCodes.Ldloc, methArgs));
+                        InsertInstructionsAt(il, targetMethod, rep,
+                            il.Create(OpCodes.Ldloc, attrVar),
+                            il.Create(OpCodes.Ldloc, methArgs));
                         i = i + 2;
                     }
                     else
@@ -260,12 +265,6 @@ namespace Aspekt.Bootstrap
                         i = i + 3;
                     }
 
-                    // If it's a load instruction, I can just go one up, and put the   
-                   
-                    // Replace it with three new instructions, plus itself. We use ReplaceInstructionAndLeaveTarget
-                    // to reuse the logic to adjust all the branch and exception handling adjustments.
-                    // This would be low performance (during bootstrap phase) if there are lots of Ret instructions,
-                    // but generally there is only one Ret per method.
                     InsertInstructionsAt(
                         il,
                         targetMethod,

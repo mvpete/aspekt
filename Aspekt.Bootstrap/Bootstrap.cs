@@ -155,9 +155,6 @@ namespace Aspekt.Bootstrap
 
                      }
 
-                     // walk the instructions looking for returns, based on what teh function is returning
-                     // is where we inject the OnExit instructions.
-                     // so how do I tell what the function returns?
                      var hasOnExit = MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments));
                      var hasOnExitVal = MethodTraits.HasGenericMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), 2);
                      if ( hasOnExit && hasOnExitVal )
