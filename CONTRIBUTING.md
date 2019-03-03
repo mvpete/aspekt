@@ -8,7 +8,7 @@ as you see fit.
 
 The [ASPeKT] team are huge proponents of unit testing. So along with any enhancements or bug fixes, there is an expectation that it will be tested
 to the best of your ability! Unit testing is fun! It also helps to bring great designs to the table. If you're struggling to understand how to test something
-please feel free to contact me peter@aspektproject.org. I will do everything in my power to help.
+please feel free to contact me mvpete@live.ca. I will do everything in my power to help.
 
 # About Submitting changes
 Please send a GitHub Pull Request to a project admin. The Pull Request should have the following sections:
