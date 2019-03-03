@@ -2,6 +2,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -13,13 +14,23 @@ namespace Aspekt.Bootstrap
         // Generating IL
 
 
-        public static void Apply(string targetFileName)
+        public static void Apply(string targetFileName, IEnumerable<ReferencedAssembly> referencedAssemblies)
         {
-            var targetOutputName = Path.ChangeExtension(targetFileName, "tmp");
-            var rp = new ReaderParameters { ReadSymbols = true, ReadWrite = true };
+            var assemblyResolver = new PreregisteredAssemblyResolver();
+            foreach (var referencedAssembly in referencedAssemblies)
+            {
+                assemblyResolver.PreregisterAssembly(referencedAssembly);
+            }
+
+            var rp = new ReaderParameters
+            {
+                ReadSymbols = true,
+                ReadWrite = true,
+                AssemblyResolver = assemblyResolver
+            };
+
             using (var assembly = AssemblyDefinition.ReadAssembly(targetFileName, rp))
             {
-
                 // I know that right now, if we have multiple attributes, we're going to generate multiple method arguments.
                 // I know how to deal with this.
                 AttributeEnumerator.EnumerateMethodAttributes(assembly, (classType, target, attr) =>
