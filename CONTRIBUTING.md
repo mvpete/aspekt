@@ -13,11 +13,14 @@ please feel free to contact me peter@aspektproject.org. I will do everything in 
 # About Submitting changes
 Please send a GitHub Pull Request to a project admin. The Pull Request should have the following sections:
 
-## Motivations - This section should include a small paragraph about the motivating factors behind the PR.
+## Motivations 
+This section should include a small paragraph about the motivating factors behind the PR.
 
-## Modifications - This should be a small detail on the affected areas and high level code changes required
+## Modifications 
+This should be a small detail on the affected areas and high level code changes required
 
-## Results - A paragraph on the outcome of the pull request.
+## Results 
+A paragraph on the outcome of the pull request.
 
 When submitting a Pull Request, please ensure all unit tests are passing. This is a barrier for a Pull Request and it will not be reviewed
 if any tests are failing.
