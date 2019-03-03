@@ -153,6 +153,18 @@ namespace Aspekt.Test
             return -1;
         }
 
+        [StringValueHandler]
+        public static string TestStaticReturnString()
+        {
+            return string.Empty;
+        }
+
+        [IntValueHandler]
+        public static int TestStaticReturnInt()
+        {
+            return -1;
+        }
+
     }
 
 
@@ -250,6 +262,24 @@ namespace Aspekt.Test
 
             Assert.AreEqual("Goodbye World.", StringIntHandlerAttribute.StringResult);
             Assert.AreEqual("Hello World", strRes);
+        }
+
+        [TestMethod]
+        public void TestStaticOnExitObjectResultNoParameters()
+        {
+            var res = ExitHandlerClassUnderText.TestStaticReturnString();
+
+            Assert.AreEqual("Hello World", res);
+            Assert.AreEqual(string.Empty, StringValueHandlerAttribute.Result);
+        }
+
+        [TestMethod]
+        public void TestStaticOnExitValueResultNoParameters()
+        {
+            var res = ExitHandlerClassUnderText.TestStaticReturnInt();
+
+            Assert.AreEqual(42, res);
+            Assert.AreEqual(-1, IntValueHandlerAttribute.Result);
         }
 
     }
