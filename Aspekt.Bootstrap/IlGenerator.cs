@@ -229,7 +229,7 @@ namespace Aspekt.Bootstrap
 
             // I just needed a type to resolve the name.
             var methodName = nameof(IAspectExitHandler<int>.OnExit);
-            var method = attrInst.Methods.First(md => md.Name == methodName && md.Parameters.Count == 2);
+            var method = attrInst.Methods.First(md => md.Name == methodName && md.Parameters.Count == 2 && md.Parameters[1].ParameterType.MetadataType == targetMethod.ReturnType.MetadataType);
 
             // adjust all the return instructions
             for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
