@@ -10,13 +10,11 @@ namespace Aspekt.Bootstrap
     /// <summary>
     /// A static helper class for capturing and writing appropriate IL instructions
     /// </summary>
-    internal static class IlGenerator
+    public static class IlGenerator
     {
         private static readonly MethodBase OnExitMethod = typeof(Aspect).GetMethod(
             nameof(Aspect.OnExit),
             new [] {typeof(MethodArguments)});
-
-        private static readonly MethodInfo OnExitResult = typeof(Aspect).GetMethods().First(p => p.Name == nameof(Aspect.OnExit) && p.GetParameters().Length == 2);
 
         public static VariableDefinition CaptureMethodArguments(InstructionHelper ic, MethodDefinition md)
         {
@@ -64,7 +62,7 @@ namespace Aspekt.Bootstrap
         public static string GenerateMethodNameFormat(MethodDefinition md)
         {
             var name = md.FullName;
-            int i = 0;
+            var i = 0;
             foreach (var p in md.Parameters)
             {
                 name = name.Replace(p.ParameterType.FullName, $"{{{i++}}}");
@@ -193,7 +191,7 @@ namespace Aspekt.Bootstrap
                         rep,
                         il.Create(OpCodes.Ldloc, attrVar),
                         il.Create(OpCodes.Ldloc, methArgs),
-                        il.Create(OpCodes.Callvirt, targetMethod.Module.ImportReference(OnExitMethod)));
+                        il.Create(OpCodes.Callvirt, attrVar.VariableType.Module.ImportReference(OnExitMethod)));
 
                     i = i + 3;  // We just added 3 instructions
                 }
@@ -214,6 +212,25 @@ namespace Aspekt.Bootstrap
                 return;
             }
 
+            // Is derived from IAspectExitHandler<T>
+            var iExitHandler = methArgs.VariableType.Module.ImportReference(typeof(IAspectExitHandler<>));
+            var gii = new GenericInstanceType(iExitHandler);
+            gii.GenericArguments.Add(targetMethod.ReturnType);
+
+            var fullName = gii.ElementType.Resolve().FullName;
+
+            var attrInst = attrVar.VariableType.Resolve();
+
+            // If it implements the right interface
+            if (!attrInst.Interfaces.Any(i => i.InterfaceType.FullName == gii.FullName))
+            {
+                return;
+            }
+
+            // I just needed a type to resolve the name.
+            var methodName = nameof(IAspectExitHandler<int>.OnExit);
+            var method = attrInst.Methods.First(md => md.Name == methodName && md.Parameters.Count == 2);
+
             // adjust all the return instructions
             for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
             {
@@ -226,7 +243,7 @@ namespace Aspekt.Bootstrap
 
                     if (IsLoadInstruction(rep.OpCode))
                     {
-                        ReplaceInstructionAndLeaveTarget(il, targetMethod, rep, il.Create(OpCodes.Ldloc, attrVar), il.Create(OpCodes.Ldloc, methArgs));
+                        InsertInstructionsAt(il, targetMethod, rep, il.Create(OpCodes.Ldloc, attrVar), il.Create(OpCodes.Ldloc, methArgs));
                         i = i + 2;
                     }
                     else
@@ -242,19 +259,16 @@ namespace Aspekt.Bootstrap
                     }
 
                     // If it's a load instruction, I can just go one up, and put the   
-
-                    var git = new GenericInstanceMethod(targetMethod.Module.ImportReference(OnExitResult));
-                    git.GenericArguments.Add(targetMethod.ReturnType);
-
+                   
                     // Replace it with three new instructions, plus itself. We use ReplaceInstructionAndLeaveTarget
                     // to reuse the logic to adjust all the branch and exception handling adjustments.
                     // This would be low performance (during bootstrap phase) if there are lots of Ret instructions,
                     // but generally there is only one Ret per method.
-                    ReplaceInstructionAndLeaveTarget(
+                    InsertInstructionsAt(
                         il,
                         targetMethod,
-                        inst,                        
-                        il.Create(OpCodes.Callvirt, git));
+                        inst,
+                        il.Create(OpCodes.Call, method));
 
                     i = i + 2;  // We just added 3 instructions
                 }
