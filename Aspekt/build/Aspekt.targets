@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_AspektTaskAssembly Condition="'$(_AspektTaskAssembly)' == ''">$(MSBuildThisFileDirectory)..\tasks\net46\Aspekt.Bootstrap.Tasks.dll</_AspektTaskAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Aspekt.Bootstrap.Tasks.AspektBootstrap"
+             AssemblyFile="$(_AspektTaskAssembly)" />
+
+  <Target Name="AspektGatherAssemblies"
+          DependsOnTargets="$(AspektGatherAssembliesDependsOn)"
+          Condition=" '$(ExecuteAspektBootstrap)' == 'true' And '$(IsCrossTargetingBuild)' != 'true' ">
+    <ItemGroup>
+      <AspektAssemblies Include="@(IntermediateAssembly)" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="AspektBootstrap"
+          AfterTargets="Compile"
+          DependsOnTargets="$(AspektBootstrapDependsOn)"
+          Condition=" '$(ExecuteAspektBootstrap)' == 'true' And '$(IsCrossTargetingBuild)' != 'true' ">
+    <AspektBootstrap Assemblies="@(AspektAssemblies)"
+                     References="@(ReferencePathWithRefAssemblies)"/>
+  </Target>
+</Project>
