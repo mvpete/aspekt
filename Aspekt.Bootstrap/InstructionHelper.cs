@@ -1,8 +1,9 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Collections.Generic;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Aspekt.Bootstrap
 {
@@ -92,17 +93,33 @@ namespace Aspekt.Bootstrap
             return Next(OpCodes.Call, mr);
         }
 
-        public InstructionHelper CallVirt<T>(String callName, params Type[] args)
+        public InstructionHelper CallVirt(Type declaringType, string methodName, params Type[] args)
         {
-            var mth = typeof(T).GetMethod(callName, args);
-            return Next(OpCodes.Callvirt, module_.ImportReference(mth));
+            MethodBase method = declaringType.GetMethod(methodName, args);
+            if (method == null)
+            {
+                throw new MissingMemberException(declaringType.FullName, methodName);
+            }
+
+            // Workaround for .NET Standard 1.3 flavor of Mono.Cecil
+            if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
+            {
+                method = method.Module.ResolveMethod(method.MetadataToken);
+            }
+
+            return Next(OpCodes.Callvirt, module_.ImportReference(method));
         }
 
-        public InstructionHelper CallVirt(TypeReference tr, String methodName, params Type[] args)
+        public InstructionHelper CallVirt<T>(string methodName, params Type[] args)
+        {
+            return CallVirt(typeof(T), methodName, args);
+        }
+
+        public InstructionHelper CallVirt(TypeReference tr, string methodName, params Type[] args)
         {
             var t = Type.GetType(tr.FullName + ", " + tr.Module.Assembly.FullName);
-            var mth = t.GetMethod(methodName, args);
-            return Next(OpCodes.Callvirt, module_.ImportReference(mth));
+
+            return CallVirt(t, methodName, args);
         }
 
         public InstructionHelper Next(Instruction i)

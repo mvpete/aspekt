@@ -2,7 +2,7 @@
   "profiles": {
     "Debug": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\workspace\\Aspekt\\Aspekt.Target\\bin\\Debug\\net452\\Aspekt.Target.exe\""
+      "commandLineArgs": "\"C:\\Users\\bburnett\\Source\\Repos\\aspekt\\Aspekt.Test\\bin\\Debug\\net452\\Aspekt.Test.dll\""
     }
   }
 }

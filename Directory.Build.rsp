@@ -1,0 +1,2 @@
+# Ensure that we don't hold locks on our custom task so we can rebuild it
+/nr:false

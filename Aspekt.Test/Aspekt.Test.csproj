@@ -1,24 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Aspekt\buildMultiTargeting\Aspekt.props" />
+
   <PropertyGroup>
-    <TargetFrameworks>net452;net461;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net452</TargetFrameworks>
+    <DebugType>portable</DebugType>
 
     <Copyright>Peter Lorimer  © 2018</Copyright>
+
+    <_AspektTaskAssembly>$(MSBuildThisFileDirectory)..\Aspekt.Bootstrap.Tasks\bin\$(Configuration)\netstandard2.0\Aspekt.Bootstrap.Tasks.dll</_AspektTaskAssembly>
   </PropertyGroup>
 
-  <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net452/Aspekt.Bootstrap.Host.exe&quot; &quot;$(AssemblyName).dll&quot;"
-          WorkingDirectory="$(OutputPath)"
-          Condition=" '$(TargetFramework)' != 'netcoreapp2.0' " />
-
-    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/netcoreapp2.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;"
-          WorkingDirectory="$(OutputPath)"
-          Condition=" '$(TargetFramework)' == 'netcoreapp2.0' " />
-  </Target>
-
   <ItemGroup>
-    <ProjectReference Include="..\Aspekt.Bootstrap.Host\Aspekt.Bootstrap.Host.csproj" />
-    <ProjectReference Include="..\Aspekt.Bootstrap\Aspekt.Bootstrap.csproj" />
     <ProjectReference Include="..\Aspekt.Logging\Aspekt.Logging.csproj" />
     <ProjectReference Include="..\Aspekt.Contracts\Aspekt.Contracts.csproj" />
     <ProjectReference Include="..\Aspekt\Aspekt.csproj" />
@@ -29,4 +22,6 @@
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
+
+  <Import Project="..\Aspekt\buildMultiTargeting\Aspekt.targets" />
 </Project>
