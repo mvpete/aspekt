@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Debug": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\workspace\\Aspekt\\Aspekt.Target\\bin\\Debug\\net452\\Aspekt.Target.exe\""
+    }
+  }
+}

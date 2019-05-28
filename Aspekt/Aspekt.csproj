@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net452;net461;netstandard2.0</TargetFrameworks>
@@ -12,17 +12,21 @@
     <PackageTags>AOP;Aspect Oriented Programming</PackageTags>
     <RepositoryUrl>http://github.com/mvpete/aspekt</RepositoryUrl>
 
-    <BootstrapHostFolder>..\Aspekt.Bootstrap.Host\bin\$(Configuration)\net452\</BootstrapHostFolder>
+    <BootstrapTaskOutputFolder>..\Aspekt.Bootstrap.Tasks\bin\$(Configuration)\</BootstrapTaskOutputFolder>
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="*.targets" />
-    <Content Include="*.targets">
+    <None Remove="**\*.targets;**\*.props" />
+    <Content Include="build\*.targets;build\*.props">
       <PackagePath>build</PackagePath>
     </Content>
-    <Content Include="$(BootstrapHostFolder)*.exe;$(BootstrapHostFolder)*.dll">
-      <Link>tools\%(Filename)%(Extension)</Link>
-      <PackagePath>tools</PackagePath>
+    <Content Include="buildMultiTargeting\*.targets;buildMultiTargeting\*.props">
+      <PackagePath>buildMultiTargeting</PackagePath>
+    </Content>
+    <Content Include="$(BootstrapTaskOutputFolder)net46\*.dll" Visible="false">
+      <PackagePath>tasks\net46</PackagePath>
     </Content>
   </ItemGroup>
+
 </Project>

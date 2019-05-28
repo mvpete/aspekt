@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace Aspekt.Test
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    internal class ClassLevelAspect :Aspect
+    internal class ClassLevelAspect : Aspect
     {
         public static Action<MethodArguments> OnMethodEntry { get; set; } = (e) => throw new NotImplementedException();
-        public static Action<MethodArguments> OnMethodExit { get; set; } = (e)=> throw new NotImplementedException();
+        public static Action<MethodArguments> OnMethodExit { get; set; } = (e) => throw new NotImplementedException();
         public static Action<MethodArguments, Exception> OnMethodException { get; set; } = (e, ex) => throw new NotImplementedException();
 
         public override void OnEntry(MethodArguments args)
@@ -27,5 +27,6 @@ namespace Aspekt.Test
         {
             OnMethodException(args, e);
         }
+
     }
 }

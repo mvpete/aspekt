@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Aspekt.Test
+namespace Aspekt.Foundation.Test
 {
 
     internal class MockAspect : Aspect

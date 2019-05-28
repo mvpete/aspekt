@@ -3,14 +3,19 @@ using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Aspekt.Bootstrap
 {
     /// <summary>
     /// A static helper class for capturing and writing appropriate IL instructions
     /// </summary>
-    static class IlGenerator
+    internal static class IlGenerator
     {
+        private static readonly MethodBase OnExitMethod = typeof(Aspect).GetMethod(
+            nameof(Aspect.OnExit),
+            new [] {typeof(MethodArguments)});
+
         public static VariableDefinition CaptureMethodArguments(InstructionHelper ic, MethodDefinition md)
         {
             if (md.Parameters.Count == 0)
@@ -22,11 +27,11 @@ namespace Aspekt.Bootstrap
             var argList = ic.NewVariable(typeof(Arguments));
 
             ic.Next(OpCodes.Ldc_I4, md.Parameters.Count);
-            ic.NewObj<Arguments>(typeof(Int32)); // this will create the object we want on the stack
+            ic.NewObj<Arguments>(typeof(int)); // this will create the object we want on the stack
             ic.Next(OpCodes.Stloc, argList);
 
 
-            for (int i = 0; i < md.Parameters.Count; ++i)
+            for (var i = 0; i < md.Parameters.Count; ++i)
             {
                 var p = md.Parameters[i];
                 var pType = p.ParameterType;
@@ -54,10 +59,10 @@ namespace Aspekt.Bootstrap
             return argList;
         }
 
-        public static String GenerateMethodNameFormat(MethodDefinition md)
+        public static string GenerateMethodNameFormat(MethodDefinition md)
         {
             var name = md.FullName;
-            int i = 0;
+            var i = 0;
             foreach (var p in md.Parameters)
             {
                 name = name.Replace(p.ParameterType.FullName, $"{{{i++}}}");
@@ -89,7 +94,7 @@ namespace Aspekt.Bootstrap
                 ic.Next(OpCodes.Ldarg_0);
             }
 
-            ic.NewObj<MethodArguments>(typeof(String), typeof(String), typeof(String), typeof(Arguments), typeof(object));
+            ic.NewObj<MethodArguments>(typeof(string), typeof(string), typeof(string), typeof(Arguments), typeof(object));
             ic.Next(OpCodes.Stloc, methArgs);
             return methArgs;
         }
@@ -162,52 +167,188 @@ namespace Aspekt.Bootstrap
             }
         }
 
-        public static void InsertOnExitCalls(ILProcessor il, ModuleDefinition module, MethodDefinition md, VariableDefinition attrVar, VariableDefinition methArgs)
+        public static void InsertOnExitCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
         {
-
-            var returnInst = new List<Tuple<Instruction, Instruction>>();
             // adjust all the return instructions
-            for (int i = 0; i < md.Body.Instructions.Count; ++i)
+            for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
             {
-                Instruction inst = md.Body.Instructions[i];
+                var inst = targetMethod.Body.Instructions[i];
                 // Find each return code, and add our three instructions.
                 if (inst.OpCode == OpCodes.Ret)
                 {
-                    Instruction rep = inst;
-                    if (md.ReturnType.FullName != typeof(void).FullName)
+                    var rep = inst;
+                    if (targetMethod.ReturnType.MetadataType != MetadataType.Void)
+                    {
                         rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
-
-
-                    var ih = new InstructionHelper(module, il, rep, InstructionHelper.Insert.Before);
-                    ih.Next(OpCodes.Ldloc, attrVar);
-                    ih.Next(OpCodes.Ldloc, methArgs);
-                    ih.CallVirt<Aspect>(nameof(Aspect.OnExit), typeof(MethodArguments));
-
-                    // This is kind of dumb. I need to store the return instruction, and the first instruction to
-                    // what I added. So that I can go through later, and find instructions that branch to
-                    // the old instruction, and replace that with instruction to branch
-                    // to this new instruction.
-                    returnInst.Add(new Tuple<Instruction, Instruction>(rep, ih.FirstInstruction));
+                    }
+                    // Replace it with three new instructions, plus itself. We use ReplaceInstructionAndLeaveTarget
+                    // to reuse the logic to adjust all the branch and exception handling adjustments.
+                    // This would be low performance (during bootstrap phase) if there are lots of Ret instructions,
+                    // but generally there is only one Ret per method.
+                    InsertInstructionsAt(
+                        il,
+                        targetMethod,
+                        rep,
+                        il.Create(OpCodes.Ldloc, attrVar),
+                        il.Create(OpCodes.Ldloc, methArgs),
+                        il.Create(OpCodes.Callvirt, attrVar.VariableType.Module.ImportReference(OnExitMethod)));
 
                     i = i + 3;  // We just added 3 instructions
                 }
+            }
+        }
 
+        /// <summary>
+        /// Inserts an appropriate call to OnExit<T> where return values are present. If applied to void function, does nothing.
+        /// </summary>
+        /// <param name="il"></param>
+        /// <param name="targetMethod"></param>
+        /// <param name="attrVar"></param>
+        /// <param name="methArgs"></param>
+        public static void InsertOnExitResultCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
+        {
+            if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
+            {
+                WeaverLog.LogMethodWarning(targetMethod, 1, "return value handler on void function");
+                return;
+            }
+
+            // Is derived from IAspectExitHandler<T>
+            var iExitHandler = methArgs.VariableType.Module.ImportReference(typeof(IAspectExitHandler<>));
+            var gii = new GenericInstanceType(iExitHandler);
+            gii.GenericArguments.Add(targetMethod.ReturnType);
+
+            var fullName = gii.ElementType.Resolve().FullName;
+
+            var attrInst = attrVar.VariableType.Resolve();
+
+            // If it implements the right interface
+            if (!attrInst.Interfaces.Any(i => i.InterfaceType.FullName == gii.FullName))
+            {
+                WeaverLog.LogMethodWarning(targetMethod, 2, $"return value handler implements invalid handler type; requires {gii.FullName}");
+                return;
+            }
+
+            // I just needed a type to resolve the name.
+            var methodName = nameof(IAspectExitHandler<int>.OnExit);
+            var method = attrInst.Methods.First(md => md.Name == methodName && md.Parameters.Count == 2 && md.Parameters[1].ParameterType.MetadataType == targetMethod.ReturnType.MetadataType);
+
+            // adjust all the return instructions
+            for (var i = 0; i < targetMethod.Body.Instructions.Count; ++i)
+            {
+                var inst = targetMethod.Body.Instructions[i];
+                // Find each return code, and add our instructions
+                // We need to either, a) insert our attr and method args, before the load op, so the stack lines up
+                // b) store the value, load our attr and method args, then load what we stored.
+                // then make the call, directly on the attribute.
+                if (inst.OpCode == OpCodes.Ret)
+                {
+                    var rep = inst;
+                    rep = inst.Previous; // get the previous instruction, because this SHOULD be the retval
+
+                    if (IsLoadInstruction(rep.OpCode))
+                    {
+                        InsertInstructionsAt(il, targetMethod, rep,
+                            il.Create(OpCodes.Ldloc, attrVar),
+                            il.Create(OpCodes.Ldloc, methArgs));
+                        i = i + 2;
+                    }
+                    else
+                    {
+                        // Create a variable, store it, load the
+                        var ih = new InstructionHelper(targetMethod.Module, il, rep, InstructionHelper.Insert.After);
+                        var retVar = ih.NewVariable(targetMethod.ReturnType);
+                        ih.Next(il.Create(OpCodes.Stloc_S, retVar));
+                        ih.Next(il.Create(OpCodes.Ldloc, attrVar));
+                        ih.Next(il.Create(OpCodes.Ldloc, methArgs));
+                        ih.Next(il.Create(OpCodes.Ldloc, retVar));
+                        i = i + 3;
+                    }
+
+                    InsertInstructionsAt(
+                        il,
+                        targetMethod,
+                        inst,
+                        il.Create(OpCodes.Call, method));
+
+                    i = i + 2;  // We just added 3 instructions
+                }
+            }
+        }
+
+        /// <summary>
+        /// Replace an instruction with a new set of instructions, redirecting all branches to
+        /// the new instruction and adjusting exception handlers.
+        /// </summary>
+        /// <param name="il"><see cref="ILProcessor"/> to use.</param>
+        /// <param name="method"><see cref="MethodDefinition"/> where the replacement is taking place.</param>
+        /// <param name="targetInstruction">Instruction to be replaced.</param>
+        /// <param name="instructions">New instructions to insert.</param>
+        public static void ReplaceInstruction(ILProcessor il, MethodDefinition method,
+            Instruction targetInstruction, params Instruction[] instructions)
+        {
+            InsertInstructionsAt(il, method, targetInstruction, instructions);
+
+            il.Remove(targetInstruction);
+        }
+
+        /// <summary>
+        /// Inserts new instructions before an existing instruction, redirecting all branches to the new instruction and
+        /// adjusting exception handlers. The new instructions will always be executed before the target, regardless of
+        /// branch statements, and will be including within any exception handler blocks with the target.
+        /// </summary>
+        /// <param name="il"><see cref="ILProcessor"/> to use.</param>
+        /// <param name="method"><see cref="MethodDefinition"/> where the replacement is taking place.</param>
+        /// <param name="targetInstruction">Instruction where the new instructions are inserted.</param>
+        /// <param name="instructions">New instructions to insert.</param>
+        public static void InsertInstructionsAt(ILProcessor il, MethodDefinition method,
+            Instruction targetInstruction, params Instruction[] instructions)
+        {
+            var ih = new InstructionHelper(method.Module, il, targetInstruction, InstructionHelper.Insert.Before);
+            for (var i = 0; i < instructions.Length; ++i)
+            {
+                ih.Next(instructions[i]);
             }
 
             // go through and replace the branch instructions.
-            for (int i = 0; i < md.Body.Instructions.Count; ++i)
+            for (var i = 0; i < method.Body.Instructions.Count; ++i)
             {
-                Instruction inst = md.Body.Instructions[i];
-                var jp = returnInst.SingleOrDefault(t => t.Item1 == inst.Operand);
-                if (IsBranchInstruction(inst.OpCode) && jp!=null)
+                var inst = method.Body.Instructions[i];
+                if (IsBranchInstruction(inst.OpCode) && inst.Operand == targetInstruction)
                 {
-                    // create a new branch op to the instruction that I put before.
-                    var brto = md.Body.GetILProcessor().Create(inst.OpCode, jp.Item2);
-                    md.Body.GetILProcessor().InsertBefore(inst, brto);
-                    md.Body.GetILProcessor().Remove(inst); // remove the existing branch.
+                    ReplaceInstruction(
+                        il,
+                        method,
+                        inst,
+                        il.Create(inst.OpCode, ih.FirstInstruction));
                 }
             }
 
+            // go through and replace exception handler ends
+            for (var i = 0; i < method.Body.ExceptionHandlers.Count; ++i)
+            {
+                var handler = method.Body.ExceptionHandlers[i];
+
+                if (targetInstruction == handler.TryStart)
+                {
+                    handler.TryStart = ih.FirstInstruction;
+                }
+
+                if (targetInstruction == handler.TryEnd)
+                {
+                    handler.TryEnd = ih.FirstInstruction;
+                }
+
+                if (targetInstruction == handler.HandlerEnd)
+                {
+                    handler.HandlerEnd = ih.FirstInstruction;
+                }
+
+                if (targetInstruction == handler.HandlerStart)
+                {
+                    handler.HandlerStart = ih.FirstInstruction;
+                }
+            }
         }
 
         private static bool IsBranchInstruction(OpCode code)
@@ -217,7 +358,26 @@ namespace Aspekt.Bootstrap
                    code == OpCodes.Brfalse ||
                    code == OpCodes.Brfalse_S ||
                    code == OpCodes.Brtrue ||
-                   code == OpCodes.Brtrue_S;
+                   code == OpCodes.Brtrue_S ||
+                   code == OpCodes.Leave ||
+                   code == OpCodes.Leave_S;
+        }
+
+        private static bool IsLoadInstruction(OpCode code)
+        {
+            return code == OpCodes.Ldloc ||
+                   code == OpCodes.Ldloca ||
+                   code == OpCodes.Ldloca_S ||
+                   code == OpCodes.Ldloc_0 ||
+                   code == OpCodes.Ldloc_1 ||
+                   code == OpCodes.Ldloc_2 ||
+                   code == OpCodes.Ldloc_3 ||
+                   code == OpCodes.Ldnull ||
+                   code == OpCodes.Ldobj ||
+                   code == OpCodes.Ldsfld ||
+                   code == OpCodes.Ldsflda ||
+                   code == OpCodes.Ldstr ||
+                   code == OpCodes.Ldtoken;
         }
 
         public static void InsertOnEntryCalls(InstructionHelper ih, VariableDefinition attrVar, VariableDefinition methArgs)

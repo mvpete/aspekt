@@ -4,9 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 
 
-[module: Aspekt.Test.ModuleLevelAspect()]
+[module: Aspekt.Foundation.Test.ModuleLevelAspect()]
 
-namespace Aspekt.Test
+namespace Aspekt.Foundation.Test
 {
 
     [TestClass]
@@ -178,6 +178,7 @@ namespace Aspekt.Test
             Assert.AreEqual(0, exit, "Exit");
             Assert.AreEqual(1, exception, "Exception");
         }
+
 
         /// <summary>
         /// Remember that because the .ctor is a method as well, we need to account for it getting called.
