@@ -36,7 +36,22 @@ class SampleAspect : Aspekt.Aspect
    }
 }
 ```
-Aspekt re-writes methods in the following manner.
+
+When you use the Aspect in your client code, such as
+
+```csharp
+class Foo
+{
+    [SampleAspect("Some Value")]
+    public void Bar(String s, int i)
+    {
+        // Do something here.
+    }
+}
+```
+
+Aspekt will re-write the code, to something along the lines of the following.
+
 ```csharp
 class Foo
 {
@@ -48,7 +63,7 @@ class Foo
        sa.OnEntry(ma);
        try
        {
-           // original code
+           // Do Something Here
            sa.OnExit(ma);
        }
        catch(Exception e)
@@ -59,7 +74,7 @@ class Foo
     }
 }
  ```
- Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
+ As mentioned earlier, Aspekt will only write functions where they've been overridden. This means, only the methods that you want, are added. As well, Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
 If you're using NuGet to get ASPeKT, your project will have the appropriate post build steps. You can ignore anything below.
 
