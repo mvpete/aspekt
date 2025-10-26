@@ -52,52 +52,37 @@ jobs:
         $tag = "${{ github.ref_name }}"
         $version = $tag -replace '^v', ''
         
-        $releaseNotes = @"
-# Aspekt $version - AI Era Release
-
-## Welcome to the AI Era of Aspekt!
-
-This major release represents a complete modernization and enhancement of the Aspekt AOP framework, developed with AI assistance to ensure comprehensive coverage, best practices, and production-ready quality.
-
-## What's New in v3.0.0
-
-- **AI-Enhanced Development**: Complete codebase review and enhancement
-- **Modern .NET Support**: Full compatibility with .NET 6.0, 8.0, and 9.0
-- **Advanced Async Support**: Comprehensive ValueTask patterns and cancellation token support
-- **Production-Ready Contracts**: Complete Design by Contract implementation
-- **Enhanced IL Weaving**: Improved Mono.Cecil integration with better error handling
-- **Comprehensive Documentation**: AI-curated examples, guides, and best practices
-- **Professional CI/CD**: Multi-version testing, security scanning, and automated releases
-- **Return Value Interception**: Advanced IAspectExitHandler capabilities
-- **Thread Safety**: Enhanced concurrent execution support
-
-## Package Information
-
-This release includes the following NuGet packages:
-
-- **Aspekt** - Core AOP functionality
-- **Aspekt.Contracts** - Design by Contract support  
-- **Aspekt.Logging** - Built-in logging aspects
-
-## Installation
-
-Install core package: Install-Package Aspekt -Version $version
-Install contracts: Install-Package Aspekt.Contracts -Version $version
-Install logging: Install-Package Aspekt.Logging -Version $version
-
-## Documentation
-
-- Getting Started Guide: https://github.com/mvpete/aspekt/blob/master/docs/GETTING_STARTED.md
-- API Reference: https://github.com/mvpete/aspekt/blob/master/docs/API.md
-- Examples: https://github.com/mvpete/aspekt/blob/master/docs/EXAMPLES.md
-- Troubleshooting: https://github.com/mvpete/aspekt/blob/master/docs/TROUBLESHOOTING.md
-
-## Requirements
-
-- .NET 6.0 or later
-- Visual Studio 2022 or VS Code
-- MSBuild 17.0+
-"@
+        $releaseNotes = "# Aspekt $version - AI Era Release`n`n"
+        $releaseNotes += "## Welcome to the AI Era of Aspekt!`n`n"
+        $releaseNotes += "This major release represents a complete modernization and enhancement of the Aspekt AOP framework, developed with AI assistance to ensure comprehensive coverage, best practices, and production-ready quality.`n`n"
+        $releaseNotes += "## What's New in v3.0.0`n`n"
+        $releaseNotes += "- **AI-Enhanced Development**: Complete codebase review and enhancement`n"
+        $releaseNotes += "- **Modern .NET Support**: Full compatibility with .NET 6.0, 8.0, and 9.0`n"
+        $releaseNotes += "- **Advanced Async Support**: Comprehensive ValueTask patterns and cancellation token support`n"
+        $releaseNotes += "- **Production-Ready Contracts**: Complete Design by Contract implementation`n"
+        $releaseNotes += "- **Enhanced IL Weaving**: Improved Mono.Cecil integration with better error handling`n"
+        $releaseNotes += "- **Comprehensive Documentation**: AI-curated examples, guides, and best practices`n"
+        $releaseNotes += "- **Professional CI/CD**: Multi-version testing, security scanning, and automated releases`n"
+        $releaseNotes += "- **Return Value Interception**: Advanced IAspectExitHandler capabilities`n"
+        $releaseNotes += "- **Thread Safety**: Enhanced concurrent execution support`n`n"
+        $releaseNotes += "## Package Information`n`n"
+        $releaseNotes += "This release includes the following NuGet packages:`n`n"
+        $releaseNotes += "- **Aspekt** - Core AOP functionality`n"
+        $releaseNotes += "- **Aspekt.Contracts** - Design by Contract support`n"
+        $releaseNotes += "- **Aspekt.Logging** - Built-in logging aspects`n`n"
+        $releaseNotes += "## Installation`n`n"
+        $releaseNotes += "Install core package: Install-Package Aspekt -Version $version`n"
+        $releaseNotes += "Install contracts: Install-Package Aspekt.Contracts -Version $version`n"
+        $releaseNotes += "Install logging: Install-Package Aspekt.Logging -Version $version`n`n"
+        $releaseNotes += "## Documentation`n`n"
+        $releaseNotes += "- Getting Started Guide: https://github.com/mvpete/aspekt/blob/master/docs/GETTING_STARTED.md`n"
+        $releaseNotes += "- API Reference: https://github.com/mvpete/aspekt/blob/master/docs/API.md`n"
+        $releaseNotes += "- Examples: https://github.com/mvpete/aspekt/blob/master/docs/EXAMPLES.md`n"
+        $releaseNotes += "- Troubleshooting: https://github.com/mvpete/aspekt/blob/master/docs/TROUBLESHOOTING.md`n`n"
+        $releaseNotes += "## Requirements`n`n"
+        $releaseNotes += "- .NET 6.0 or later`n"
+        $releaseNotes += "- Visual Studio 2022 or VS Code`n"
+        $releaseNotes += "- MSBuild 17.0+`n"
         
         # Save to file for GitHub release
         $releaseNotes | Out-File -FilePath release-notes.md -Encoding utf8
