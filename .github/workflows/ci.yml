@@ -76,9 +76,15 @@ jobs:
     - name: Create NuGet packages
       if: matrix.dotnet-version == '8.0.x'
       run: |
-        dotnet pack Aspekt/Aspekt.csproj --configuration Release --no-build --output nupkgs
-        dotnet pack Aspekt.Contracts/Aspekt.Contracts.csproj --configuration Release --no-build --output nupkgs
-        dotnet pack Aspekt.Logging/Aspekt.Logging.csproj --configuration Release --no-build --output nupkgs
+        echo "🔧 Creating NuGet packages for .NET ${{ matrix.dotnet-version }}..."
+        dotnet pack Aspekt/Aspekt.csproj --configuration Release --no-build --output nupkgs --verbosity normal
+        dotnet pack Aspekt.Contracts/Aspekt.Contracts.csproj --configuration Release --no-build --output nupkgs --verbosity normal
+        dotnet pack Aspekt.Logging/Aspekt.Logging.csproj --configuration Release --no-build --output nupkgs --verbosity normal
+        
+        echo "📦 Packages created:"
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object { 
+          echo "  - $($_.Name) ($([math]::Round($_.Length/1KB, 2)) KB)"
+        }
     
     - name: Upload NuGet packages
       if: matrix.dotnet-version == '8.0.x'
@@ -86,6 +92,12 @@ jobs:
       with:
         name: nuget-packages
         path: nupkgs/*.nupkg
+        retention-days: 30
+    
+    - name: Confirm artifact upload
+      if: matrix.dotnet-version == '8.0.x'
+      run: |
+        echo "✅ NuGet packages uploaded as artifact 'nuget-packages'"
 
   code-quality:
     name: 'Code Quality Analysis'
@@ -184,18 +196,33 @@ jobs:
         path: nupkgs
       continue-on-error: true
     
+    - name: Debug artifact download
+      run: |
+        echo "🔍 Checking download results..."
+        echo "Current directory contents:"
+        Get-ChildItem -Force
+        echo ""
+        echo "nupkgs directory:"
+        if (Test-Path "nupkgs") {
+          Get-ChildItem nupkgs -Force
+        } else {
+          echo "❌ nupkgs directory does not exist"
+        }
+    
     - name: Check if packages exist
       id: check-packages
       run: |
         if (Test-Path "nupkgs/*.nupkg") {
-          $count = (Get-ChildItem nupkgs/*.nupkg).Count
+          $packages = Get-ChildItem nupkgs/*.nupkg
+          $count = $packages.Count
           echo "packages-exist=true" >> $env:GITHUB_OUTPUT
           echo "package-count=$count" >> $env:GITHUB_OUTPUT
-          echo "Found $count NuGet packages"
+          echo "✅ Found $count NuGet packages:"
+          $packages | ForEach-Object { echo "  - $($_.Name)" }
         } else {
           echo "packages-exist=false" >> $env:GITHUB_OUTPUT
           echo "package-count=0" >> $env:GITHUB_OUTPUT
-          echo "No NuGet packages found"
+          echo "❌ No NuGet packages found in nupkgs directory"
         }
     
     - name: Setup .NET
