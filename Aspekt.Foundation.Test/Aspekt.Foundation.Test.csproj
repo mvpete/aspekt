@@ -9,12 +9,19 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
+  <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' " DependsOnTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll" />
+      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll" />
+      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll" />
+      <BootstrapHostAvailable Include="@(BootstrapHostCandidates)" Condition="Exists('%(Identity)')" />
+    </ItemGroup>
     <PropertyGroup>
-      <BootstrapHostPath>$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+      <BootstrapHostPath>@(BootstrapHostAvailable->Take(1))</BootstrapHostPath>
     </PropertyGroup>
-    <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="Exists('$(BootstrapHostPath)')" ContinueOnError="false" />
-    <Warning Text="Bootstrap Host not found at $(BootstrapHostPath) - skipping aspect weaving for $(TargetFramework)" Condition="!Exists('$(BootstrapHostPath)')" />
+    <Message Text="Using Bootstrap Host: $(BootstrapHostPath)" Importance="normal" Condition="'$(BootstrapHostPath)' != ''" />
+    <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="'$(BootstrapHostPath)' != ''" ContinueOnError="false" />
+    <Warning Text="Bootstrap Host not found - skipping aspect weaving for $(TargetFramework). Searched: @(BootstrapHostCandidates, '; ')" Condition="'$(BootstrapHostPath)' == ''" />
   </Target>
 
   <ItemGroup>
