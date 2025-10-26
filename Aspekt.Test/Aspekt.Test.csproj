@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -9,7 +9,6 @@
     <PropertyGroup>
       <BootstrapHostPath Condition="Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
       <BootstrapHostPath Condition="'$(BootstrapHostPath)' == '' AND Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
-      <BootstrapHostPath Condition="'$(BootstrapHostPath)' == '' AND Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
     </PropertyGroup>
     <Message Text="Using Bootstrap Host: $(BootstrapHostPath) for target $(TargetFramework)" Importance="normal" Condition="'$(BootstrapHostPath)' != ''" />
     <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="'$(BootstrapHostPath)' != ''" ContinueOnError="false" />
