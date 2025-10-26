@@ -19,9 +19,15 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     
+    - name: Configure NuGet
+      run: |
+        dotnet nuget config set signatureValidationMode accept
+        dotnet nuget config set packagePathResolve true
+    
     - name: Restore and build
       run: |
-        dotnet restore Aspekt.sln
+        dotnet restore Aspekt.sln --verbosity normal
+        dotnet restore Aspekt.Bootstrap.Tasks/Aspekt.Bootstrap.Tasks.csproj --verbosity normal
         dotnet build Aspekt.sln --configuration Release
     
     - name: Run tests

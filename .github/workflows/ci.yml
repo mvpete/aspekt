@@ -12,6 +12,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   ASPEKT_VERSION: '3.0.0'
+  NUGET_CERT_REVOCATION_MODE: offline
 
 jobs:
   build:
@@ -33,6 +34,11 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
     
+    - name: Configure NuGet
+      run: |
+        dotnet nuget config set signatureValidationMode accept
+        dotnet nuget config set packagePathResolve true
+    
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -44,7 +50,9 @@ jobs:
           ${{ runner.os }}-nuget-
     
     - name: Restore dependencies
-      run: dotnet restore Aspekt.sln
+      run: |
+        dotnet restore Aspekt.sln --verbosity normal
+        dotnet restore Aspekt.Bootstrap.Tasks/Aspekt.Bootstrap.Tasks.csproj --verbosity normal
     
     - name: Build solution
       run: dotnet build Aspekt.sln --configuration Release --no-restore
