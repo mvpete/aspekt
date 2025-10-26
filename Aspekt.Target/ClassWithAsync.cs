@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Aspekt.Test;
 
 namespace Aspekt.Target
@@ -11,7 +6,7 @@ namespace Aspekt.Target
     {
         public async void AsyncDoSomething()
         {
-            await DoSomethingTask();
+            await DoSomethingTask().ConfigureAwait(false);
         }
 
         public Task DoSomethingTask()
@@ -26,7 +21,7 @@ namespace Aspekt.Target
 
             var cont = Aspect.AsyncOnExit<int>(aspect, args);
 
-            return await DoSomethingTaskInt().ContinueWith(cont);
+            return await DoSomethingTaskInt().ContinueWith(cont).ConfigureAwait(false);
         }
 
         public Task<int> DoSomethingTaskInt()

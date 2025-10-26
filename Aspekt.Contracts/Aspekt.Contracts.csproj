@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net6.0;netstandard2.1</TargetFrameworks>
 
     <Title>Aspekt AOP Contracts</Title>
-    <Authors>mvpete</Authors>
     <Description>Aspekt Contract built on the lightweight AOP foundation Aspekt to allow for code contracts</Description>
-    <Copyright>Peter Lorimer  © 2018</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Support for function level contracts and class level invariants.</PackageReleaseNotes>
-    <PackageTags>AOP;Aspect Oriented Programming</PackageTags>
-    <RepositoryUrl>http://github.com/mvpete/aspekt</RepositoryUrl>
+    <PackageReleaseNotes>Modernized for current .NET versions. Support for function level contracts and class level invariants.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

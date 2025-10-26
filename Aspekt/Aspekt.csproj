@@ -1,19 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;net461;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net8.0;net6.0;netstandard2.1</TargetFrameworks>
 
     <Title>Aspekt AOP</Title>
-    <Authors>mvpete</Authors>
-    <Description>Aspekt is a light weight AOP library. Use it to add cross cutting concerns to your application.</Description>
-    <Copyright>Peter Lorimer  © 2018</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Alpha release. Still has 'features' that need to be worked on.</PackageReleaseNotes>
-    <PackageTags>AOP;Aspect Oriented Programming</PackageTags>
-    <RepositoryUrl>http://github.com/mvpete/aspekt</RepositoryUrl>
+    <Description>Aspekt is a lightweight AOP library. Use it to add cross cutting concerns to your application.</Description>
+    <PackageReleaseNotes>Modernized for current .NET versions. Updated dependencies and improved performance.</PackageReleaseNotes>
 
     <BootstrapTaskOutputFolder>..\Aspekt.Bootstrap.Tasks\bin\$(Configuration)\</BootstrapTaskOutputFolder>
-    <NoWarn>$(NoWarn);NU5100</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,8 +18,11 @@
     <Content Include="buildMultiTargeting\*.targets;buildMultiTargeting\*.props">
       <PackagePath>buildMultiTargeting</PackagePath>
     </Content>
-    <Content Include="$(BootstrapTaskOutputFolder)net46\*.dll" Visible="false">
-      <PackagePath>tasks\net46</PackagePath>
+    <Content Include="$(BootstrapTaskOutputFolder)net8.0\*.dll" Visible="false">
+      <PackagePath>tasks\net8.0</PackagePath>
+    </Content>
+    <Content Include="$(BootstrapTaskOutputFolder)net6.0\*.dll" Visible="false">
+      <PackagePath>tasks\net6.0</PackagePath>
     </Content>
   </ItemGroup>
 

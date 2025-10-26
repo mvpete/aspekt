@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Microsoft.Build.Framework;
 
 namespace Aspekt.Bootstrap.Tasks
@@ -7,10 +5,10 @@ namespace Aspekt.Bootstrap.Tasks
     public class AspektBootstrap : Microsoft.Build.Utilities.Task
     {
         [Required]
-        public ITaskItem[] Assemblies { get; set; }
+        public ITaskItem[] Assemblies { get; set; } = null!;
 
         [Required]
-        public ITaskItem[] References { get; set; }
+        public ITaskItem[] References { get; set; } = null!;
 
         public override bool Execute()
         {

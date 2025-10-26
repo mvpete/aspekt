@@ -1,19 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net452;net461;netcoreapp2.0</TargetFrameworks>
-
-    <Copyright>Peter Lorimer  © 2018</Copyright>
+    <TargetFrameworks>net9.0;net8.0;net6.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
-    <Exec Command="&quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net452/Aspekt.Bootstrap.Host.exe&quot; &quot;$(AssemblyName).dll&quot;"
-          WorkingDirectory="$(OutputPath)"
-          Condition=" '$(TargetFramework)' != 'netcoreapp2.0' " />
-
-    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/netcoreapp2.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;"
-          WorkingDirectory="$(OutputPath)"
-          Condition=" '$(TargetFramework)' == 'netcoreapp2.0' " />
+    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" />
   </Target>
 
   <ItemGroup>
@@ -22,11 +15,5 @@
     <ProjectReference Include="..\Aspekt.Logging\Aspekt.Logging.csproj" />
     <ProjectReference Include="..\Aspekt.Contracts\Aspekt.Contracts.csproj" />
     <ProjectReference Include="..\Aspekt\Aspekt.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
   </ItemGroup>
 </Project>

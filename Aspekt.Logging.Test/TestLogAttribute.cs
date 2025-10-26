@@ -1,5 +1,3 @@
-using System;
-using Aspekt.Logging.Interfaces;
 using Aspekt.Logging.Targets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,7 +6,7 @@ namespace Aspekt.Logging.Test
     [TestClass]
     public class TestLogAttribute
     {
-        private ActionLogTarget Target { get; set; }
+        private ActionLogTarget Target { get; set; } = null!;
 
         [TestInitialize]
         public void InitializeLogging()
@@ -75,7 +73,7 @@ namespace Aspekt.Logging.Test
         public void TestClassLevelLoggingParameters()
         {
             var failed = true;
-            Exception e = null;
+            Exception? e = null;
             // Ensure constructor here, because it will be logged
             var cl = new ClassLevelLogging();
 

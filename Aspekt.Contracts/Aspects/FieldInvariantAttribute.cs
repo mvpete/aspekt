@@ -1,15 +1,10 @@
-using Aspekt.Contracts;
-using System;
-using System.Linq;
-using System.Reflection;
-
 namespace Aspekt.Contracts
 {
     /// <summary>
     /// On a field we can validate the condition both on entry and on exit of the function.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class FieldInvariantAttribute : Aspect
+    public sealed class FieldInvariantAttribute : Aspect
     {
 
         public string NameOf { get; set; }
@@ -113,6 +108,6 @@ namespace Aspekt.Contracts
         {
             Evaluate(args, "post-condition");
         }
-
+        public Contract.Constraint Constraint { get; }
     }
 }

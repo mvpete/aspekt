@@ -1,9 +1,6 @@
-
-using System;
-
 namespace Aspekt.Target
 {
-    internal class IntReturnValueHandler : Aspect, IAspectExitHandler<int>
+    internal sealed class IntReturnValueHandler : Aspect, IAspectExitHandler<int>
     {
         public int OnExit(MethodArguments args, int result)
         {
@@ -11,7 +8,7 @@ namespace Aspekt.Target
         }
     }
 
-    internal class StringReturnValueHandler : Aspect, IAspectExitHandler<string>
+    internal sealed class StringReturnValueHandler : Aspect, IAspectExitHandler<string>
     {
 
         public override void OnExit(MethodArguments args)
@@ -61,41 +58,6 @@ namespace Aspekt.Target
 
     public class Program
     {
-        //private void Foo()
-        //{
-        //    var la = new LogAttribute();
-        //}
-
-
-        private int BarInt()
-        {
-            var rv = new IntReturnValueHandler();
-
-            var ret = 3;
-
-            ret = rv.OnExit(null, ret);
-
-            return ret;
-
-        }
-
-        private string BarString(string s)
-        {
-            var rv = new StringReturnValueHandler();
-
-            var ret = "Hello World";
-
-            ret = rv.OnExit(null, ret);
-
-            return ret;
-        }
-
-
-        
-
-
-
-
         public static void Main(string[] args)
         {
             while (true)

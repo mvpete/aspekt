@@ -1,14 +1,6 @@
 using Aspekt.Logging.Formatters;
 using Aspekt.Logging.Interfaces;
 using Aspekt.Logging.Targets;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Aspekt.Logging
 {

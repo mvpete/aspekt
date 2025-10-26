@@ -1,30 +1,44 @@
-using System;
-using System.Linq;
-
 namespace Aspekt
 {
     public class MethodArguments
     {
-        public string MethodName { get; internal set; }
-        public Arguments Arguments { get; internal set; }
-        public string FullName { get; internal set; }
-        public object Instance { get; internal set; }
-        public string FormattedName { get; internal set; }
+        public string MethodName { get; internal set; } = string.Empty;
+        public Arguments Arguments { get; internal set; } = Arguments.Empty;
+        public string FullName { get; internal set; } = string.Empty;
+        public object? Instance { get; internal set; }
+        public string FormattedName { get; internal set; } = string.Empty;
 
-        public MethodArguments(string methodName, string fullName, string methodNameFormat, Arguments args, object instance)
+        // New properties for enhanced metadata
+        public Type? ReturnType { get; internal set; }
+        public string SourceFilePath { get; internal set; } = string.Empty;
+        public int LineNumber { get; internal set; }
+
+        public MethodArguments(string methodName, string fullName, string methodNameFormat, Arguments? args, object? instance)
         {
-            MethodName = methodName;
-            FullName = fullName;
+            MethodName = methodName ?? throw new ArgumentNullException(nameof(methodName));
+            FullName = fullName ?? throw new ArgumentNullException(nameof(fullName));
             Arguments = args ?? Arguments.Empty;
-
             Instance = instance;
 
             FormatName(methodNameFormat);
         }
 
-        private void FormatName(string nameFormat)
+        private void FormatName(string? nameFormat)
         {
-            FormattedName = string.Format(nameFormat, Arguments.Values.ToArray());
+            if (string.IsNullOrEmpty(nameFormat))
+            {
+                FormattedName = MethodName;
+                return;
+            }
+
+            try
+            {
+                FormattedName = string.Format(nameFormat, Arguments.Values.ToArray());
+            }
+            catch (FormatException)
+            {
+                FormattedName = MethodName; // Fallback to method name if formatting fails
+            }
         }
     }
 }

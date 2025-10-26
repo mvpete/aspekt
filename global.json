@@ -1,0 +1,10 @@
+{
+  "sdk": {
+    "version": "7.0.305",
+    "rollForward": "latestMajor",
+    "allowPrerelease": false
+  },
+  "msbuild-sdks": {
+    "Microsoft.Build.CentralPackageVersions": "2.0.1"
+  }
+}

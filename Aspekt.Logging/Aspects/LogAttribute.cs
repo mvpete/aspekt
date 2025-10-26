@@ -1,15 +1,6 @@
-﻿using Aspekt;
-using Aspekt.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Aspekt.Logging
+﻿namespace Aspekt.Logging
 {
-    public class LogAttribute : Aspect
+    public sealed class LogAttribute : Aspect
     {
         public override void OnEntry(MethodArguments args)
         {

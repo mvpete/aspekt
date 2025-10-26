@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Aspekt.Contracts
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class NotNull : Aspect
+    public sealed class NotNull : Aspect
     {
         public string ArgumentName { get; set; }
         public int? ArgumentIndex { get; set; }
@@ -23,7 +17,7 @@ namespace Aspekt.Contracts
 
         public override void OnEntry(MethodArguments args)
         {
-            object arg = null;
+            object? arg = null;
             if (ArgumentIndex != null)
             {
                 arg = args.Arguments.GetArgumentByIndex(ArgumentIndex.Value);

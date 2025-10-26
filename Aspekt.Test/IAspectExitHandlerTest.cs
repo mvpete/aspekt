@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspekt.Test
 {
-    internal class StringValueHandlerAttribute : Aspect, IAspectExitHandler<string>
+    internal sealed class StringValueHandlerAttribute : Aspect, IAspectExitHandler<string>
     {
         public static string Result { get; set; } = null;
 
@@ -23,7 +18,7 @@ namespace Aspekt.Test
         }
     }
 
-    internal class IntValueHandlerAttribute : Aspect, IAspectExitHandler<int>
+    internal sealed class IntValueHandlerAttribute : Aspect, IAspectExitHandler<int>
     {
         public static int Result { get; set; } = 0;
 
@@ -39,7 +34,7 @@ namespace Aspekt.Test
         }
     }
     
-    internal class StringIntHandlerAttribute : Aspect, IAspectExitHandler<string>, IAspectExitHandler<int>
+    internal sealed class StringIntHandlerAttribute : Aspect, IAspectExitHandler<string>, IAspectExitHandler<int>
     {
         public static string StringResult { get; set; } = null;
         public static int IntResult { get; set; } = 0;
@@ -63,7 +58,7 @@ namespace Aspekt.Test
         }
     }
 
-    internal class VoidOverrideHandlerAttribute : Aspect, IAspectExitHandler<int>
+    internal sealed class VoidOverrideHandlerAttribute : Aspect, IAspectExitHandler<int>
     {
         public static bool OnExitCalled { get; set; } = false;
         public static bool OnExitSpecilaizationCalled { get; set; } = false;

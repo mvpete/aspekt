@@ -1,10 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Aspekt.Logging.Formatters;
-using Aspekt.Logging;
-using System.Threading;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspekt.Logging.Test
 {

@@ -1,7 +1,4 @@
-
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
 
 
 [module: Aspekt.Foundation.Test.ModuleLevelAspect()]

@@ -1,4 +1,3 @@
-using System;
 using Aspekt.Contracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

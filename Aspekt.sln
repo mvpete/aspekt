@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2036
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36203.30 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspekt", "Aspekt\Aspekt.csproj", "{FD93096A-2A56-4DB9-889C-2E60419D8B85}"
 EndProject
@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5D8BA503-006A-4EA9-B322-215302007764}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		AspektCodeAnalysis.ruleset = AspektCodeAnalysis.ruleset
 		README.md = README.md
 	EndProjectSection
 EndProject

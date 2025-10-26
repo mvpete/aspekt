@@ -1,5 +1,3 @@
-using System;
-
 namespace Aspekt
 {
 
@@ -7,7 +5,7 @@ namespace Aspekt
     // where the catch block will catch, exceptionFrom type and wrap it with the exceptionTo
     // this means that the ctor of the exceptionTo, must accept an exceptionFrom as a param.
     [AttributeUsage(AttributeTargets.Method)]
-    public class TranslateExceptionAttribute : Aspect
+    public sealed class TranslateExceptionAttribute : Aspect
     {
         private readonly string message_;
 
@@ -46,8 +44,7 @@ namespace Aspekt
 
         public Type ExceptionTo { get; }
         public Type ExceptionFrom { get; }
-
-
+        public string Val { get; }
     }
 
 }

@@ -1,10 +1,6 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace Aspekt.Bootstrap
 {
@@ -92,7 +88,7 @@ namespace Aspekt.Bootstrap
                                 .Next(OpCodes.Rethrow);
 
                              var ret = il.Create(OpCodes.Ret);
-                             VariableDefinition returnVariable = null;
+                             VariableDefinition? returnVariable = null;
                              Instruction returnBlockStart;
 
                              if (meth.ReturnType.MetadataType != MetadataType.Void)

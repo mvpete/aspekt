@@ -132,6 +132,18 @@ csharp_prefer_braces = true:warning
 # Organize usings
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#usings
 dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_using_directive_placement = outside_namespace:warning
+
+# Code analysis rules for unused imports and code quality
+dotnet_diagnostic.IDE0005.severity = warning  # Remove unnecessary using directives
+dotnet_diagnostic.IDE0001.severity = warning  # Simplify name
+dotnet_diagnostic.IDE0002.severity = warning  # Simplify member access
+dotnet_diagnostic.IDE0004.severity = warning  # Remove unnecessary cast
+dotnet_diagnostic.IDE0032.severity = suggestion  # Use auto property
+dotnet_diagnostic.IDE0033.severity = suggestion  # Use explicitly provided tuple name
+dotnet_diagnostic.IDE0052.severity = warning  # Remove unread private member
+dotnet_diagnostic.IDE0051.severity = warning  # Remove unused private member
 # C# formatting settings
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#c-formatting-settings
 csharp_new_line_before_open_brace = all

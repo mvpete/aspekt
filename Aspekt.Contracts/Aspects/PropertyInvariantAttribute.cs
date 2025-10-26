@@ -1,8 +1,3 @@
-using Aspekt.Contracts;
-using System;
-using System.Linq;
-using System.Reflection;
-
 namespace Aspekt.Contracts
 {
     /// <summary>
@@ -12,7 +7,7 @@ namespace Aspekt.Contracts
     /// the function.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class PropertyInvariantAttribute : Aspect
+    public sealed class PropertyInvariantAttribute : Aspect
     {
 
         public string NameOf { get; set; }
@@ -124,6 +119,6 @@ namespace Aspekt.Contracts
         {
             Evaluate(args, "post-condition");
         }
-
+        public Contract.Constraint Constraint { get; }
     }
 }

@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace Aspekt.Bootstrap.Test
 {
+    [TestClass]
     public class IlGeneratorTests
     {
         #region Data Sets
@@ -42,8 +41,8 @@ namespace Aspekt.Bootstrap.Test
 
         #region ReplaceInstruction
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void ReplaceInstruction_BasicInstruction_Replaces(params Instruction[] instructions)
         {
             // Arrange
@@ -65,16 +64,16 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions.Length + 1, testMethod.Body.Instructions.Count);
+            Assert.AreEqual(instructions.Length + 1, testMethod.Body.Instructions.Count);
             for (var i = 0; i < instructions.Length; i++)
             {
-                Assert.Equal(instructions[i], testMethod.Body.Instructions[i]);
+                Assert.AreEqual(instructions[i], testMethod.Body.Instructions[i]);
             }
-            Assert.Equal(OpCodes.Ret, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-1].OpCode);
+            Assert.AreEqual(OpCodes.Ret, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-1].OpCode);
         }
 
-        [Theory]
-        [MemberData(nameof(BranchInstructions))]
+        [TestMethod]
+
         public void ReplaceInstruction_BranchedTo_ReplacesBranch(OpCode branchCode)
         {
             // Arrange
@@ -100,12 +99,12 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(branchCode, testMethod.Body.Instructions[0].OpCode);
-            Assert.Equal(1, ((Instruction) testMethod.Body.Instructions[0].Operand).Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[0].OpCode);
+            Assert.AreEqual(1, ((Instruction) testMethod.Body.Instructions[0].Operand).Operand);
         }
 
-        [Theory]
-        [MemberData(nameof(BranchInstructions))]
+        [TestMethod]
+
         public void ReplaceInstruction_BranchedTo_Recursive(OpCode branchCode)
         {
             // Arrange
@@ -133,14 +132,14 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(branchCode, testMethod.Body.Instructions[0].OpCode);
-            Assert.Equal(testMethod.Body.Instructions[1], (Instruction) testMethod.Body.Instructions[0].Operand);
-            Assert.Equal(branchCode, testMethod.Body.Instructions[1].OpCode);
-            Assert.Equal(testMethod.Body.Instructions[2], (Instruction) testMethod.Body.Instructions[1].Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[0].OpCode);
+            Assert.AreEqual(testMethod.Body.Instructions[1], (Instruction) testMethod.Body.Instructions[0].Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[1].OpCode);
+            Assert.AreEqual(testMethod.Body.Instructions[2], (Instruction) testMethod.Body.Instructions[1].Operand);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void ReplaceInstruction_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -173,11 +172,11 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].TryStart);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].TryStart);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void ReplaceInstruction_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -210,12 +209,12 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].TryEnd);
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerStart);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].TryEnd);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerStart);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void ReplaceInstruction_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -248,15 +247,15 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerEnd);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerEnd);
         }
 
         #endregion
 
         #region InsertInstructionsAt
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void InsertInstructionsAt_BasicInstruction_Replaces(params Instruction[] instructions)
         {
             // Arrange
@@ -278,18 +277,18 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions.Length + 2, testMethod.Body.Instructions.Count);
+            Assert.AreEqual(instructions.Length + 2, testMethod.Body.Instructions.Count);
             for (var i = 0; i < instructions.Length; i++)
             {
-                Assert.Equal(instructions[i], testMethod.Body.Instructions[i]);
+                Assert.AreEqual(instructions[i], testMethod.Body.Instructions[i]);
             }
-            Assert.Equal(OpCodes.Ldc_I4, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-2].OpCode);
-            Assert.Equal(0, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-2].Operand);
-            Assert.Equal(OpCodes.Ret, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-1].OpCode);
+            Assert.AreEqual(OpCodes.Ldc_I4, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-2].OpCode);
+            Assert.AreEqual(0, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-2].Operand);
+            Assert.AreEqual(OpCodes.Ret, testMethod.Body.Instructions[testMethod.Body.Instructions.Count-1].OpCode);
         }
 
-        [Theory]
-        [MemberData(nameof(BranchInstructions))]
+        [TestMethod]
+
         public void InsertInstructionsAt_BranchedTo_ReplacesBranch(OpCode branchCode)
         {
             // Arrange
@@ -315,12 +314,12 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(branchCode, testMethod.Body.Instructions[0].OpCode);
-            Assert.Equal(1, ((Instruction) testMethod.Body.Instructions[0].Operand).Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[0].OpCode);
+            Assert.AreEqual(1, ((Instruction) testMethod.Body.Instructions[0].Operand).Operand);
         }
 
-        [Theory]
-        [MemberData(nameof(BranchInstructions))]
+        [TestMethod]
+
         public void InsertInstructionsAt_BranchedTo_Recursive(OpCode branchCode)
         {
             // Arrange
@@ -348,14 +347,14 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(branchCode, testMethod.Body.Instructions[0].OpCode);
-            Assert.Equal(testMethod.Body.Instructions[1], (Instruction) testMethod.Body.Instructions[0].Operand);
-            Assert.Equal(branchCode, testMethod.Body.Instructions[1].OpCode);
-            Assert.Equal(testMethod.Body.Instructions[2], (Instruction) testMethod.Body.Instructions[1].Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[0].OpCode);
+            Assert.AreEqual(testMethod.Body.Instructions[1], (Instruction) testMethod.Body.Instructions[0].Operand);
+            Assert.AreEqual(branchCode, testMethod.Body.Instructions[1].OpCode);
+            Assert.AreEqual(testMethod.Body.Instructions[2], (Instruction) testMethod.Body.Instructions[1].Operand);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void InsertInstructionsAt_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -388,11 +387,11 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].TryStart);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].TryStart);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void InsertInstructionsAt_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -425,12 +424,12 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].TryEnd);
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerStart);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].TryEnd);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerStart);
         }
 
-        [Theory]
-        [MemberData(nameof(InstructionSets))]
+        [TestMethod]
+
         public void InsertInstructionsAt_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -463,7 +462,7 @@ namespace Aspekt.Bootstrap.Test
 
             // Assert
 
-            Assert.Equal(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerEnd);
+            Assert.AreEqual(instructions[0], testMethod.Body.ExceptionHandlers[0].HandlerEnd);
         }
 
         #endregion

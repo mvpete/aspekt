@@ -1,10 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace Aspekt.Foundation.Test
 {
 
-    internal class MockAspect : Aspect
+    internal sealed class MockAspect : Aspect
     {
         public string MethodName { get; internal set; }
         public MockAspect(string methodName)
@@ -45,9 +44,9 @@ namespace Aspekt.Foundation.Test
 
         }
 
-        public static Action<MethodArguments> OnEntryAction;
-        public static Action<MethodArguments> OnExitAction;
-        public static Action<MethodArguments, Exception> OnExceptionAction;
+        public static Action<MethodArguments>? OnEntryAction;
+        public static Action<MethodArguments>? OnExitAction;
+        public static Action<MethodArguments, Exception>? OnExceptionAction;
 
         public static int Entries { get; set; }
         public static int Exits { get; set; }

@@ -1,14 +1,7 @@
-using Aspekt.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Aspekt.Contracts
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class RequiresArgumentAttribute : Aspect
+    public sealed class RequiresArgumentAttribute : Aspect
     {
         public string ArgumentName { get; set; }
         public int? ArgumentIndex { get; set; }
@@ -172,7 +165,7 @@ namespace Aspekt.Contracts
 
         public override void OnEntry(MethodArguments args)
         {
-            object arg = null;
+            object? arg = null;
             if (ArgumentIndex != null)
             {
                 arg = args.Arguments.GetArgumentByIndex(ArgumentIndex.Value);
@@ -187,7 +180,6 @@ namespace Aspekt.Contracts
                 throw new ContractViolatedException($"{args.FormattedName} failed pre-condition {evaluator_}.");
             }
         }
-
-
+        public Contract.Comparison Op { get; }
     }
 }
