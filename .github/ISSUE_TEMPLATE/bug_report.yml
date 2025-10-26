@@ -1,0 +1,179 @@
+name: 🐛 Bug Report
+description: Report a bug in Aspekt
+title: "[BUG]: "
+labels: ["bug", "triage"]
+assignees:
+  - mvpete
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! 🙏
+        Please fill out this form as completely as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Steps to reproduce the behavior:
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+      placeholder: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: A clear and concise description of what actually happened.
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Sample
+      description: |
+        Please provide a minimal code sample that reproduces the issue.
+        If the code is long, consider creating a minimal reproduction project.
+      render: csharp
+      placeholder: |
+        // Your code here
+        public class Example
+        {
+            [YourAspect]
+            public void Method() { }
+        }
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Aspekt Version
+      description: What version of Aspekt are you using?
+      options:
+        - 2.0.0 (latest)
+        - 1.x.x (legacy)
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dotnet-version
+    attributes:
+      label: .NET Version
+      description: What version of .NET are you using?
+      options:
+        - .NET 9.0
+        - .NET 8.0
+        - .NET 6.0
+        - .NET Framework 4.8
+        - .NET Framework 4.7.2
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows Server 2022
+        - Windows Server 2019
+        - macOS
+        - Linux
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ide
+    attributes:
+      label: Development Environment
+      description: What development environment are you using?
+      options:
+        - Visual Studio 2022
+        - Visual Studio 2019
+        - Visual Studio Code
+        - JetBrains Rider
+        - Command Line
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: textarea
+    id: error-message
+    attributes:
+      label: Error Message/Stack Trace
+      description: |
+        If applicable, please provide the full error message and stack trace.
+      render: text
+      placeholder: |
+        System.Exception: Error message here
+           at Namespace.Class.Method() in File.cs:line 123
+
+  - type: textarea
+    id: build-output
+    attributes:
+      label: Build Output
+      description: |
+        If applicable, please provide relevant build output, especially from the Aspekt weaving process.
+      render: text
+      placeholder: |
+        MSBuild output here...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context about the problem here.
+        - Screenshots
+        - Related issues
+        - Workarounds you've tried
+        - Any other relevant information
+      placeholder: Any additional information that might help...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following:
+      options:
+        - label: I have searched existing issues to ensure this bug hasn't been reported before
+          required: true
+        - label: I have provided a minimal code sample that reproduces the issue
+          required: true
+        - label: I have included the complete error message/stack trace (if applicable)
+          required: false
+        - label: I am willing to help test a fix for this issue
+          required: false

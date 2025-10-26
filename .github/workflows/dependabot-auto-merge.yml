@@ -1,0 +1,37 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  auto-merge:
+    name: 'Auto-merge Dependabot PRs'
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore and build
+      run: |
+        dotnet restore Aspekt.sln
+        dotnet build Aspekt.sln --configuration Release
+    
+    - name: Run tests
+      run: |
+        dotnet test Aspekt.Test/Aspekt.Test.csproj --configuration Release --no-build
+        dotnet test Aspekt.Bootstrap.Test/Aspekt.Bootstrap.Test.csproj --configuration Release --no-build
+    
+    - name: Enable auto-merge for Dependabot PRs
+      if: success()
+      run: gh pr merge --auto --merge "$PR_URL"
+      env:
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

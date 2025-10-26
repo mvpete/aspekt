@@ -1,0 +1,112 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-*'
+
+jobs:
+  create-release:
+    name: 'Create GitHub Release'
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore Aspekt.sln
+    
+    - name: Build solution
+      run: dotnet build Aspekt.sln --configuration Release --no-restore
+    
+    - name: Run tests
+      run: |
+        dotnet test Aspekt.Test/Aspekt.Test.csproj --configuration Release --no-build
+        dotnet test Aspekt.Bootstrap.Test/Aspekt.Bootstrap.Test.csproj --configuration Release --no-build
+        dotnet test Aspekt.Foundation.Test/Aspekt.Foundation.Test.csproj --configuration Release --no-build
+        dotnet test Aspekt.Logging.Test/Aspekt.Logging.Test.csproj --configuration Release --no-build
+    
+    - name: Create NuGet packages
+      run: |
+        dotnet pack Aspekt/Aspekt.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Aspekt.Contracts/Aspekt.Contracts.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Aspekt.Logging/Aspekt.Logging.csproj --configuration Release --no-build --output nupkgs
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $version = $tag -replace '^v', ''
+        
+        $releaseNotes = @"
+        # Aspekt $version Release
+        
+        ## What's New
+        
+        - 🚀 Modern .NET support (6.0, 8.0, 9.0)
+        - ⚡ Improved performance and async support
+        - 📋 Comprehensive Design by Contract implementation
+        - 🔧 Enhanced IL weaving with Mono.Cecil
+        - 📚 Complete documentation suite
+        
+        ## Package Information
+        
+        This release includes the following NuGet packages:
+        
+        - **Aspekt** - Core AOP functionality
+        - **Aspekt.Contracts** - Design by Contract support  
+        - **Aspekt.Logging** - Built-in logging aspects
+        
+        ## Installation
+        
+        ```bash
+        # Install core package
+        Install-Package Aspekt -Version $version
+        
+        # Install contracts
+        Install-Package Aspekt.Contracts -Version $version
+        
+        # Install logging
+        Install-Package Aspekt.Logging -Version $version
+        ```
+        
+        ## Documentation
+        
+        - [Getting Started Guide](https://github.com/mvpete/aspekt/blob/master/docs/GETTING_STARTED.md)
+        - [API Reference](https://github.com/mvpete/aspekt/blob/master/docs/API.md)
+        - [Examples](https://github.com/mvpete/aspekt/blob/master/docs/EXAMPLES.md)
+        - [Troubleshooting](https://github.com/mvpete/aspekt/blob/master/docs/TROUBLESHOOTING.md)
+        
+        ## Requirements
+        
+        - .NET 6.0 or later
+        - Visual Studio 2022 or VS Code
+        - MSBuild 17.0+
+        "@
+        
+        # Save to file for GitHub release
+        $releaseNotes | Out-File -FilePath release-notes.md -Encoding utf8
+        
+        # Set output for next step
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: 'Aspekt v${{ steps.release_notes.outputs.version }}'
+        body_path: release-notes.md
+        files: |
+          nupkgs/*.nupkg
+        draft: false
+        prerelease: ${{ contains(github.ref_name, '-') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

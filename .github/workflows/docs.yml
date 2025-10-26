@@ -1,0 +1,134 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/docs.yml'
+
+jobs:
+  validate-docs:
+    name: 'Validate Documentation'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Check markdown files
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        use-verbose-mode: 'yes'
+        config-file: '.github/markdown-link-check-config.json'
+    
+    - name: Validate documentation structure
+      run: |
+        # Check that all referenced files exist
+        echo "Checking documentation structure..."
+        
+        # Required documentation files
+        required_files=(
+          "README.md"
+          "docs/GETTING_STARTED.md"
+          "docs/CONTRACTS.md"
+          "docs/API.md"
+          "docs/EXAMPLES.md"
+          "docs/TROUBLESHOOTING.md"
+        )
+        
+        for file in "${required_files[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "❌ Required file missing: $file"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        echo "Documentation structure validation complete!"
+    
+    - name: Check for broken internal links
+      run: |
+        # Check for broken internal links in markdown files
+        echo "Checking for broken internal links..."
+        
+        # Find all markdown files
+        find . -name "*.md" -type f | while read -r file; do
+          echo "Checking $file..."
+          
+          # Extract internal links (relative paths)
+          grep -oE '\[.*\]\([^http][^)]*\)' "$file" | while read -r link; do
+            # Extract the path from the link
+            path=$(echo "$link" | sed -E 's/.*\(([^)]*)\).*/\1/')
+            
+            # Convert relative path to absolute from the file's directory
+            dir=$(dirname "$file")
+            full_path=$(realpath -m "$dir/$path" 2>/dev/null || echo "$dir/$path")
+            
+            # Check if the file exists
+            if [[ ! -f "$full_path" && ! -d "$full_path" ]]; then
+              echo "❌ Broken link in $file: $link -> $full_path"
+              # Note: We don't exit 1 here as some links might be anchors
+            fi
+          done
+        done
+        
+        echo "Internal link check complete!"
+
+  spell-check:
+    name: 'Spell Check Documentation'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run spell check
+      uses: streetsidesoftware/cspell-action@v5
+      with:
+        files: |
+          **/*.md
+        config: '.github/cspell.json'
+        incremental_files_only: false
+
+  update-toc:
+    name: 'Update Table of Contents'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Generate TOC for documentation files
+      run: |
+        # Install markdown-toc if needed
+        npm install -g markdown-toc
+        
+        # Update TOC in main documentation files
+        for file in docs/*.md; do
+          if [[ -f "$file" ]]; then
+            echo "Updating TOC for $file"
+            markdown-toc -i "$file"
+          fi
+        done
+    
+    - name: Commit TOC updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if git diff --quiet; then
+          echo "No TOC changes to commit"
+        else
+          git add docs/*.md
+          git commit -m "docs: auto-update table of contents [skip ci]"
+          git push
+        fi

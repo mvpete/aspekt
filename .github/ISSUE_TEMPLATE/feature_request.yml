@@ -1,0 +1,160 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Aspekt
+title: "[FEATURE]: "
+labels: ["enhancement", "triage"]
+assignees:
+  - mvpete
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 🚀
+        Please provide as much detail as possible to help us understand your request.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: A brief, clear summary of the feature you'd like to see added.
+      placeholder: Briefly describe the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: |
+        Why do you want this feature? What problem does it solve?
+        What use cases does it enable?
+      placeholder: |
+        I would like this feature because...
+        It would solve the problem of...
+        This would enable...
+    validations:
+      required: true
+
+  - type: textarea
+    id: detailed-description
+    attributes:
+      label: Detailed Description
+      description: |
+        Provide a detailed description of the feature.
+        How should it work? What should the API look like?
+      placeholder: |
+        The feature should work by...
+        The API could look like...
+        Users would interact with it by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-api
+    attributes:
+      label: Proposed API/Usage
+      description: |
+        If you have ideas about how the feature should be used, provide code examples.
+      render: csharp
+      placeholder: |
+        // Example of how the feature might be used
+        [YourNewFeature(parameter: "value")]
+        public void MyMethod()
+        {
+            // Method implementation
+        }
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: Which area of Aspekt does this feature relate to?
+      options:
+        - Core AOP functionality
+        - Contracts (Design by Contract)
+        - Logging aspects
+        - Performance/Diagnostics
+        - Build integration
+        - Documentation
+        - Developer experience
+        - Testing
+        - Other (please specify in additional context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - High - Critical for my project
+        - Medium - Would be very helpful
+        - Low - Nice to have
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: |
+        Have you considered any alternative solutions or workarounds?
+        How are you currently handling this use case?
+      placeholder: |
+        I've considered...
+        Currently I'm working around this by...
+        Other libraries handle this by...
+
+  - type: textarea
+    id: related-features
+    attributes:
+      label: Related Features
+      description: |
+        Are there any existing Aspekt features that this relates to?
+        Would this feature work well with other planned features?
+      placeholder: |
+        This relates to...
+        It would work well with...
+        It might conflict with...
+
+  - type: textarea
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: |
+        Would this feature require any breaking changes to existing APIs?
+        How could breaking changes be minimized?
+      placeholder: |
+        This feature would/would not require breaking changes because...
+        Breaking changes could be minimized by...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context, screenshots, or examples that help explain the feature request.
+      placeholder: |
+        Additional information:
+        - Links to similar features in other libraries
+        - Screenshots or mockups
+        - Performance considerations
+        - Any other relevant information
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following:
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested before
+          required: true
+        - label: I have provided a clear use case for this feature
+          required: true
+        - label: I have considered how this feature fits with Aspekt's existing design
+          required: true
+        - label: I am willing to help test this feature when implemented
+          required: false
+        - label: I am willing to contribute to the implementation of this feature
+          required: false

@@ -175,11 +175,22 @@ public void DoWork()
 
 ```bash
 # Clone and build
-git clone https://github.com/your-org/aspekt.git
+git clone https://github.com/mvpete/aspekt.git
 cd aspekt
 dotnet build
 dotnet test
 ```
+
+## 🚀 CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **Automated Testing**: Multi-version testing across .NET 6.0, 8.0, and 9.0
+- **Code Quality**: Automated formatting, analysis, and security scanning
+- **Package Publishing**: Automatic NuGet releases on tagged versions
+- **Documentation**: Link validation and spell checking
+
+See [Pipeline Documentation](.github/PIPELINE.md) for detailed information about the build and release process.
 
 ## ⚡ Performance
 

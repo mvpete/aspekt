@@ -1,0 +1,177 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main ]
+  release:
+    types: [ published ]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  ASPEKT_VERSION: '2.0.0'
+
+jobs:
+  build:
+    name: 'Build & Test'
+    runs-on: windows-latest
+    
+    strategy:
+      matrix:
+        dotnet-version: ['6.0.x', '8.0.x', '9.0.x']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required for GitVersion
+    
+    - name: Setup .NET ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore Aspekt.sln
+    
+    - name: Build solution
+      run: dotnet build Aspekt.sln --configuration Release --no-restore
+    
+    - name: Run unit tests
+      run: |
+        dotnet test Aspekt.Test/Aspekt.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+        dotnet test Aspekt.Bootstrap.Test/Aspekt.Bootstrap.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+        dotnet test Aspekt.Foundation.Test/Aspekt.Foundation.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+        dotnet test Aspekt.Logging.Test/Aspekt.Logging.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.dotnet-version }}
+        path: TestResults/*.trx
+    
+    - name: Create NuGet packages
+      if: matrix.dotnet-version == '8.0.x'
+      run: |
+        dotnet pack Aspekt/Aspekt.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Aspekt.Contracts/Aspekt.Contracts.csproj --configuration Release --no-build --output nupkgs
+        dotnet pack Aspekt.Logging/Aspekt.Logging.csproj --configuration Release --no-build --output nupkgs
+    
+    - name: Upload NuGet packages
+      if: matrix.dotnet-version == '8.0.x'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkgs/*.nupkg
+
+  code-quality:
+    name: 'Code Quality Analysis'
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore Aspekt.sln
+    
+    - name: Run code analysis
+      run: dotnet build Aspekt.sln --configuration Release --verbosity normal
+    
+    - name: Check code formatting
+      run: |
+        dotnet format Aspekt.sln --verify-no-changes --verbosity diagnostic
+
+  security-scan:
+    name: 'Security Scan'
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore Aspekt.sln
+    
+    - name: Run security audit
+      run: dotnet list package --vulnerable --include-transitive
+
+  publish-nuget:
+    name: 'Publish to NuGet'
+    runs-on: windows-latest
+    needs: [build, code-quality, security-scan]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+    - name: Download NuGet packages
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkgs
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Publish to NuGet.org
+      run: |
+        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    - name: Publish to GitHub Packages
+      run: |
+        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+
+  publish-github-packages:
+    name: 'Publish to GitHub Packages (Pre-release)'
+    runs-on: windows-latest
+    needs: [build, code-quality]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+    - name: Download NuGet packages
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkgs
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Add version suffix for pre-release
+      run: |
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        $sha = "${{ github.sha }}".Substring(0, 7)
+        $suffix = "alpha.$timestamp.$sha"
+        
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object {
+          $newName = $_.Name -replace '\.nupkg$', "-$suffix.nupkg"
+          Rename-Item $_.FullName $newName
+        }
+    
+    - name: Publish pre-release to GitHub Packages
+      run: |
+        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
