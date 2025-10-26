@@ -10,7 +10,11 @@
   </PropertyGroup>
 
   <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
-    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" />
+    <PropertyGroup>
+      <BootstrapHostPath>$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+    </PropertyGroup>
+    <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="Exists('$(BootstrapHostPath)')" ContinueOnError="false" />
+    <Warning Text="Bootstrap Host not found at $(BootstrapHostPath) - skipping aspect weaving for $(TargetFramework)" Condition="!Exists('$(BootstrapHostPath)')" />
   </Target>
 
   <ItemGroup>
