@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' ">
-    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" />
+    <Exec Command="dotnet &quot;$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" />
   </Target>
 
   <ItemGroup>
