@@ -145,6 +145,16 @@ jobs:
         name: nuget-packages
         path: nupkgs
     
+    - name: Verify packages exist
+      run: |
+        if (-not (Test-Path "nupkgs/*.nupkg")) {
+          echo "❌ No NuGet packages found!"
+          exit 1
+        }
+        $count = (Get-ChildItem nupkgs/*.nupkg).Count
+        echo "✅ Found $count NuGet packages to publish"
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object { echo "  - $($_.Name)" }
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -152,11 +162,13 @@ jobs:
     
     - name: Publish to NuGet.org
       run: |
+        echo "📦 Publishing to NuGet.org..."
         dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
     
     - name: Publish to GitHub Packages
       run: |
-        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+        echo "📦 Publishing to GitHub Packages..."
+        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/index.json --skip-duplicate
 
   publish-github-packages:
     name: 'Publish to GitHub Packages (Pre-release)'
@@ -170,13 +182,30 @@ jobs:
       with:
         name: nuget-packages
         path: nupkgs
+      continue-on-error: true
+    
+    - name: Check if packages exist
+      id: check-packages
+      run: |
+        if (Test-Path "nupkgs/*.nupkg") {
+          $count = (Get-ChildItem nupkgs/*.nupkg).Count
+          echo "packages-exist=true" >> $env:GITHUB_OUTPUT
+          echo "package-count=$count" >> $env:GITHUB_OUTPUT
+          echo "Found $count NuGet packages"
+        } else {
+          echo "packages-exist=false" >> $env:GITHUB_OUTPUT
+          echo "package-count=0" >> $env:GITHUB_OUTPUT
+          echo "No NuGet packages found"
+        }
     
     - name: Setup .NET
+      if: steps.check-packages.outputs.packages-exist == 'true'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     
     - name: Add version suffix for pre-release
+      if: steps.check-packages.outputs.packages-exist == 'true'
       run: |
         $timestamp = Get-Date -Format "yyyyMMddHHmmss"
         $sha = "${{ github.sha }}".Substring(0, 7)
@@ -185,8 +214,20 @@ jobs:
         Get-ChildItem nupkgs/*.nupkg | ForEach-Object {
           $newName = $_.Name -replace '\.nupkg$', "-$suffix.nupkg"
           Rename-Item $_.FullName $newName
+          echo "Renamed $($_.Name) to $newName"
         }
     
     - name: Publish pre-release to GitHub Packages
+      if: steps.check-packages.outputs.packages-exist == 'true'
       run: |
+        echo "Publishing ${{ steps.check-packages.outputs.package-count }} packages to GitHub Packages..."
         dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+    
+    - name: No packages to publish
+      if: steps.check-packages.outputs.packages-exist == 'false'
+      run: |
+        echo "⚠️ No NuGet packages found to publish. This may indicate:"
+        echo "  - The build job didn't complete successfully"
+        echo "  - Package creation was skipped"
+        echo "  - Artifact upload failed"
+        echo "Check the build job logs for more details."
