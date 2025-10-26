@@ -33,7 +33,7 @@ namespace Aspekt.Test
             return 42;
         }
     }
-    
+
     internal sealed class StringIntHandlerAttribute : Aspect, IAspectExitHandler<string>, IAspectExitHandler<int>
     {
         public static string StringResult { get; set; } = null;
@@ -171,6 +171,17 @@ namespace Aspekt.Test
     [TestClass]
     public class AspectExitHandlerTest
     {
+        [TestInitialize]
+        public void ResetStaticState()
+        {
+            StringValueHandlerAttribute.Result = null;
+            IntValueHandlerAttribute.Result = 0;
+            StringIntHandlerAttribute.StringResult = null;
+            StringIntHandlerAttribute.IntResult = 0;
+            VoidOverrideHandlerAttribute.OnExitCalled = false;
+            VoidOverrideHandlerAttribute.OnExitSpecilaizationCalled = false;
+        }
+
         [TestMethod]
         public void TestOnExitObjectResultNoParameters()
         {

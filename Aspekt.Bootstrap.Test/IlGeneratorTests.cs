@@ -1,6 +1,7 @@
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using OpCodes = Mono.Cecil.Cil.OpCodes;
 
 namespace Aspekt.Bootstrap.Test
@@ -27,14 +28,16 @@ namespace Aspekt.Bootstrap.Test
 
         public static IEnumerable<object[]> BranchInstructions()
         {
-            yield return new object[] {OpCodes.Br};
-            yield return new object[] {OpCodes.Br_S};
-            yield return new object[] {OpCodes.Brfalse};
-            yield return new object[] {OpCodes.Brfalse_S};
-            yield return new object[] {OpCodes.Brtrue};
-            yield return new object[] {OpCodes.Brtrue_S};
-            yield return new object[] {OpCodes.Leave};
-            yield return new object[] {OpCodes.Leave_S};
+            return new [] {
+            new object[] { OpCodes.Br },
+            new object[] { OpCodes.Br_S },
+            new object[] { OpCodes.Brfalse },
+            new object[] { OpCodes.Brfalse_S },
+            new object[] { OpCodes.Brtrue },
+            new object[] { OpCodes.Brtrue_S },
+            new object[] { OpCodes.Leave },
+            new object[] { OpCodes.Leave_S },
+        };
         }
 
         #endregion
@@ -42,7 +45,7 @@ namespace Aspekt.Bootstrap.Test
         #region ReplaceInstruction
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void ReplaceInstruction_BasicInstruction_Replaces(params Instruction[] instructions)
         {
             // Arrange
@@ -73,11 +76,17 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
-        public void ReplaceInstruction_BranchedTo_ReplacesBranch(OpCode branchCode)
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(5)]
+        [DataRow(6)]
+        public void ReplaceInstruction_BranchedTo_ReplacesBranch(int codeIndex)
         {
             // Arrange
-
+            OpCode branchCode = (OpCode)BranchInstructions().ElementAt(codeIndex)[0];
             var testClass = CreateEmptyClass();
 
             var testMethod = new MethodDefinition("TestMethod", MethodAttributes.Public,
@@ -104,11 +113,18 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(5)]
+        [DataRow(6)]
 
-        public void ReplaceInstruction_BranchedTo_Recursive(OpCode branchCode)
+        public void ReplaceInstruction_BranchedTo_Recursive(int codeIndex)
         {
             // Arrange
-
+            OpCode branchCode = (OpCode)BranchInstructions().ElementAt(codeIndex)[0];
             var testClass = CreateEmptyClass();
 
             var testMethod = new MethodDefinition("TestMethod", MethodAttributes.Public,
@@ -139,7 +155,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void ReplaceInstruction_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -176,7 +192,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void ReplaceInstruction_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -214,7 +230,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void ReplaceInstruction_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -255,7 +271,7 @@ namespace Aspekt.Bootstrap.Test
         #region InsertInstructionsAt
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void InsertInstructionsAt_BasicInstruction_Replaces(params Instruction[] instructions)
         {
             // Arrange
@@ -288,11 +304,17 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
-        public void InsertInstructionsAt_BranchedTo_ReplacesBranch(OpCode branchCode)
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(5)]
+        [DataRow(6)]
+        public void InsertInstructionsAt_BranchedTo_ReplacesBranch(int codeIndex)
         {
             // Arrange
-
+            OpCode branchCode = (OpCode)BranchInstructions().ElementAt(codeIndex)[0];
             var testClass = CreateEmptyClass();
 
             var testMethod = new MethodDefinition("TestMethod", MethodAttributes.Public,
@@ -319,11 +341,17 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
-        public void InsertInstructionsAt_BranchedTo_Recursive(OpCode branchCode)
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(2)]
+        [DataRow(3)]
+        [DataRow(4)]
+        [DataRow(5)]
+        [DataRow(6)]
+        public void InsertInstructionsAt_BranchedTo_Recursive(int codeIndex)
         {
             // Arrange
-
+            OpCode branchCode = (OpCode)BranchInstructions().ElementAt(codeIndex)[0];
             var testClass = CreateEmptyClass();
 
             var testMethod = new MethodDefinition("TestMethod", MethodAttributes.Public,
@@ -354,7 +382,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void InsertInstructionsAt_BeginTryBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -391,7 +419,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void InsertInstructionsAt_BeginHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
@@ -429,7 +457,7 @@ namespace Aspekt.Bootstrap.Test
         }
 
         [TestMethod]
-
+        [DynamicData(nameof(InstructionSets), DynamicDataSourceType.Method)]
         public void InsertInstructionsAt_EndHandlerBlock_AdjustsToFirstInstruction(params Instruction[] instructions)
         {
             // Arrange
