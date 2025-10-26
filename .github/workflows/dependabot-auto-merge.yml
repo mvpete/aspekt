@@ -21,8 +21,10 @@ jobs:
     
     - name: Configure NuGet
       run: |
-        dotnet nuget config set signatureValidationMode accept
-        dotnet nuget config set packagePathResolve true
+        echo "Using NuGet.config for package source configuration"
+      env:
+        NUGET_CERT_REVOCATION_MODE: offline
+        DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
     
     - name: Restore and build
       run: |
