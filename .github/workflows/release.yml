@@ -48,15 +48,23 @@ jobs:
         $version = $tag -replace '^v', ''
         
         $releaseNotes = @"
-        # Aspekt $version Release
+        # Aspekt $version - AI Era Release 🤖
         
-        ## What's New
+        ## 🌟 Welcome to the AI Era of Aspekt!
         
-        - 🚀 Modern .NET support (6.0, 8.0, 9.0)
-        - ⚡ Improved performance and async support
-        - 📋 Comprehensive Design by Contract implementation
-        - 🔧 Enhanced IL weaving with Mono.Cecil
-        - 📚 Complete documentation suite
+        This major release represents a complete modernization and enhancement of the Aspekt AOP framework, developed with AI assistance to ensure comprehensive coverage, best practices, and production-ready quality.
+        
+        ## 🚀 What's New in v3.0.0
+        
+        - 🤖 **AI-Enhanced Development**: Complete codebase review and enhancement
+        - 🚀 **Modern .NET Support**: Full compatibility with .NET 6.0, 8.0, and 9.0
+        - ⚡ **Advanced Async Support**: Comprehensive ValueTask patterns and cancellation token support
+        - 📋 **Production-Ready Contracts**: Complete Design by Contract implementation
+        - 🔧 **Enhanced IL Weaving**: Improved Mono.Cecil integration with better error handling
+        - 📚 **Comprehensive Documentation**: AI-curated examples, guides, and best practices
+        - 🔄 **Professional CI/CD**: Multi-version testing, security scanning, and automated releases
+        - 🎯 **Return Value Interception**: Advanced IAspectExitHandler capabilities
+        - 🛡️ **Thread Safety**: Enhanced concurrent execution support
         
         ## Package Information
         

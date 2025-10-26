@@ -5,7 +5,7 @@
 
     <Title>Aspekt AOP</Title>
     <Description>Aspekt is a lightweight AOP library. Use it to add cross cutting concerns to your application.</Description>
-    <PackageReleaseNotes>Modernized for current .NET versions. Updated dependencies and improved performance.</PackageReleaseNotes>
+    <PackageReleaseNotes>v3.0.0 - AI Era Release: Comprehensive documentation overhaul with AI-enhanced examples, modern CI/CD pipeline, full .NET 9.0 support, and production-ready Design by Contract implementation.</PackageReleaseNotes>
 
     <BootstrapTaskOutputFolder>..\Aspekt.Bootstrap.Tasks\bin\$(Configuration)\</BootstrapTaskOutputFolder>
   </PropertyGroup>
