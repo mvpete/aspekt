@@ -1,87 +1,216 @@
-[ASPeKT]
-===
+# Aspekt - Aspect-Oriented Programming for .NET
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ysr9ebr6dwaqamus?svg=true)](https://ci.appveyor.com/project/mvpete/aspekt)
+[![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0%20%7C%209.0-blue)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-A lightweight (Aspect Oriented Programming) AOP foundation
+Aspekt is a lightweight, powerful Aspect-Oriented Programming (AOP) foundation library for .NET that allows you to implement cross-cutting concerns using attributes. It supports modern .NET versions including .NET 6.0, 8.0, and 9.0, with async/await patterns and comprehensive Design by Contract capabilities.
 
-### Overview
-Aspekt is a small AOP foundation library written in C#. Aspect Oriented Programming (AOP) allows to ease the pain associated with cross-cutting concerns. A cross-cutting concern is a pattern that gets across a program that cannot easily be factored into its own module. This raises the so called signal-to-noise ratio. One common cross cutting concern is logging, when logging entry/exit/exception of a function, the code becomes cluttered with log code and the intent can become lost. Aspekt addresses these concerns, by using attributes as annotation of functions. Like PostSharp aspect utilizes post processing of the .NET binaries, inserting the aspects post build. For ASPeKT this is done using Mono.Cecil.
+## 🚀 Key Features
+
+- **Attribute-Based AOP**: Apply aspects declaratively using C# attributes
+- **Async Support**: Full support for async/await patterns with `ValueTask` methods
+- **Design by Contract**: Comprehensive contract system with preconditions, postconditions, and invariants
+- **Return Value Interception**: Modify return values using `IAspectExitHandler<T>`
+- **Modern .NET Support**: Compatible with .NET 6.0, 8.0, 9.0, and .NET Standard 2.1
+- **Post-Compilation Weaving**: IL manipulation using Mono.Cecil for zero-overhead aspect application
+- **Built-in Logging**: Ready-to-use logging aspects with customizable formatters
+- **Thread-Safe**: Designed for multi-threaded applications
+
+## 📦 Installation
+
+```bash
+# Core AOP functionality
+Install-Package Aspekt
+
+# Design by Contract support
+Install-Package Aspekt.Contracts
+
+# Logging aspects
+Install-Package Aspekt.Logging
+```
+
+## 🏃‍♂️ Quick Start
+
+### Basic Logging Aspect
+
+```csharp
+using Aspekt;
+
+public class LoggingAspect : Aspect
+{
+    public override void OnEntry(MethodArguments args)
+    {
+        Console.WriteLine($"Entering: {args.FullName}");
+    }
+
+    public override void OnExit(MethodArguments args)
+    {
+        Console.WriteLine($"Exiting: {args.FullName}");
+    }
+
+    public override void OnException(MethodArguments args, Exception ex)
+    {
+        Console.WriteLine($"Exception in {args.FullName}: {ex.Message}");
+    }
+}
+```
 
 ### Usage
 
-The foundation of Aspekt is the base Aspect. In order to utilize Aspects, just derive from Aspekt.Aspect and implement the OnEntry, OnExit, OnException methods. Aspekt will only place the calls implemented on the class i.e. OnEntry, OnExit, OnException
-
-
 ```csharp
-class SampleAspect : Aspekt.Aspect
+public class Calculator
 {
-   public SampleAspect(String val)
-   {
-   }
-
-   public void override OnEntry(MethodArgs ma)
-   {
-      // called before any existing code is ran
-   }
-
-   public void override OnExit(MethodArgs ma)
-   {
-     // called before ANY return statement
-   }
-
-   public void override OnException(MethodArgs ma, Exception e)
-   {
-     // called if existing codes excepts
-   }
-}
-```
-
-When you use the Aspect in your client code, such as
-
-```csharp
-class Foo
-{
-    [SampleAspect("Some Value")]
-    public void Bar(String s, int i)
+    [Logging]
+    public int Add(int x, int y)
     {
-        // Do something here.
+        return x + y;
+    }
+
+    [Logging]
+    public async Task<string> GetDataAsync()
+    {
+        await Task.Delay(100);
+        return "Hello, World!";
     }
 }
 ```
 
-Aspekt will re-write the code, to something along the lines of the following.
+### Advanced: Return Value Modification
 
 ```csharp
-class Foo
+public class ResultModifierAspect : Aspect, IAspectExitHandler<string>
 {
-    [SampleAspect("Some Value")]
-    public void Bar(String s, int i)
+    public string OnExit(MethodArguments args, string result)
     {
-       MethodArgs ma = new MethodArgs("Bar", "Assembly.Foo.Bar(String s, int i)", new Arguments(new object[] { s, i }), this);
-       SampleAspect sa = new SampleAspect("Some Value");
-       sa.OnEntry(ma);
-       try
-       {
-           // Do Something Here
-           sa.OnExit(ma);
-       }
-       catch(Exception e)
-       {
-          sa.OnException(ma,e);
-          throw;
-       }
+        return $"Modified: {result}";
     }
 }
- ```
- As mentioned earlier, Aspekt will only write functions where they've been overridden. This means, only the methods that you want, are added. As well, Aspekt tries not alter or modify existing code, so if the IL contains multiple returns, Aspekt calls OnExit before each return.
 
-If you're using NuGet to get ASPeKT, your project will have the appropriate post build steps. You can ignore anything below.
+public class Service
+{
+    [ResultModifier]
+    public string GetMessage() => "Original";
+    // Returns: "Modified: Original"
+}
+```
 
-Since Aspekt works post compile, in order to use it you must run the Bootstrap application against your assembly.
+### Design by Contract
+
+```csharp
+using Aspekt.Contracts;
+
+public class BankAccount
+{
+    private decimal _balance;
     
-    > Aspekt.Bootstrap.Host [PathToAssembly] 
+    [Invariant(nameof(_balance), Contract.Comparison.GreaterThanEqualTo, 0)]
+    public decimal Balance => _balance;
+    
+    [Require(nameof(amount), Contract.Comparison.GreaterThan, 0)]
+    [Ensure(Contract.Comparison.GreaterThanEqualTo, 0)]
+    public decimal Deposit(decimal amount)
+    {
+        _balance += amount;
+        return _balance;
+    }
+}
+```
 
-This will process the assembly and add in the aspects to their respective members.
+## 📚 Documentation
+
+- **[Getting Started Guide](docs/GETTING_STARTED.md)** - Complete guide from installation to advanced features
+- **[Contracts Documentation](docs/CONTRACTS.md)** - Design by Contract with preconditions, postconditions, and invariants
+- **[API Reference](docs/API.md)** - Detailed API documentation for all components
+- **[Examples](docs/EXAMPLES.md)** - Real-world usage examples and patterns
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+
+## 🔧 How It Works
+
+Aspekt uses post-compilation IL weaving via Mono.Cecil. When you apply an aspect attribute to a method:
+
+1. **Build Time**: Your code compiles normally
+2. **Post-Build**: Aspekt.Bootstrap.Host processes your assembly
+3. **IL Weaving**: Aspect calls are injected into your methods
+4. **Runtime**: Aspects execute seamlessly with your code
+
+```csharp
+// Your code:
+[LoggingAspect]
+public void DoWork() { /* your logic */ }
+
+// Becomes (conceptually):
+public void DoWork()
+{
+    var aspect = new LoggingAspect();
+    var args = new MethodArguments(/* method info */);
+    
+    aspect.OnEntry(args);
+    try
+    {
+        /* your original logic */
+        aspect.OnExit(args);
+    }
+    catch (Exception ex)
+    {
+        aspect.OnException(args, ex);
+        throw;
+    }
+}
+```
+
+## 🏗️ Project Structure
+
+- **Aspekt**: Core AOP functionality and base `Aspect` class
+- **Aspekt.Contracts**: Design by Contract implementation
+- **Aspekt.Logging**: Built-in logging aspects with multiple formatters
+- **Aspekt.Bootstrap**: IL weaving engine using Mono.Cecil
+- **Aspekt.Test**: Comprehensive test suite with 100+ tests
+
+## 🛠️ Build Requirements
+
+- .NET SDK 6.0 or later
+- Visual Studio 2022 or VS Code
+- MSBuild 17.0+
+
+```bash
+# Clone and build
+git clone https://github.com/your-org/aspekt.git
+cd aspekt
+dotnet build
+dotnet test
+```
+
+## ⚡ Performance
+
+Aspekt is designed for minimal runtime overhead:
+- **Zero reflection** at runtime
+- **Compile-time weaving** means no performance impact from AOP infrastructure
+- **Selective application** - only methods with aspects are modified
+- **Async-aware** - proper support for async/await patterns
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for your changes
+4. Ensure all tests pass
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [Mono.Cecil](https://github.com/jbevain/cecil) for IL manipulation
+- Inspired by PostSharp and other AOP frameworks
+- Thanks to all contributors and users
+
+---
+
+**Get started today**: Check out the [Getting Started Guide](docs/GETTING_STARTED.md) to begin using Aspekt in your projects!
 
 
