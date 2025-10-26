@@ -10,18 +10,14 @@
   </PropertyGroup>
 
   <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' " DependsOnTargets="ResolveProjectReferences">
-    <ItemGroup>
-      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll" />
-      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll" />
-      <BootstrapHostCandidates Include="$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll" />
-      <BootstrapHostAvailable Include="@(BootstrapHostCandidates)" Condition="Exists('%(Identity)')" />
-    </ItemGroup>
     <PropertyGroup>
-      <BootstrapHostPath>@(BootstrapHostAvailable->Take(1))</BootstrapHostPath>
+      <BootstrapHostPath Condition="Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+      <BootstrapHostPath Condition="'$(BootstrapHostPath)' == '' AND Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+      <BootstrapHostPath Condition="'$(BootstrapHostPath)' == '' AND Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net6.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
     </PropertyGroup>
-    <Message Text="Using Bootstrap Host: $(BootstrapHostPath)" Importance="normal" Condition="'$(BootstrapHostPath)' != ''" />
+    <Message Text="Using Bootstrap Host: $(BootstrapHostPath) for target $(TargetFramework)" Importance="normal" Condition="'$(BootstrapHostPath)' != ''" />
     <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="'$(BootstrapHostPath)' != ''" ContinueOnError="false" />
-    <Warning Text="Bootstrap Host not found - skipping aspect weaving for $(TargetFramework). Searched: @(BootstrapHostCandidates, '; ')" Condition="'$(BootstrapHostPath)' == ''" />
+    <Warning Text="Bootstrap Host not found - skipping aspect weaving for $(TargetFramework)" Condition="'$(BootstrapHostPath)' == ''" />
   </Target>
 
   <ItemGroup>
