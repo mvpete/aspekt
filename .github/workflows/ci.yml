@@ -175,12 +175,18 @@ jobs:
     - name: Publish to NuGet.org
       run: |
         echo "📦 Publishing to NuGet.org..."
-        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object {
+          echo "📦 Publishing $($_.Name) to NuGet.org..."
+          dotnet nuget push $_.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        }
     
     - name: Publish to GitHub Packages
       run: |
         echo "📦 Publishing to GitHub Packages..."
-        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/index.json --skip-duplicate
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object {
+          echo "📦 Publishing $($_.Name) to GitHub Packages..."
+          dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+        }
 
   publish-github-packages:
     name: 'Publish to GitHub Packages (Pre-release)'
@@ -248,7 +254,10 @@ jobs:
       if: steps.check-packages.outputs.packages-exist == 'true'
       run: |
         echo "Publishing ${{ steps.check-packages.outputs.package-count }} packages to GitHub Packages..."
-        dotnet nuget push "nupkgs/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+        Get-ChildItem nupkgs/*.nupkg | ForEach-Object {
+          echo "📦 Publishing $($_.Name)..."
+          dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/mvpete/index.json --skip-duplicate
+        }
     
     - name: No packages to publish
       if: steps.check-packages.outputs.packages-exist == 'false'
