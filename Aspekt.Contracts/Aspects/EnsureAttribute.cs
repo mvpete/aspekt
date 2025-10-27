@@ -56,14 +56,10 @@ namespace Aspekt.Contracts.Aspects
             return base.GetTargetValue(args);
         }
 
-        public override void OnExit(MethodArguments args)
-        {
-            EvaluateContracts(args, (methodName, condition) => new PostconditionException(methodName, condition));
-        }
-
         public T OnExit(MethodArguments args, T returnValue)
         {
             _returnValue = returnValue;
+            EvaluateContracts(args, (methodName, condition) => new PostconditionException(methodName, condition));
             return returnValue;
         }
 

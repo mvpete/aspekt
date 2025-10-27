@@ -58,28 +58,7 @@ namespace Aspekt.Test
         }
     }
 
-    internal sealed class VoidOverrideHandlerAttribute : Aspect, IAspectExitHandler<int>
-    {
-        public static bool OnExitCalled { get; set; } = false;
-        public static bool OnExitSpecilaizationCalled { get; set; } = false;
 
-        public VoidOverrideHandlerAttribute()
-        {
-            OnExitCalled = false;
-            OnExitSpecilaizationCalled = false;
-        }
-
-        public override void OnExit(MethodArguments args)
-        {
-            OnExitCalled = true;
-        }
-
-        public int OnExit(MethodArguments args, int result)
-        {
-            OnExitSpecilaizationCalled = true;
-            return result;
-        }
-    }
 
 
     internal class ExitHandlerClassUnderText
@@ -120,12 +99,7 @@ namespace Aspekt.Test
         {
         }
 
-        [IgnoreAspectWarning]
-        [VoidOverrideHandler]
-        public int OnExitOverrides()
-        {
-            return 42;
-        }
+
 
         [IgnoreAspectWarning]
         [StringValueHandler]
@@ -178,8 +152,6 @@ namespace Aspekt.Test
             IntValueHandlerAttribute.Result = 0;
             StringIntHandlerAttribute.StringResult = null;
             StringIntHandlerAttribute.IntResult = 0;
-            VoidOverrideHandlerAttribute.OnExitCalled = false;
-            VoidOverrideHandlerAttribute.OnExitSpecilaizationCalled = false;
         }
 
         [TestMethod]
@@ -228,16 +200,7 @@ namespace Aspekt.Test
             Assert.AreEqual(314, IntValueHandlerAttribute.Result);
         }
 
-        [TestMethod]
-        public void TestVoidOnExitOverrideInterface()
-        {
-            var cut = new ExitHandlerClassUnderText();
 
-            cut.OnExitOverrides();
-
-            Assert.IsFalse(VoidOverrideHandlerAttribute.OnExitSpecilaizationCalled);
-            Assert.IsTrue(VoidOverrideHandlerAttribute.OnExitCalled);
-        }
 
         [TestMethod]
         public void TestOnExitInvalidTypeIsNotPlaced()

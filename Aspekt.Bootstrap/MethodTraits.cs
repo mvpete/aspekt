@@ -38,6 +38,12 @@ namespace Aspekt.Bootstrap
             });
         }
 
+        public static bool HasIAspectExitHandler(TypeDefinition td)
+        {
+            return td.Interfaces.Any(i => 
+                i.InterfaceType.FullName.StartsWith("Aspekt.IAspectExitHandler`1"));
+        }
+
         private static bool CompareParameters(Collection<ParameterDefinition> pars, params Type[] types)
         {
             if (pars.Count != types.Length)
