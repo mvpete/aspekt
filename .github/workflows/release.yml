@@ -13,7 +13,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
     
@@ -93,7 +93,7 @@ jobs:
         echo "version=$version" >> $env:GITHUB_OUTPUT
     
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: 'Aspekt v${{ steps.release_notes.outputs.version }}'
         body_path: release-notes.md
