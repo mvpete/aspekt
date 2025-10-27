@@ -162,18 +162,47 @@ namespace Aspekt.Bootstrap
 
                      var hasOnExit = MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), typeof(MethodArguments));
                      var hasOnExitVal = MethodTraits.HasGenericMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExit), 2);
+                     var hasOnExitAsync = MethodTraits.HasAsyncMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExitAsync), typeof(MethodArguments), typeof(CancellationToken));
+                     var hasOnExceptionAsync = MethodTraits.HasAsyncMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnExceptionAsync), typeof(MethodArguments), typeof(Exception), typeof(CancellationToken));
+                     
                      if ( hasOnExit && hasOnExitVal )
                      {
                          WeaverLog.LogMethodWarning(meth, 3, "multiple OnExit found; override void used");
                      }
 
-                     if (hasOnExit)
+                     if (MethodTraits.IsAsyncMethod(meth))
                      {
-                         IlGenerator.InsertOnExitCalls(il, meth, attrVar, target.MethodArguments);
+                         // For async methods, use continuation-based approach
+                         if (hasOnExitAsync)
+                         {
+                             IlGenerator.InsertOnExitAsyncContinuation(il, meth, attrVar, target.MethodArguments);
+                         }
+                         else if (hasOnExit)
+                         {
+                             IlGenerator.InsertOnExitSyncContinuation(il, meth, attrVar, target.MethodArguments);
+                         }
+                         else if (hasOnExitVal)
+                         {
+                             IlGenerator.InsertOnExitResultContinuation(il, meth, attrVar, target.MethodArguments);
+                         }
+                         
+                         // Handle async exceptions
+                         if (hasOnExceptionAsync)
+                         {
+                             IlGenerator.InsertOnExceptionAsyncContinuation(il, meth, attrVar, target.MethodArguments);
+                         }
                      }
-                     else if (hasOnExitVal)
+                     else
                      {
-                         IlGenerator.InsertOnExitResultCalls(il, meth, attrVar, target.MethodArguments);
+                         // For sync methods, use existing approach
+                         if (hasOnExit)
+                         {
+                             IlGenerator.InsertOnExitCalls(il, meth, attrVar, target.MethodArguments);
+                         }
+                         else if (hasOnExitVal)
+                         {
+                             IlGenerator.InsertOnExitResultCalls(il, meth, attrVar, target.MethodArguments);
+                         }
                      }
 
                      meth.Body.OptimizeMacros();

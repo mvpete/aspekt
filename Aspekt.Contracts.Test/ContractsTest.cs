@@ -91,13 +91,13 @@ public class TestContractClass
         Console.WriteLine($"Processing: {input}");
     }
 
-    [Ensure(Contract.Constraint.NotNull)]
+    [Ensure<string>(Contract.Constraint.NotNull)]
     public string GetNonNullString()
     {
         return "Valid String";
     }
 
-    [Ensure(Contract.Constraint.NotNull)]
+    [Ensure<string>(Contract.Constraint.NotNull)]
     public string GetNullString()
     {
         return null; // This should trigger contract violation

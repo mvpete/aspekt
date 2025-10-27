@@ -4,9 +4,9 @@ namespace Aspekt.Contracts.Aspects
     /// Specifies a postcondition that must be true when a method returns.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public sealed class EnsureAttribute : ContractAspect
+    public sealed class EnsureAttribute<T> : ContractAspect, IAspectExitHandler<T>
     {
-        private object? _returnValue;
+        private T? _returnValue;
 
         /// <summary>
         /// Creates a postcondition for the return value.
@@ -61,11 +61,12 @@ namespace Aspekt.Contracts.Aspects
             EvaluateContracts(args, (methodName, condition) => new PostconditionException(methodName, condition));
         }
 
-        // This method would be called by the IL weaver to set the return value
-        internal void SetReturnValue(object? returnValue)
+        public T OnExit(MethodArguments args, T returnValue)
         {
             _returnValue = returnValue;
+            return returnValue;
         }
+
         public Contract.Constraint Constraint { get; }
     }
 }
