@@ -59,7 +59,8 @@ namespace Aspekt.Contracts
             {
                 Contract.Target.Property => GetPropertyValue(args),
                 Contract.Target.Field => GetFieldValue(args),
-                _ => args.Arguments.GetArgumentValueByName(TargetName),// For parameter contracts, get by name
+                Contract.Target.Parameter => args.Arguments.GetArgumentValueByName(TargetName),
+                _ => args.Arguments.GetArgumentValueByName(TargetName),// Default to parameter lookup
             };
         }
 

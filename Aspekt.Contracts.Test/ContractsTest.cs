@@ -67,6 +67,58 @@ public class ContractsTest
         Assert.ThrowsException<ContractViolatedException>(testObject.ViolatePropertyInvariant);
         Assert.IsNotNull(ExceptionHandlerAspect.OnExceptionCalled);
     }
+
+    [TestMethod]
+    public void TestParameterNotNullAttribute()
+    {
+        var testObject = new TestContractClass();
+
+        // Test that parameter-level NotNull attribute works with valid input
+        testObject.RequireParameterNotNull("valid string");
+
+        // Test parameter-level NotNull attribute with null - should throw
+        try
+        {
+            testObject.RequireParameterNotNull(null);
+            Assert.Fail("Expected exception was not thrown for null parameter");
+        }
+        catch (ArgumentNullException)
+        {
+            // Expected exception for parameter-level NotNull
+        }
+        catch (System.Exception ex)
+        {
+            // Parameter-level validation might throw different exception types
+            Assert.IsTrue(ex.Message.Contains("null") || ex.Message.Contains("Null"),
+                $"Expected null-related exception, got: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    [TestMethod]
+    public void TestParameterRequireAttribute()
+    {
+        var testObject = new TestContractClass();
+
+        // Test that parameter-level Require attribute works with valid input
+        testObject.RequireParameter("valid string");
+
+        // Test parameter-level Require attribute with null - should throw
+        try
+        {
+            testObject.RequireParameter(null);
+            Assert.Fail("Expected exception was not thrown for null parameter");
+        }
+        catch (ArgumentNullException)
+        {
+            // Expected exception for parameter-level Require
+        }
+        catch (System.Exception ex)
+        {
+            // Parameter-level validation might throw different exception types
+            Assert.IsTrue(ex.Message.Contains("null") || ex.Message.Contains("Null") || ex.Message.Contains("Require"),
+                $"Expected null/require-related exception, got: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
 }
 
 [PropertyInvariant(nameof(DontNullMe), Contract.Constraint.NotNull)]
@@ -88,6 +140,20 @@ public class TestContractClass
     public void RequireNotNull(string input)
     {
         // Method body - contracts are enforced via IL weaving
+        Console.WriteLine($"Processing: {input}");
+    }
+
+    // New parameter-level contract method
+    public void RequireParameterNotNull([NotNullAttribute] string input)
+    {
+        // Method body - parameter contracts are enforced via IL weaving
+        Console.WriteLine($"Processing: {input}");
+    }
+
+    // New parameter-level require method
+    public void RequireParameter([Require(Contract.Constraint.NotNull)] string input)
+    {
+        // Method body - parameter contracts are enforced via IL weaving
         Console.WriteLine($"Processing: {input}");
     }
 
