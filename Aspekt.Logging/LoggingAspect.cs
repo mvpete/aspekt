@@ -4,18 +4,18 @@ namespace Aspekt.Logging
 {
     public class LoggingAspect : Aspect
     {
-        private readonly object? _logger;
-        private readonly Levels _logLevel;
-        private readonly bool _logParameters;
-        private readonly bool _logExecutionTime;
+        private readonly object? logger_;
+        private readonly Levels logLevel_;
+        private readonly bool logParameters_;
+        private readonly bool logExecutionTime_;
 
         public LoggingAspect(Levels logLevel = Levels.Information, 
                            bool logParameters = true, 
                            bool logExecutionTime = true)
         {
-            _logLevel = logLevel;
-            _logParameters = logParameters;
-            _logExecutionTime = logExecutionTime;
+            logLevel_ = logLevel;
+            logParameters_ = logParameters;
+            logExecutionTime_ = logExecutionTime;
         }
 
         public LoggingAspect(object logger, 
@@ -23,43 +23,43 @@ namespace Aspekt.Logging
                            bool logParameters = true, 
                            bool logExecutionTime = true) : this(logLevel, logParameters, logExecutionTime)
         {
-            _logger = logger;
+            logger_ = logger;
         }
 
-        private Stopwatch? _stopwatch;
+        private Stopwatch? stopwatch_;
 
         public override void OnEntry(MethodArguments args)
         {
-            if (_logExecutionTime)
+            if (logExecutionTime_)
             {
-                _stopwatch = Stopwatch.StartNew();
+                stopwatch_ = Stopwatch.StartNew();
             }
 
-            var message = _logParameters && args.Arguments.Count > 0
+            var message = logParameters_ && args.Arguments.Count > 0
                 ? $"Entering {args.FullName} with parameters: [{string.Join(", ", args.Arguments.Values)}]"
                 : $"Entering {args.FullName}";
 
-            LogMessage(_logLevel, message);
+            LogMessage(logLevel_, message);
         }
 
         public override void OnExit(MethodArguments args)
         {
-            var executionTime = _stopwatch?.ElapsedMilliseconds ?? 0;
-            _stopwatch?.Stop();
+            var executionTime = stopwatch_?.ElapsedMilliseconds ?? 0;
+            stopwatch_?.Stop();
 
-            var message = _logExecutionTime
+            var message = logExecutionTime_
                 ? $"Exiting {args.FullName} (executed in {executionTime}ms)"
                 : $"Exiting {args.FullName}";
 
-            LogMessage(_logLevel, message);
+            LogMessage(logLevel_, message);
         }
 
         public override void OnException(MethodArguments args, Exception e)
         {
-            var executionTime = _stopwatch?.ElapsedMilliseconds ?? 0;
-            _stopwatch?.Stop();
+            var executionTime = stopwatch_?.ElapsedMilliseconds ?? 0;
+            stopwatch_?.Stop();
 
-            var message = _logExecutionTime
+            var message = logExecutionTime_
                 ? $"Exception in {args.FullName} after {executionTime}ms: {e.Message}"
                 : $"Exception in {args.FullName}: {e.Message}";
 
