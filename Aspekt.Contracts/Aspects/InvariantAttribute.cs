@@ -1,4 +1,4 @@
-namespace Aspekt.Contracts
+namespace Aspekt.Contracts.Aspects
 {
     /// <summary>
     /// Specifies an invariant condition that must be true both before and after method execution.
@@ -33,6 +33,5 @@ namespace Aspekt.Contracts
         {
             EvaluateContracts(args, (methodName, condition) => new InvariantException(methodName, condition));
         }
-        public Contract.Target Target { get; }
     }
 }

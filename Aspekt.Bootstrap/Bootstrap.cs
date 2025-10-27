@@ -8,8 +8,6 @@ namespace Aspekt.Bootstrap
     public static class Bootstrap
     {
         // Generating IL
-
-
         public static void Apply(string targetFileName, IEnumerable<ReferencedAssembly> referencedAssemblies)
         {
             var assemblyResolver = new PreregisteredAssemblyResolver();

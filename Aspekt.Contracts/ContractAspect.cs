@@ -24,12 +24,12 @@ namespace Aspekt.Contracts
         protected void EvaluateContracts(MethodArguments args, Func<string, string, ContractException> exceptionFactory)
         {
             var targetValue = GetTargetValue(args);
-            
-            for (int i = 0; i < Evaluators.Count; i++)
+
+            for (var i = 0; i < Evaluators.Count; i++)
             {
                 var evaluator = Evaluators[i];
                 var parameterName = i < ParameterNames.Count ? ParameterNames[i] : TargetName;
-                
+
                 try
                 {
                     if (!evaluator.Evaluate(targetValue))
@@ -42,7 +42,7 @@ namespace Aspekt.Contracts
                 {
                     throw; // Re-throw contract exceptions
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     var condition = $"{parameterName}: {evaluator} (evaluation failed)";
                     throw exceptionFactory(args.MethodName, condition);
@@ -55,16 +55,12 @@ namespace Aspekt.Contracts
         /// </summary>
         protected virtual object? GetTargetValue(MethodArguments args)
         {
-            switch (Target)
+            return Target switch
             {
-                case Contract.Target.Property:
-                    return GetPropertyValue(args);
-                case Contract.Target.Field:
-                    return GetFieldValue(args);
-                default:
-                    // For parameter contracts, get by name
-                    return args.Arguments.GetArgumentValueByName(TargetName);
-            }
+                Contract.Target.Property => GetPropertyValue(args),
+                Contract.Target.Field => GetFieldValue(args),
+                _ => args.Arguments.GetArgumentValueByName(TargetName),// For parameter contracts, get by name
+            };
         }
 
         private object? GetPropertyValue(MethodArguments args)
@@ -72,9 +68,9 @@ namespace Aspekt.Contracts
             if (args.Instance == null)
                 throw new InvalidOperationException("Cannot access property on null instance");
 
-            var property = args.Instance.GetType().GetProperty(TargetName, 
+            var property = args.Instance.GetType().GetProperty(TargetName,
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            
+
             if (property == null)
                 throw new InvalidOperationException($"Property '{TargetName}' not found");
 
@@ -86,9 +82,9 @@ namespace Aspekt.Contracts
             if (args.Instance == null)
                 throw new InvalidOperationException("Cannot access field on null instance");
 
-            var field = args.Instance.GetType().GetField(TargetName, 
+            var field = args.Instance.GetType().GetField(TargetName,
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            
+
             if (field == null)
                 throw new InvalidOperationException($"Field '{TargetName}' not found");
 

@@ -5,16 +5,22 @@ namespace Aspekt
         public virtual void OnEntry(MethodArguments args) { }
         public virtual void OnExit(MethodArguments args) { }
         public virtual void OnException(MethodArguments args, Exception e) { }
-        
+
         // Modern async support
-        public virtual ValueTask OnEntryAsync(MethodArguments args, CancellationToken cancellationToken = default) 
-            => new ValueTask();
-            
-        public virtual ValueTask OnExitAsync(MethodArguments args, CancellationToken cancellationToken = default) 
-            => new ValueTask();
-            
-        public virtual ValueTask OnExceptionAsync(MethodArguments args, Exception e, CancellationToken cancellationToken = default) 
-            => new ValueTask();
+        public virtual ValueTask OnEntryAsync(MethodArguments args, CancellationToken cancellationToken = default)
+        {
+            return new ValueTask();
+        }
+
+        public virtual ValueTask OnExitAsync(MethodArguments args, CancellationToken cancellationToken = default)
+        {
+            return new ValueTask();
+        }
+
+        public virtual ValueTask OnExceptionAsync(MethodArguments args, Exception e, CancellationToken cancellationToken = default)
+        {
+            return new ValueTask();
+        }
 
         // Enhanced async continuations
         public static Func<Task<T>, T> AsyncOnExit<T>(Aspect aspect, MethodArguments args)
@@ -55,21 +61,16 @@ namespace Aspekt
     /// <summary>
     /// Attribute to suppress aspect weaving warnings for specific methods.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="IgnoreAspectWarningAttribute"/> class.
+    /// </remarks>
+    /// <param name="warningNumbers">The warning numbers to ignore.</param>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property)]
-    public sealed class IgnoreAspectWarningAttribute : Attribute
+    public sealed class IgnoreAspectWarningAttribute(params int[] warningNumbers) : Attribute
     {
         /// <summary>
         /// Gets the warning numbers to ignore.
         /// </summary>
-        public int[] WarningNumbers { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreAspectWarningAttribute"/> class.
-        /// </summary>
-        /// <param name="warningNumbers">The warning numbers to ignore.</param>
-        public IgnoreAspectWarningAttribute(params int[] warningNumbers)
-        {
-            WarningNumbers = warningNumbers ?? Array.Empty<int>();
-        }
+        public int[] WarningNumbers { get; } = warningNumbers ?? Array.Empty<int>();
     }
 }

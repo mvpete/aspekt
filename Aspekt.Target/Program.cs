@@ -49,7 +49,7 @@ namespace Aspekt.Target
             return param;
         }
 
-        [IgnoreAspectWarningAttribute]
+        [IgnoreAspectWarning]
         [IntReturnValueHandler]
         public void TestVoid()
         {

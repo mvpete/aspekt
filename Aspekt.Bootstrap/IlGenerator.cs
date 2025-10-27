@@ -313,11 +313,9 @@ namespace Aspekt.Bootstrap
                 var inst = method.Body.Instructions[i];
                 if (IsBranchInstruction(inst.OpCode) && inst.Operand == targetInstruction)
                 {
-                    ReplaceInstruction(
-                        il,
-                        method,
-                        inst,
-                        il.Create(inst.OpCode, ih.FirstInstruction));
+                    // Fix: Directly update the operand instead of calling ReplaceInstruction
+                    // to avoid infinite recursion
+                    inst.Operand = ih.FirstInstruction;
                 }
             }
 

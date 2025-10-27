@@ -1,11 +1,9 @@
-# Aspekt - Aspect-Oriented Programming for .NET 🤖
+# Aspekt - Aspect-Oriented Programming for .NET
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ysr9ebr6dwaqamus?svg=true)](https://ci.appveyor.com/project/mvpete/aspekt)
 [![.NET](https://img.shields.io/badge/.NET-6.0%20%7C%208.0%20%7C%209.0-blue)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.0.0--AI%20Era-brightgreen)](https://github.com/mvpete/aspekt/releases)
-
-> **v3.0.0 - AI Era Release**: A complete modernization of Aspekt, enhanced with AI assistance for comprehensive documentation, best practices, and production-ready quality.
 
 Aspekt is a lightweight, powerful Aspect-Oriented Programming (AOP) foundation library for .NET that allows you to implement cross-cutting concerns using attributes. It supports modern .NET versions including .NET 6.0, 8.0, and 9.0, with async/await patterns and comprehensive Design by Contract capabilities.
 

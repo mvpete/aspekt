@@ -64,6 +64,7 @@ jobs:
         dotnet test Aspekt.Test/Aspekt.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
         dotnet test Aspekt.Bootstrap.Test/Aspekt.Bootstrap.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
         dotnet test Aspekt.Foundation.Test/Aspekt.Foundation.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+        dotnet test Aspekt.Contracts.Test/Aspekt.Contracts.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
         dotnet test Aspekt.Logging.Test/Aspekt.Logging.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
     
     - name: Upload test results

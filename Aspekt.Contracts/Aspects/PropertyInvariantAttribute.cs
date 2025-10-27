@@ -9,8 +9,7 @@ namespace Aspekt.Contracts
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class PropertyInvariantAttribute : Aspect
     {
-
-        public string NameOf { get; set; }
+        public string NameOf { get; internal set; }
 
         private readonly IContractEvaluator evaluator_;
 
@@ -20,31 +19,35 @@ namespace Aspekt.Contracts
             NameOf = nameOf;
             evaluator_ = ContractEvaluatorFactory.Create(constraint);
         }
+
         // One of the following types: bool, byte, char,  double, float, int, long, short, string
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, bool value)
         {
             NameOf = nameOf;
             evaluator_ = ContractEvaluatorFactory.Create(op, value);
-
         }
+
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, byte value)
         {
             NameOf = nameOf;
             evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
+
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, char value)
         {
             NameOf = nameOf;
             evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
+
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, double value)
         {
             NameOf = nameOf;
             evaluator_ = ContractEvaluatorFactory.Create(op, value);
 
         }
+
         public PropertyInvariantAttribute(string nameOf, Contract.Comparison op, float value)
         {
             NameOf = nameOf;
@@ -108,7 +111,7 @@ namespace Aspekt.Contracts
 
             var v = field.GetValue(inst);
 
-            if (!evaluator_.Evaluate(field.GetValue(inst)))
+            if (!evaluator_.Evaluate(v))
             {
                 throw new ContractViolatedException(
                     $"{args.FormattedName} {condition} property '{NameOf}' failed invariant {evaluator_}.");

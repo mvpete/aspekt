@@ -1,4 +1,4 @@
-namespace Aspekt.Contracts
+namespace Aspekt.Contracts.Aspects
 {
     /// <summary>
     /// Specifies a precondition that must be true when a method is called.

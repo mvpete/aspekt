@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aspekt.Contracts\Aspekt.Contracts.csproj" />
+  </ItemGroup>
+
+  <Target Name="Bootstrap" AfterTargets="Build" Condition=" '$(TargetFramework)' != '' " DependsOnTargets="ResolveProjectReferences">
+    <PropertyGroup>
+      <BootstrapHostPath Condition="Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/$(TargetFramework)/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+      <BootstrapHostPath Condition="'$(BootstrapHostPath)' == '' AND Exists('$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll')">$(MSBuildThisFileDirectory)../Aspekt.Bootstrap.Host/bin/$(Configuration)/net8.0/Aspekt.Bootstrap.Host.dll</BootstrapHostPath>
+    </PropertyGroup>
+    <Message Text="Using Bootstrap Host: $(BootstrapHostPath) for target $(TargetFramework)" Importance="normal" Condition="'$(BootstrapHostPath)' != ''" />
+    <Exec Command="dotnet &quot;$(BootstrapHostPath)&quot; &quot;$(AssemblyName).dll&quot;" WorkingDirectory="$(OutputPath)" Condition="'$(BootstrapHostPath)' != ''" ContinueOnError="false" />
+    <Warning Text="Bootstrap Host not found - skipping aspect weaving for $(TargetFramework)" Condition="'$(BootstrapHostPath)' == ''" />
+  </Target>
+  
+</Project>

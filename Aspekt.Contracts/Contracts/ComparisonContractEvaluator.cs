@@ -17,8 +17,7 @@ namespace Aspekt.Contracts
 
         }
 
-
-        public bool Evaluate(object o)
+        public bool Evaluate(object? o)
         {
             // we need to test they're both IComparable
 

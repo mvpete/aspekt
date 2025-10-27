@@ -1,37 +1,27 @@
 namespace Aspekt.Contracts
 {
-    internal class NullContractEvaluator : IContractEvaluator
+    internal class NullContractEvaluator(Contract.Constraint c) : IContractEvaluator
     {
-        public Contract.Constraint Constraint { get; set; }
-        public NullContractEvaluator(Contract.Constraint c)
-        {
-            Constraint = c;
-        }
+        public Contract.Constraint Constraint { get; set; } = c;
 
-        public bool Evaluate(object o)
+        public bool Evaluate(object? o)
         {
-            switch (Constraint)
+            return Constraint switch
             {
-                case Contract.Constraint.NotNull:
-                    return o != null;
-                case Contract.Constraint.Null:
-                    return o == null;
-                default:
-                    throw new InvalidOperationException("Invalid constraint type");
-            }
+                Contract.Constraint.NotNull => o != null,
+                Contract.Constraint.Null => o == null,
+                _ => throw new InvalidOperationException("Invalid constraint type"),
+            };
         }
 
         public override string ToString()
         {
-            switch (Constraint)
+            return Constraint switch
             {
-                case Contract.Constraint.NotNull:
-                    return "value != null";
-                case Contract.Constraint.Null:
-                    return "value == null";
-                default:
-                    throw new InvalidOperationException("Invalid constraint type");
-            }
+                Contract.Constraint.NotNull => "value != null",
+                Contract.Constraint.Null => "value == null",
+                _ => throw new InvalidOperationException("Invalid constraint type"),
+            };
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Mono.Cecil;
+using Mono.Cecil;
 
 namespace Aspekt.Bootstrap
 {
@@ -43,8 +43,9 @@ namespace Aspekt.Bootstrap
                     foreach (var meth in t.Methods)
                     {
                         var methAttrs = new List<CustomAttribute>();
-                        methAttrs.AddRange(classAttrs);
                         methAttrs.AddRange(meth.CustomAttributes.Where(a => pred(a)));
+                        methAttrs.AddRange(classAttrs);
+
                         if (methAttrs.Count == 0)
                             continue;
 

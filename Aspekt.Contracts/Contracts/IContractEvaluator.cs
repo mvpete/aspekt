@@ -1,8 +1,8 @@
-﻿namespace Aspekt.Contracts
+namespace Aspekt.Contracts
 {
     public interface IContractEvaluator
     {
-        bool Evaluate(object o);
+        public bool Evaluate(object? o);
 
     }
 }

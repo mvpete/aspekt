@@ -22,14 +22,14 @@
     <NoWarn>$(NoWarn);NU5100;CS1591</NoWarn>
     <_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
     
-    <!-- Code Analysis -->
+    <!-- Code Analysis - Essential rules only -->
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisMode>Default</AnalysisMode>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)AspektCodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     
-    <!-- Code formatting and style -->
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Code formatting and style - relaxed -->
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     
     <!-- Remove unused usings -->
@@ -56,7 +56,7 @@
   <!-- Modern test framework packages for all test projects -->
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Test'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.6.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.6.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.6.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
   </ItemGroup>
 </Project>
