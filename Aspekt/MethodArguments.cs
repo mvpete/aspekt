@@ -13,6 +13,12 @@ namespace Aspekt
         public string SourceFilePath { get; internal set; } = string.Empty;
         public int LineNumber { get; internal set; }
 
+        /// <summary>
+        /// Controls the execution flow after OnEntry is called.
+        /// Set this property in OnEntry to conditionally control method execution.
+        /// </summary>
+        public ExecutionAction Action { get; set; } = ExecutionAction.Continue;
+
         public MethodArguments(string methodName, string fullName, string methodNameFormat, Arguments? args, object? instance)
         {
             MethodName = methodName ?? throw new ArgumentNullException(nameof(methodName));

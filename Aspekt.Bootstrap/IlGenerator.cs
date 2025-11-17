@@ -385,6 +385,88 @@ namespace Aspekt.Bootstrap
             ih.CallVirt<Aspect>("OnEntry", typeof(MethodArguments));
         }
 
+        /// <summary>
+        /// Inserts IL code to check the ExecutionAction and potentially skip method execution.
+        /// Returns labels that need to be set:
+        /// - skipMethodLabel: Where to jump if ExecutionAction is SkipMethod
+        /// - skipAllLabel: Where to jump if ExecutionAction is SkipMethodAndExit
+        /// </summary>
+        public static (Instruction skipMethodLabel, Instruction skipAllLabel) InsertExecutionActionCheck(
+            InstructionHelper ih,
+            VariableDefinition methArgs,
+            ModuleDefinition module,
+            ILProcessor il,
+            bool isAsync)
+        {
+            // Create placeholder instructions for labels
+            var continueLabel = Instruction.Create(OpCodes.Nop);
+            var skipMethodLabel = Instruction.Create(OpCodes.Nop);
+            var skipAllLabel = Instruction.Create(OpCodes.Nop);
+
+            // Load methArgs.Action
+            ih.Next(OpCodes.Ldloc, methArgs);
+            ih.Call<MethodArguments>("get_Action");
+
+            // Store the action value in a local variable
+            var actionVar = ih.NewVariable(typeof(ExecutionAction));
+            ih.Next(OpCodes.Stloc, actionVar);
+
+            // Check if Action == Continue (0)
+            ih.Next(OpCodes.Ldloc, actionVar);
+            ih.Next(OpCodes.Ldc_I4_0); // ExecutionAction.Continue = 0
+            ih.Next(il.Create(OpCodes.Beq, continueLabel)); // If Continue, skip to normal execution
+
+            // If async and Action is not Continue, throw NotSupportedException
+            if (isAsync)
+            {
+                var errorMsg = "ExecutionAction.SkipMethod and ExecutionAction.SkipMethodAndExit are not supported for async methods.";
+                ih.Next(OpCodes.Ldstr, errorMsg);
+                ih.NewObj<NotSupportedException>(typeof(string));
+                ih.Next(OpCodes.Throw);
+            }
+            else
+            {
+                // Check if Action == SkipMethod (1)
+                ih.Next(OpCodes.Ldloc, actionVar);
+                ih.Next(OpCodes.Ldc_I4_1); // ExecutionAction.SkipMethod = 1
+                ih.Next(il.Create(OpCodes.Beq, skipMethodLabel)); // If SkipMethod, jump to OnExit
+
+                // Otherwise it must be SkipMethodAndExit (2), jump to return
+                ih.Next(il.Create(OpCodes.Br, skipAllLabel));
+            }
+
+            // Continue label - normal execution continues here
+            ih.Next(continueLabel);
+
+            return (skipMethodLabel, skipAllLabel);
+        }
+
+        /// <summary>
+        /// Creates instructions to return the default value for a given type
+        /// </summary>
+        public static void InsertDefaultReturn(InstructionHelper ih, TypeReference returnType)
+        {
+            if (returnType.MetadataType == MetadataType.Void)
+            {
+                ih.Next(OpCodes.Ret);
+            }
+            else if (returnType.IsValueType || returnType.IsGenericParameter)
+            {
+                // For value types, create a local variable, initialize to default, and return it
+                var defaultVar = ih.NewVariable(returnType);
+                ih.Next(OpCodes.Ldloca, defaultVar);
+                ih.Next(OpCodes.Initobj, returnType);
+                ih.Next(OpCodes.Ldloc, defaultVar);
+                ih.Next(OpCodes.Ret);
+            }
+            else
+            {
+                // For reference types, return null
+                ih.Next(OpCodes.Ldnull);
+                ih.Next(OpCodes.Ret);
+            }
+        }
+
         public static VariableDefinition CreateAttribute(InstructionHelper ic, CustomAttribute attr)
         {
             var attrVar = ic.NewVariable(attr.AttributeType);

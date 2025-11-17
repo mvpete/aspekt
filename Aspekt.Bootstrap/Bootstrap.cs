@@ -62,10 +62,19 @@ namespace Aspekt.Bootstrap
                      // Otherwise, we will not.
                      var attrVar = IlGenerator.CreateAttribute(ih, attr);
 
+                     Instruction? skipMethodLabel = null;
+                     Instruction? skipAllLabel = null;
+
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnEntry),
                          typeof(MethodArguments)))
                      {
                          IlGenerator.InsertOnEntryCalls(ih, attrVar, target.MethodArguments);
+
+                         // Insert ExecutionAction check after OnEntry
+                         var isAsync = MethodTraits.IsAsyncMethod(meth);
+                         var (skipMethod, skipAll) = IlGenerator.InsertExecutionActionCheck(ih, target.MethodArguments, module, il, isAsync);
+                         skipMethodLabel = skipMethod;
+                         skipAllLabel = skipAll;
                      }
 
                      target.StartInstruction = ih.LastInstruction; // so that we will create the next aspects AFTER
@@ -206,6 +215,27 @@ namespace Aspekt.Bootstrap
                          {
                              IlGenerator.InsertOnExitCalls(il, meth, attrVar, target.MethodArguments);
                          }
+                     }
+
+                     // Handle ExecutionAction skip labels if they were created
+                     // Only insert these for non-async methods (async methods throw NotSupportedException)
+                     if (skipMethodLabel != null && skipAllLabel != null && !MethodTraits.IsAsyncMethod(meth))
+                     {
+                         var endHelper = new InstructionHelper(module, il, meth.Body.Instructions.Last());
+
+                         // Place skipMethodLabel: Call OnExit (if exists) then return default
+                         endHelper.Next(skipMethodLabel);
+                         if (hasOnExit)
+                         {
+                             endHelper.Next(OpCodes.Ldloc, attrVar);
+                             endHelper.Next(OpCodes.Ldloc, target.MethodArguments);
+                             endHelper.CallVirt<Aspect>(nameof(Aspect.OnExit), typeof(MethodArguments));
+                         }
+                         IlGenerator.InsertDefaultReturn(endHelper, meth.ReturnType);
+
+                         // Place skipAllLabel: Just return default
+                         endHelper.Next(skipAllLabel);
+                         IlGenerator.InsertDefaultReturn(endHelper, meth.ReturnType);
                      }
 
                      meth.Body.OptimizeMacros();
