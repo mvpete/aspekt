@@ -202,6 +202,94 @@ namespace Aspekt.Bootstrap
         /// <param name="targetMethod"></param>
         /// <param name="attrVar"></param>
         /// <param name="methArgs"></param>
+        /// <summary>
+        /// Inserts a call to IAspectExitHandler<T>.OnExit with the default value of T.
+        /// Used when ExecutionAction.SkipMethod is set.
+        /// </summary>
+        public static void InsertOnExitResultCallWithDefaultValue(
+            InstructionHelper ih,
+            ILProcessor il,
+            MethodDefinition targetMethod,
+            VariableDefinition attrVar,
+            VariableDefinition methArgs)
+        {
+            if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
+            {
+                return; // Void methods don't use IAspectExitHandler<T>
+            }
+
+            // Get IAspectExitHandler<T> interface
+            var iExitHandler = methArgs.VariableType.Module.ImportReference(typeof(IAspectExitHandler<>));
+            var gii = new GenericInstanceType(iExitHandler);
+            gii.GenericArguments.Add(targetMethod.ReturnType);
+
+            var attrType = attrVar.VariableType;
+            var attrInst = attrType.Resolve();
+
+            // Check if attribute implements IAspectExitHandler<T>
+            // Use StartsWith to handle both generic parameters and concrete types
+            if (!attrInst.Interfaces.Any(i =>
+                i.InterfaceType.FullName.StartsWith("Aspekt.IAspectExitHandler`1")))
+            {
+                return; // Doesn't implement the interface
+            }
+
+            // Find the OnExit method definition on the resolved type
+            var methodName = nameof(IAspectExitHandler<int>.OnExit);
+            var methodDef = attrInst.Methods.FirstOrDefault(md =>
+                md.Name == methodName &&
+                md.Parameters.Count == 2);
+
+            if (methodDef == null)
+            {
+                return; // Method not found
+            }
+
+            // Create a method reference on the correct generic type instance
+            MethodReference methodToCall;
+            if (attrType is GenericInstanceType gitInst)
+            {
+                // For generic types, create a MethodReference on the GenericInstanceType
+                methodToCall = new MethodReference(methodDef.Name, methodDef.ReturnType, gitInst);
+                methodToCall.HasThis = methodDef.HasThis;
+                foreach (var param in methodDef.Parameters)
+                {
+                    methodToCall.Parameters.Add(param);
+                }
+            }
+            else
+            {
+                // For non-generic types, use the method definition directly
+                methodToCall = methodDef;
+            }
+
+            // Load attribute
+            ih.Next(OpCodes.Ldloc, attrVar);
+            // Load method arguments
+            ih.Next(OpCodes.Ldloc, methArgs);
+
+            // Load default value for return type
+            if (targetMethod.ReturnType.IsValueType || targetMethod.ReturnType.IsGenericParameter)
+            {
+                // For value types, create a local, initialize to default, and load it
+                var defaultVar = ih.NewVariable(targetMethod.ReturnType);
+                ih.Next(OpCodes.Ldloca, defaultVar);
+                ih.Next(OpCodes.Initobj, targetMethod.ReturnType);
+                ih.Next(OpCodes.Ldloc, defaultVar);
+            }
+            else
+            {
+                // For reference types, load null
+                ih.Next(OpCodes.Ldnull);
+            }
+
+            // Call OnExit method
+            ih.Next(il.Create(OpCodes.Call, methodToCall));
+
+            // Pop the return value (we'll return default anyway via InsertDefaultReturn)
+            ih.Next(OpCodes.Pop);
+        }
+
         public static void InsertOnExitResultCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
         {
             if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
@@ -383,6 +471,128 @@ namespace Aspekt.Bootstrap
             ih.Next(OpCodes.Ldloc, methArgs);
             // make the call
             ih.CallVirt<Aspect>("OnEntry", typeof(MethodArguments));
+        }
+
+        /// <summary>
+        /// Inserts IL code to check the ExecutionAction and potentially skip method execution.
+        /// Returns labels that need to be set:
+        /// - skipMethodLabel: Where to jump if ExecutionAction is SkipMethod
+        /// - skipAllLabel: Where to jump if ExecutionAction is SkipMethodAndExit
+        /// </summary>
+        public static (Instruction skipMethodLabel, Instruction skipAllLabel) InsertExecutionActionCheck(
+            InstructionHelper ih,
+            VariableDefinition methArgs,
+            ModuleDefinition module,
+            ILProcessor il,
+            bool isAsync)
+        {
+            // Create placeholder instructions for labels
+            var continueLabel = Instruction.Create(OpCodes.Nop);
+            var skipMethodLabel = Instruction.Create(OpCodes.Nop);
+            var skipAllLabel = Instruction.Create(OpCodes.Nop);
+
+            // Load methArgs.Action
+            ih.Next(OpCodes.Ldloc, methArgs);
+            ih.Call<MethodArguments>("get_Action");
+
+            // Store the action value in a local variable
+            var actionVar = ih.NewVariable(typeof(ExecutionAction));
+            ih.Next(OpCodes.Stloc, actionVar);
+
+            // Check if Action == Continue (0)
+            ih.Next(OpCodes.Ldloc, actionVar);
+            ih.Next(OpCodes.Ldc_I4_0); // ExecutionAction.Continue = 0
+            ih.Next(il.Create(OpCodes.Beq, continueLabel)); // If Continue, skip to normal execution
+
+            // If async and Action is not Continue, throw NotSupportedException
+            if (isAsync)
+            {
+                var errorMsg = "ExecutionAction.SkipMethod and ExecutionAction.SkipMethodAndExit are not supported for async methods.";
+                ih.Next(OpCodes.Ldstr, errorMsg);
+                ih.NewObj<NotSupportedException>(typeof(string));
+                ih.Next(OpCodes.Throw);
+            }
+            else
+            {
+                // Check if Action == SkipMethod (1)
+                ih.Next(OpCodes.Ldloc, actionVar);
+                ih.Next(OpCodes.Ldc_I4_1); // ExecutionAction.SkipMethod = 1
+                ih.Next(il.Create(OpCodes.Beq, skipMethodLabel)); // If SkipMethod, jump to OnExit
+
+                // Otherwise it must be SkipMethodAndExit (2), jump to return
+                ih.Next(il.Create(OpCodes.Br, skipAllLabel));
+            }
+
+            // Continue label - normal execution continues here
+            ih.Next(continueLabel);
+
+            return (skipMethodLabel, skipAllLabel);
+        }
+
+        /// <summary>
+        /// Creates instructions to return the default value for a given type
+        /// </summary>
+        /// <param name="ih">Instruction helper</param>
+        /// <param name="il">IL processor (required when using exception handlers)</param>
+        /// <param name="returnType">The return type of the method</param>
+        /// <param name="returnVariable">Optional return variable (used when exception handlers are present)</param>
+        /// <param name="returnBlockStart">Optional return block start instruction (used when exception handlers are present)</param>
+        public static void InsertDefaultReturn(
+            InstructionHelper ih,
+            ILProcessor il,
+            TypeReference returnType,
+            VariableDefinition? returnVariable = null,
+            Instruction? returnBlockStart = null)
+        {
+            bool hasExceptionHandler = returnBlockStart != null;
+
+            if (returnType.MetadataType == MetadataType.Void)
+            {
+                // Void methods - just return or leave
+                if (hasExceptionHandler)
+                {
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
+            }
+            else if (returnType.IsValueType || returnType.IsGenericParameter)
+            {
+                // For value types, create a local variable, initialize to default, and return it
+                var defaultVar = ih.NewVariable(returnType);
+                ih.Next(OpCodes.Ldloca, defaultVar);
+                ih.Next(OpCodes.Initobj, returnType);
+                ih.Next(OpCodes.Ldloc, defaultVar);
+
+                if (hasExceptionHandler && returnVariable != null)
+                {
+                    // Store in return variable and leave
+                    ih.Next(OpCodes.Stloc, returnVariable);
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
+            }
+            else
+            {
+                // For reference types, return null
+                ih.Next(OpCodes.Ldnull);
+
+                if (hasExceptionHandler && returnVariable != null)
+                {
+                    // Store in return variable and leave
+                    ih.Next(OpCodes.Stloc, returnVariable);
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
+            }
         }
 
         public static VariableDefinition CreateAttribute(InstructionHelper ic, CustomAttribute attr)
