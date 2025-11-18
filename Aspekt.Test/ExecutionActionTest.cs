@@ -162,6 +162,201 @@ namespace Aspekt.Test
         }
     }
 
+    /// <summary>
+    /// Attribute that implements IAspectExitHandler<T> (NOT void OnExit) and uses SkipMethod
+    /// This tests that SkipMethod calls the generic OnExit method
+    /// </summary>
+    internal sealed class SkipWithExitHandlerAttribute<T> : Aspect, IAspectExitHandler<T>
+    {
+        public static bool OnEntryCalled { get; set; } = false;
+        public static bool OnExitHandlerCalled { get; set; } = false;
+        public static T? LastReturnValue { get; set; } = default;
+
+        public SkipWithExitHandlerAttribute()
+        {
+            OnEntryCalled = false;
+            OnExitHandlerCalled = false;
+            LastReturnValue = default;
+        }
+
+        public override void OnEntry(MethodArguments args)
+        {
+            OnEntryCalled = true;
+            args.Action = ExecutionAction.SkipMethod;
+        }
+
+        // Implementing IAspectExitHandler<T> - this should be called when skipping
+        public T OnExit(MethodArguments args, T returnValue)
+        {
+            OnExitHandlerCalled = true;
+            LastReturnValue = returnValue;
+            return returnValue;
+        }
+
+        // NOTE: We're NOT overriding void OnExit(MethodArguments)
+        // This tests that IAspectExitHandler<T>.OnExit is called even without void OnExit
+    }
+
+    /// <summary>
+    /// Attribute that skips method and has OnException - tests that OnException is NOT called when skipping
+    /// </summary>
+    internal sealed class SkipMethodWithExceptionAttribute : Aspect
+    {
+        public static bool OnEntryCalled { get; set; } = false;
+        public static bool OnExitCalled { get; set; } = false;
+        public static bool OnExceptionCalled { get; set; } = false;
+        public static Exception? LastException { get; set; } = null;
+
+        public SkipMethodWithExceptionAttribute()
+        {
+            OnEntryCalled = false;
+            OnExitCalled = false;
+            OnExceptionCalled = false;
+            LastException = null;
+        }
+
+        public override void OnEntry(MethodArguments args)
+        {
+            OnEntryCalled = true;
+            args.Action = ExecutionAction.SkipMethod;
+        }
+
+        public override void OnExit(MethodArguments args)
+        {
+            OnExitCalled = true;
+        }
+
+        public override void OnException(MethodArguments args, Exception e)
+        {
+            OnExceptionCalled = true;
+            LastException = e;
+        }
+    }
+
+    /// <summary>
+    /// Attribute that skips method+exit and has OnException
+    /// </summary>
+    internal sealed class SkipMethodAndExitWithExceptionAttribute : Aspect
+    {
+        public static bool OnEntryCalled { get; set; } = false;
+        public static bool OnExitCalled { get; set; } = false;
+        public static bool OnExceptionCalled { get; set; } = false;
+        public static Exception? LastException { get; set; } = null;
+
+        public SkipMethodAndExitWithExceptionAttribute()
+        {
+            OnEntryCalled = false;
+            OnExitCalled = false;
+            OnExceptionCalled = false;
+            LastException = null;
+        }
+
+        public override void OnEntry(MethodArguments args)
+        {
+            OnEntryCalled = true;
+            args.Action = ExecutionAction.SkipMethodAndExit;
+        }
+
+        public override void OnExit(MethodArguments args)
+        {
+            OnExitCalled = true;
+        }
+
+        public override void OnException(MethodArguments args, Exception e)
+        {
+            OnExceptionCalled = true;
+            LastException = e;
+        }
+    }
+
+
+    /// <summary>
+    /// Attribute with IAspectExitHandler<T> that has OnException
+    /// </summary>
+    internal sealed class SkipWithExitHandlerAndExceptionAttribute<T> : Aspect, IAspectExitHandler<T>
+    {
+        public static bool OnEntryCalled { get; set; } = false;
+        public static bool OnExitHandlerCalled { get; set; } = false;
+        public static bool OnExceptionCalled { get; set; } = false;
+        public static T? LastReturnValue { get; set; } = default;
+        public static Exception? LastException { get; set; } = null;
+
+        public SkipWithExitHandlerAndExceptionAttribute()
+        {
+            OnEntryCalled = false;
+            OnExitHandlerCalled = false;
+            OnExceptionCalled = false;
+            LastReturnValue = default;
+            LastException = null;
+        }
+
+        public override void OnEntry(MethodArguments args)
+        {
+            OnEntryCalled = true;
+            args.Action = ExecutionAction.SkipMethod;
+        }
+
+        public T OnExit(MethodArguments args, T returnValue)
+        {
+            OnExitHandlerCalled = true;
+            LastReturnValue = returnValue;
+            return returnValue;
+        }
+
+        public override void OnException(MethodArguments args, Exception e)
+        {
+            OnExceptionCalled = true;
+            LastException = e;
+        }
+    }
+
+
+    /// <summary>
+    /// Attribute with conditional skip and exception handling
+    /// </summary>
+    internal sealed class ConditionalSkipWithExceptionAttribute : Aspect
+    {
+        public static bool OnEntryCalled { get; set; } = false;
+        public static bool OnExitCalled { get; set; } = false;
+        public static bool OnExceptionCalled { get; set; } = false;
+        public static Exception? LastException { get; set; } = null;
+        public static bool SkipRequested { get; set; } = false;
+
+        public ConditionalSkipWithExceptionAttribute()
+        {
+            OnEntryCalled = false;
+            OnExitCalled = false;
+            OnExceptionCalled = false;
+            LastException = null;
+            SkipRequested = false;
+        }
+
+        public override void OnEntry(MethodArguments args)
+        {
+            OnEntryCalled = true;
+            if (args.Arguments.Count > 0)
+            {
+                var shouldSkip = (bool)args.Arguments.GetArgumentValueByName("shouldSkip");
+                if (shouldSkip)
+                {
+                    SkipRequested = true;
+                    args.Action = ExecutionAction.SkipMethod;
+                }
+            }
+        }
+
+        public override void OnExit(MethodArguments args)
+        {
+            OnExitCalled = true;
+        }
+
+        public override void OnException(MethodArguments args, Exception e)
+        {
+            OnExceptionCalled = true;
+            LastException = e;
+        }
+    }
+
     #endregion
 
     #region Test Classes
@@ -299,6 +494,70 @@ namespace Aspekt.Test
             }
             return "success";
         }
+
+        // Methods with IAspectExitHandler<T> and skip functionality
+        [SkipWithExitHandler<int>]
+        public int MethodWithExitHandlerInt()
+        {
+            SkipMethodCallCount++;
+            return 42;
+        }
+
+        [SkipWithExitHandler<string>]
+        public string MethodWithExitHandlerString()
+        {
+            SkipMethodCallCount++;
+            return "executed";
+        }
+
+        // Methods with skip and OnException
+        [SkipMethodWithException]
+        public void MethodWithSkipAndException()
+        {
+            SkipMethodCallCount++;
+        }
+
+        [SkipMethodWithException]
+        public int MethodWithSkipAndExceptionReturnsInt()
+        {
+            SkipMethodCallCount++;
+            return 42;
+        }
+
+        [SkipMethodWithException]
+        public string MethodWithSkipAndExceptionReturnsString()
+        {
+            SkipMethodCallCount++;
+            return "executed";
+        }
+
+        [SkipMethodAndExitWithException]
+        public void MethodWithSkipAllAndException()
+        {
+            SkipAllMethodCallCount++;
+        }
+
+
+        [SkipWithExitHandlerAndException<int>]
+        public int MethodWithSkipExitHandlerAndException()
+        {
+            SkipMethodCallCount++;
+            return 42;
+        }
+
+        [SkipWithExitHandlerAndException<string>]
+        public string MethodWithSkipExitHandlerAndExceptionReturnsString()
+        {
+            SkipMethodCallCount++;
+            return "executed";
+        }
+
+        [ConditionalSkipWithException]
+        public void ConditionalMethodThatThrows(bool shouldSkip)
+        {
+            ConditionalMethodCallCount++;
+            throw new System.InvalidOperationException("Method threw exception");
+        }
     }
 
     #endregion
@@ -333,6 +592,49 @@ namespace Aspekt.Test
             SkipWithExceptionHandlerAttribute.OnExitCalled = false;
             SkipWithExceptionHandlerAttribute.OnExceptionCalled = false;
             SkipWithExceptionHandlerAttribute.LastException = null;
+
+            // Reset SkipWithExitHandler<int> attribute state
+            SkipWithExitHandlerAttribute<int>.OnEntryCalled = false;
+            SkipWithExitHandlerAttribute<int>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAttribute<int>.LastReturnValue = default;
+
+            // Reset SkipWithExitHandler<string> attribute state
+            SkipWithExitHandlerAttribute<string>.OnEntryCalled = false;
+            SkipWithExitHandlerAttribute<string>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAttribute<string>.LastReturnValue = default;
+
+            // Reset SkipMethodWithException attribute state
+            SkipMethodWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodWithExceptionAttribute.OnExceptionCalled = false;
+            SkipMethodWithExceptionAttribute.LastException = null;
+
+            // Reset SkipMethodAndExitWithException attribute state
+            SkipMethodAndExitWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodAndExitWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodAndExitWithExceptionAttribute.OnExceptionCalled = false;
+            SkipMethodAndExitWithExceptionAttribute.LastException = null;
+
+            // Reset SkipWithExitHandlerAndException<int> attribute state
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnEntryCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnExceptionCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<int>.LastReturnValue = default;
+            SkipWithExitHandlerAndExceptionAttribute<int>.LastException = null;
+
+            // Reset SkipWithExitHandlerAndException<string> attribute state
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnEntryCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnExceptionCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<string>.LastReturnValue = default;
+            SkipWithExitHandlerAndExceptionAttribute<string>.LastException = null;
+
+            // Reset ConditionalSkipWithException attribute state
+            ConditionalSkipWithExceptionAttribute.OnEntryCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExitCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExceptionCalled = false;
+            ConditionalSkipWithExceptionAttribute.LastException = null;
+            ConditionalSkipWithExceptionAttribute.SkipRequested = false;
 
             // Reset method call counts
             ExecutionActionTestClass.ContinueMethodCallCount = 0;
@@ -722,6 +1024,182 @@ namespace Aspekt.Test
             Assert.IsTrue(SkipWithExceptionHandlerAttribute.OnExceptionCalled, "OnException should be called");
             Assert.IsNotNull(SkipWithExceptionHandlerAttribute.LastException, "Exception should be captured");
             Assert.AreEqual(1, ExecutionActionTestClass.SkipMethodCallCount, "Method body SHOULD execute");
+        }
+
+        #endregion
+
+        #region IAspectExitHandler with Skip Tests
+
+        [TestMethod]
+        public void SkipMethod_WithExitHandlerInt_ShouldCallOnExitWithDefaultValue()
+        {
+            // Arrange
+            var testClass = new ExecutionActionTestClass();
+
+            // Act
+            var result = testClass.MethodWithExitHandlerInt();
+
+            // Assert
+            Assert.AreEqual(0, result, "Should return default(int) which is 0");
+            Assert.IsTrue(SkipWithExitHandlerAttribute<int>.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipWithExitHandlerAttribute<int>.OnExitHandlerCalled, "IAspectExitHandler<int>.OnExit should be called");
+            Assert.AreEqual(0, SkipWithExitHandlerAttribute<int>.LastReturnValue, "OnExit should receive default(int) = 0");
+            Assert.AreEqual(0, ExecutionActionTestClass.SkipMethodCallCount, "Method body should NOT execute");
+        }
+
+        [TestMethod]
+        public void SkipMethod_WithExitHandlerString_ShouldCallOnExitWithNull()
+        {
+            // Arrange
+            var testClass = new ExecutionActionTestClass();
+
+            // Act
+            var result = testClass.MethodWithExitHandlerString();
+
+            // Assert
+            Assert.IsNull(result, "Should return default(string) which is null");
+            Assert.IsTrue(SkipWithExitHandlerAttribute<string>.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipWithExitHandlerAttribute<string>.OnExitHandlerCalled, "IAspectExitHandler<string>.OnExit should be called");
+            Assert.IsNull(SkipWithExitHandlerAttribute<string>.LastReturnValue, "OnExit should receive default(string) = null");
+            Assert.AreEqual(0, ExecutionActionTestClass.SkipMethodCallCount, "Method body should NOT execute");
+        }
+
+        #endregion
+
+        #region OnException Tests
+
+        [TestMethod]
+        public void SkipMethod_WithOnException_ShouldNotCallOnException()
+        {
+            SkipMethodWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodWithExceptionAttribute.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            testClass.MethodWithSkipAndException();
+
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnExitCalled, "OnExit should be called when skipping");
+            Assert.IsFalse(SkipMethodWithExceptionAttribute.OnExceptionCalled, "OnException should NOT be called (no exception occurred)");
+            Assert.IsNull(SkipMethodWithExceptionAttribute.LastException, "No exception should be stored");
+        }
+
+        [TestMethod]
+        public void SkipMethod_WithOnException_ReturnsInt_ShouldNotCallOnException()
+        {
+            SkipMethodWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodWithExceptionAttribute.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            var result = testClass.MethodWithSkipAndExceptionReturnsInt();
+
+            Assert.AreEqual(0, result, "Should return default(int) = 0");
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnExitCalled, "OnExit should be called when skipping");
+            Assert.IsFalse(SkipMethodWithExceptionAttribute.OnExceptionCalled, "OnException should NOT be called");
+        }
+
+        [TestMethod]
+        public void SkipMethodAndExit_WithOnException_ShouldNotCallOnException()
+        {
+            SkipMethodAndExitWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodAndExitWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodAndExitWithExceptionAttribute.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            testClass.MethodWithSkipAllAndException();
+
+            Assert.IsTrue(SkipMethodAndExitWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsFalse(SkipMethodAndExitWithExceptionAttribute.OnExitCalled, "OnExit should NOT be called");
+            Assert.IsFalse(SkipMethodAndExitWithExceptionAttribute.OnExceptionCalled, "OnException should NOT be called");
+        }
+
+        [TestMethod]
+        public void SkipWithExitHandlerAndException_ShouldCallExitHandlerNotException()
+        {
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnEntryCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<int>.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            var result = testClass.MethodWithSkipExitHandlerAndException();
+
+            Assert.AreEqual(0, result, "Should return default(int) = 0");
+            Assert.IsTrue(SkipWithExitHandlerAndExceptionAttribute<int>.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipWithExitHandlerAndExceptionAttribute<int>.OnExitHandlerCalled, "IAspectExitHandler<T>.OnExit should be called");
+            Assert.AreEqual(0, SkipWithExitHandlerAndExceptionAttribute<int>.LastReturnValue, "OnExit should receive default(int)");
+            Assert.IsFalse(SkipWithExitHandlerAndExceptionAttribute<int>.OnExceptionCalled, "OnException should NOT be called");
+        }
+
+        [TestMethod]
+        public void ConditionalSkip_WithSkipTrue_ThrowsInMethod_ShouldNotCallOnException()
+        {
+            ConditionalSkipWithExceptionAttribute.OnEntryCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExitCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExceptionCalled = false;
+            ConditionalSkipWithExceptionAttribute.SkipRequested = false;
+
+            var testClass = new ExecutionActionTestClass();
+            testClass.ConditionalMethodThatThrows(shouldSkip: true);
+
+            Assert.IsTrue(ConditionalSkipWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(ConditionalSkipWithExceptionAttribute.SkipRequested, "Skip should be requested");
+            Assert.IsTrue(ConditionalSkipWithExceptionAttribute.OnExitCalled, "OnExit should be called when skipping");
+            Assert.IsFalse(ConditionalSkipWithExceptionAttribute.OnExceptionCalled, "OnException should NOT be called (method was skipped)");
+        }
+
+        [TestMethod]
+        public void ConditionalSkip_WithSkipFalse_ThrowsInMethod_ShouldCallOnException()
+        {
+            ConditionalSkipWithExceptionAttribute.OnEntryCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExitCalled = false;
+            ConditionalSkipWithExceptionAttribute.OnExceptionCalled = false;
+            ConditionalSkipWithExceptionAttribute.SkipRequested = false;
+
+            var testClass = new ExecutionActionTestClass();
+
+            Assert.ThrowsException<InvalidOperationException>(() => testClass.ConditionalMethodThatThrows(shouldSkip: false));
+
+            Assert.IsTrue(ConditionalSkipWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsFalse(ConditionalSkipWithExceptionAttribute.SkipRequested, "Skip should NOT be requested");
+            Assert.IsFalse(ConditionalSkipWithExceptionAttribute.OnExitCalled, "OnExit should NOT be called (exception occurred)");
+            Assert.IsTrue(ConditionalSkipWithExceptionAttribute.OnExceptionCalled, "OnException should be called");
+            Assert.IsNotNull(ConditionalSkipWithExceptionAttribute.LastException);
+            Assert.AreEqual("Method threw exception", ConditionalSkipWithExceptionAttribute.LastException.Message);
+        }
+
+        [TestMethod]
+        public void SkipMethod_WithOnException_ReturnsString_ShouldNotCallOnException()
+        {
+            SkipMethodWithExceptionAttribute.OnEntryCalled = false;
+            SkipMethodWithExceptionAttribute.OnExitCalled = false;
+            SkipMethodWithExceptionAttribute.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            var result = testClass.MethodWithSkipAndExceptionReturnsString();
+
+            Assert.IsNull(result, "Should return default(string) = null");
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipMethodWithExceptionAttribute.OnExitCalled, "OnExit should be called when skipping");
+            Assert.IsFalse(SkipMethodWithExceptionAttribute.OnExceptionCalled, "OnException should NOT be called");
+        }
+
+        [TestMethod]
+        public void SkipWithExitHandlerAndException_ReturnsString_ShouldCallExitHandlerNotException()
+        {
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnEntryCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnExitHandlerCalled = false;
+            SkipWithExitHandlerAndExceptionAttribute<string>.OnExceptionCalled = false;
+
+            var testClass = new ExecutionActionTestClass();
+            var result = testClass.MethodWithSkipExitHandlerAndExceptionReturnsString();
+
+            Assert.IsNull(result, "Should return default(string) = null");
+            Assert.IsTrue(SkipWithExitHandlerAndExceptionAttribute<string>.OnEntryCalled, "OnEntry should be called");
+            Assert.IsTrue(SkipWithExitHandlerAndExceptionAttribute<string>.OnExitHandlerCalled, "IAspectExitHandler<T>.OnExit should be called");
+            Assert.IsNull(SkipWithExitHandlerAndExceptionAttribute<string>.LastReturnValue, "OnExit should receive default(string) = null");
+            Assert.IsFalse(SkipWithExitHandlerAndExceptionAttribute<string>.OnExceptionCalled, "OnException should NOT be called");
         }
 
         #endregion

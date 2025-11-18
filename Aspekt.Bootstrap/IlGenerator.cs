@@ -202,6 +202,94 @@ namespace Aspekt.Bootstrap
         /// <param name="targetMethod"></param>
         /// <param name="attrVar"></param>
         /// <param name="methArgs"></param>
+        /// <summary>
+        /// Inserts a call to IAspectExitHandler<T>.OnExit with the default value of T.
+        /// Used when ExecutionAction.SkipMethod is set.
+        /// </summary>
+        public static void InsertOnExitResultCallWithDefaultValue(
+            InstructionHelper ih,
+            ILProcessor il,
+            MethodDefinition targetMethod,
+            VariableDefinition attrVar,
+            VariableDefinition methArgs)
+        {
+            if (targetMethod.ReturnType.MetadataType == MetadataType.Void)
+            {
+                return; // Void methods don't use IAspectExitHandler<T>
+            }
+
+            // Get IAspectExitHandler<T> interface
+            var iExitHandler = methArgs.VariableType.Module.ImportReference(typeof(IAspectExitHandler<>));
+            var gii = new GenericInstanceType(iExitHandler);
+            gii.GenericArguments.Add(targetMethod.ReturnType);
+
+            var attrType = attrVar.VariableType;
+            var attrInst = attrType.Resolve();
+
+            // Check if attribute implements IAspectExitHandler<T>
+            // Use StartsWith to handle both generic parameters and concrete types
+            if (!attrInst.Interfaces.Any(i =>
+                i.InterfaceType.FullName.StartsWith("Aspekt.IAspectExitHandler`1")))
+            {
+                return; // Doesn't implement the interface
+            }
+
+            // Find the OnExit method definition on the resolved type
+            var methodName = nameof(IAspectExitHandler<int>.OnExit);
+            var methodDef = attrInst.Methods.FirstOrDefault(md =>
+                md.Name == methodName &&
+                md.Parameters.Count == 2);
+
+            if (methodDef == null)
+            {
+                return; // Method not found
+            }
+
+            // Create a method reference on the correct generic type instance
+            MethodReference methodToCall;
+            if (attrType is GenericInstanceType gitInst)
+            {
+                // For generic types, create a MethodReference on the GenericInstanceType
+                methodToCall = new MethodReference(methodDef.Name, methodDef.ReturnType, gitInst);
+                methodToCall.HasThis = methodDef.HasThis;
+                foreach (var param in methodDef.Parameters)
+                {
+                    methodToCall.Parameters.Add(param);
+                }
+            }
+            else
+            {
+                // For non-generic types, use the method definition directly
+                methodToCall = methodDef;
+            }
+
+            // Load attribute
+            ih.Next(OpCodes.Ldloc, attrVar);
+            // Load method arguments
+            ih.Next(OpCodes.Ldloc, methArgs);
+
+            // Load default value for return type
+            if (targetMethod.ReturnType.IsValueType || targetMethod.ReturnType.IsGenericParameter)
+            {
+                // For value types, create a local, initialize to default, and load it
+                var defaultVar = ih.NewVariable(targetMethod.ReturnType);
+                ih.Next(OpCodes.Ldloca, defaultVar);
+                ih.Next(OpCodes.Initobj, targetMethod.ReturnType);
+                ih.Next(OpCodes.Ldloc, defaultVar);
+            }
+            else
+            {
+                // For reference types, load null
+                ih.Next(OpCodes.Ldnull);
+            }
+
+            // Call OnExit method
+            ih.Next(il.Create(OpCodes.Call, methodToCall));
+
+            // Pop the return value (we'll return default anyway via InsertDefaultReturn)
+            ih.Next(OpCodes.Pop);
+        }
+
         public static void InsertOnExitResultCalls(ILProcessor il, MethodDefinition targetMethod, VariableDefinition attrVar, VariableDefinition methArgs)
         {
             if (targetMethod.ReturnType.MetadataType == MetadataType.Void)

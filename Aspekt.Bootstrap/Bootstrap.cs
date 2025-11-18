@@ -227,7 +227,14 @@ namespace Aspekt.Bootstrap
 
                          // Place skipMethodLabel: Call OnExit (if exists) then return default
                          endHelper.Next(skipMethodLabel);
-                         if (hasOnExit)
+
+                         // Prioritize IAspectExitHandler<T> over void OnExit (same as normal OnExit logic)
+                         if (hasOnExitVal)
+                         {
+                             // Call IAspectExitHandler<T>.OnExit with default value
+                             IlGenerator.InsertOnExitResultCallWithDefaultValue(endHelper, il, meth, attrVar, target.MethodArguments);
+                         }
+                         else if (hasOnExit)
                          {
                              endHelper.Next(OpCodes.Ldloc, attrVar);
                              endHelper.Next(OpCodes.Ldloc, target.MethodArguments);
