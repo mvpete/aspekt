@@ -65,6 +65,10 @@ namespace Aspekt.Bootstrap
                      Instruction? skipMethodLabel = null;
                      Instruction? skipAllLabel = null;
 
+                     // Track exception handler variables for proper Leave instruction generation
+                     VariableDefinition? returnVariable = null;
+                     Instruction? returnBlockStart = null;
+
                      if (MethodTraits.HasMethod(attr.AttributeType.Resolve(), nameof(Aspect.OnEntry),
                          typeof(MethodArguments)))
                      {
@@ -95,8 +99,6 @@ namespace Aspekt.Bootstrap
                                 .Next(OpCodes.Rethrow);
 
                              var ret = il.Create(OpCodes.Ret);
-                             VariableDefinition? returnVariable = null;
-                             Instruction returnBlockStart;
 
                              if (meth.ReturnType.MetadataType != MetadataType.Void)
                              {
@@ -231,11 +233,11 @@ namespace Aspekt.Bootstrap
                              endHelper.Next(OpCodes.Ldloc, target.MethodArguments);
                              endHelper.CallVirt<Aspect>(nameof(Aspect.OnExit), typeof(MethodArguments));
                          }
-                         IlGenerator.InsertDefaultReturn(endHelper, meth.ReturnType);
+                         IlGenerator.InsertDefaultReturn(endHelper, il, meth.ReturnType, returnVariable, returnBlockStart);
 
                          // Place skipAllLabel: Just return default
                          endHelper.Next(skipAllLabel);
-                         IlGenerator.InsertDefaultReturn(endHelper, meth.ReturnType);
+                         IlGenerator.InsertDefaultReturn(endHelper, il, meth.ReturnType, returnVariable, returnBlockStart);
                      }
 
                      meth.Body.OptimizeMacros();

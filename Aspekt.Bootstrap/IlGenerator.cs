@@ -444,11 +444,31 @@ namespace Aspekt.Bootstrap
         /// <summary>
         /// Creates instructions to return the default value for a given type
         /// </summary>
-        public static void InsertDefaultReturn(InstructionHelper ih, TypeReference returnType)
+        /// <param name="ih">Instruction helper</param>
+        /// <param name="il">IL processor (required when using exception handlers)</param>
+        /// <param name="returnType">The return type of the method</param>
+        /// <param name="returnVariable">Optional return variable (used when exception handlers are present)</param>
+        /// <param name="returnBlockStart">Optional return block start instruction (used when exception handlers are present)</param>
+        public static void InsertDefaultReturn(
+            InstructionHelper ih,
+            ILProcessor il,
+            TypeReference returnType,
+            VariableDefinition? returnVariable = null,
+            Instruction? returnBlockStart = null)
         {
+            bool hasExceptionHandler = returnBlockStart != null;
+
             if (returnType.MetadataType == MetadataType.Void)
             {
-                ih.Next(OpCodes.Ret);
+                // Void methods - just return or leave
+                if (hasExceptionHandler)
+                {
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
             }
             else if (returnType.IsValueType || returnType.IsGenericParameter)
             {
@@ -457,13 +477,33 @@ namespace Aspekt.Bootstrap
                 ih.Next(OpCodes.Ldloca, defaultVar);
                 ih.Next(OpCodes.Initobj, returnType);
                 ih.Next(OpCodes.Ldloc, defaultVar);
-                ih.Next(OpCodes.Ret);
+
+                if (hasExceptionHandler && returnVariable != null)
+                {
+                    // Store in return variable and leave
+                    ih.Next(OpCodes.Stloc, returnVariable);
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
             }
             else
             {
                 // For reference types, return null
                 ih.Next(OpCodes.Ldnull);
-                ih.Next(OpCodes.Ret);
+
+                if (hasExceptionHandler && returnVariable != null)
+                {
+                    // Store in return variable and leave
+                    ih.Next(OpCodes.Stloc, returnVariable);
+                    ih.Next(il.Create(OpCodes.Leave, returnBlockStart!));
+                }
+                else
+                {
+                    ih.Next(OpCodes.Ret);
+                }
             }
         }
 
