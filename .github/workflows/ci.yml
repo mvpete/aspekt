@@ -42,7 +42,7 @@ jobs:
         DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER: 0
     
     - name: Cache NuGet packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.nuget/packages
