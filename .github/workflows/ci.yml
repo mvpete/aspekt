@@ -68,7 +68,7 @@ jobs:
         dotnet test Aspekt.Logging.Test/Aspekt.Logging.Test.csproj --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
     
     - name: Upload test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: always()
       with:
         name: test-results-${{ matrix.dotnet-version }}
@@ -89,7 +89,7 @@ jobs:
     
     - name: Upload NuGet packages
       if: matrix.dotnet-version == '8.0.x'
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: nuget-packages
         path: nupkgs/*.nupkg
